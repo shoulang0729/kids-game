@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>こうちゃんのゲームランド 🎮</title>
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;min-height:100vh;
+font-family:"Hiragino Maru Gothic Pro","Yu Gothic",sans-serif;
+color:#fff;text-align:center;
+background:linear-gradient(160deg,#1b1b3a,#3a1b5a 50%,#5a1b3a);
+overflow-x:hidden;
+}
+header{padding:40px 16px 10px}
+h1{
+font-size:clamp(28px,6vw,52px);margin:0;
+text-shadow:0 0 18px #ff4cf0,3px 3px 0 #000;
+animation:bob 2.5s ease-in-out infinite;
+}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.sub{font-size:clamp(14px,3vw,20px);opacity:.85;margin-top:10px}
+.manual-link{
+display:inline-block;margin-top:16px;
+background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.4);
+color:#fff;text-decoration:none;font-weight:bold;
+padding:8px 20px;border-radius:999px;transition:.15s;
+}
+.manual-link:hover{background:#ff4cf0;color:#111;border-color:#ff4cf0}
+#grid{
+display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+gap:22px;max-width:1000px;margin:30px auto;padding:0 18px 60px;
+}
+.card{
+background:rgba(255,255,255,.07);
+border:3px solid rgba(255,255,255,.25);
+border-radius:22px;padding:22px;
+text-decoration:none;color:#fff;
+display:flex;flex-direction:column;align-items:center;gap:10px;
+transition:transform .15s,box-shadow .15s,border-color .15s;
+}
+.card:hover{
+transform:translateY(-6px) scale(1.03);
+border-color:#ff4cf0;
+box-shadow:0 0 28px rgba(255,76,240,.5);
+}
+.card .emoji{font-size:64px;line-height:1}
+.card h2{font-size:22px;margin:6px 0 0}
+.card p{font-size:14px;opacity:.8;margin:0;min-height:40px}
+.badge{
+font-size:12px;background:#ff4cf0;color:#111;font-weight:bold;
+padding:3px 10px;border-radius:999px;
+}
+.card.soon{opacity:.5;pointer-events:none;border-style:dashed}
+footer{padding:20px;font-size:13px;opacity:.6}
+</style>
+</head>
+<body>
+<header>
+<h1>🎮 こうちゃんのゲームランド 🎮</h1>
+<div class="sub">こうちゃんが作ったゲームであそぼう！</div>
+<a class="manual-link" href="wiki/index.html">📖 せつめいしょ（あそびかた）</a>
+</header>
+
+<div id="grid"></div>
+
+<footer>つくった人：こうちゃん 🛠️</footer>
+
+<script>
+// ▼▼▼ あたらしいゲームをふやすときは、ここに1つ追加するだけ！ ▼▼▼
+const games = [
+  {
+    title: "地獄基地防衛",
+    emoji: "☠️",
+    desc: "基地をつくって、せめてくるてきからコアをまもれ！",
+    url: "games/base-defense/index.html",
+    ready: true
+  },
+  // つぎのゲームれい（できたら ready:true にして url をかく）
+  {
+    title: "つぎのゲーム",
+    emoji: "✨",
+    desc: "ただいませいさくちゅう…",
+    url: "",
+    ready: false
+  }
+];
+// ▲▲▲ ここまで ▲▲▲
+
+const grid = document.getElementById("grid");
+games.forEach(g => {
+  const card = document.createElement(g.ready ? "a" : "div");
+  card.className = "card" + (g.ready ? "" : " soon");
+  if (g.ready) card.href = g.url;
+  card.innerHTML =
+    '<div class="emoji">' + g.emoji + '</div>' +
+    '<h2>' + g.title + '</h2>' +
+    '<p>' + g.desc + '</p>' +
+    '<span class="badge">' + (g.ready ? "あそぶ ▶" : "もうすぐ") + '</span>';
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>

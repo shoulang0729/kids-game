@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📖 せつめいしょ - こうちゃんのゲームランド</title>
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;color:#222;line-height:1.8;
+font-family:"Hiragino Maru Gothic Pro","Yu Gothic",sans-serif;
+background:#f4f1ff;
+}
+header{
+background:linear-gradient(160deg,#1b1b3a,#5a1b3a);
+color:#fff;text-align:center;padding:34px 16px;
+}
+header h1{margin:0;font-size:clamp(26px,5vw,42px);text-shadow:2px 2px 0 #000}
+header .sub{opacity:.85;margin-top:8px}
+nav{
+position:sticky;top:0;z-index:10;
+background:#2a1b4a;padding:10px;text-align:center;
+box-shadow:0 2px 10px rgba(0,0,0,.3);
+}
+nav a{color:#ffd1fb;text-decoration:none;margin:0 10px;font-weight:bold;white-space:nowrap}
+nav a:hover{color:#fff;text-decoration:underline}
+main{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+section{
+background:#fff;border-radius:18px;padding:22px 24px;margin:22px 0;
+box-shadow:0 4px 14px rgba(60,20,90,.12);
+}
+h2{color:#7a1b9a;border-bottom:3px solid #ffd1fb;padding-bottom:6px;margin-top:0}
+h3{color:#3a1b6a;margin-top:22px}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:15px}
+th,td{border:1px solid #e0d6f5;padding:8px 10px;text-align:left}
+th{background:#f0e6ff}
+.emoji{font-size:20px}
+.tip{background:#fff7d6;border-left:6px solid #ffcc00;padding:12px 16px;border-radius:8px;margin:14px 0}
+.back{display:inline-block;margin:10px 0;color:#7a1b9a;font-weight:bold;text-decoration:none}
+.back:hover{text-decoration:underline}
+.btn{
+display:inline-block;background:#ff4cf0;color:#111;font-weight:bold;
+padding:10px 22px;border-radius:999px;text-decoration:none;margin-top:8px;
+}
+.btn:hover{background:#ff7cf5}
+footer{text-align:center;padding:20px;color:#888;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+<h1>📖 せつめいしょ</h1>
+<div class="sub">こうちゃんのゲームランド あそびかたガイド</div>
+</header>
+
+<nav>
+<a href="../index.html">🏠 トップ</a>
+<a href="#start">▶ はじめかた</a>
+<a href="#defense">☠️ 地獄基地防衛</a>
+<a href="#controls">🎮 そうさ</a>
+<a href="#weapons">🔫 ぶき</a>
+<a href="#enemies">👾 てき</a>
+<a href="#tips">💡 コツ</a>
+</nav>
+
+<main>
+
+<section id="start">
+<h2>▶ はじめかた</h2>
+<p>このサイトはブラウザだけであそべます。インストールはいりません。</p>
+<ol>
+<li>トップページであそびたいゲームのカードをタップ／クリック</li>
+<li>ゲームがひらいたら、まず基地のまわりにぶきや壁をおく</li>
+<li><b>▶️ スタート</b>ボタンをおすと、てきがせめてくる！</li>
+</ol>
+<a class="btn" href="../games/base-defense/index.html">☠️ 地獄基地防衛であそぶ</a>
+</section>
+
+<section id="defense">
+<h2>☠️ 地獄基地防衛</h2>
+<p>
+まんなかにある <span class="emoji">❤️</span> <b>コア</b> をてきからまもるゲームです。
+コアがこわされるとゲームオーバー。<span class="emoji">😎</span> プレイヤーをうごかして
+自分でもたたかえます。てきをたおすと <span class="emoji">💰</span> お金がもらえて、
+そのお金で新しいぶきや壁をかえます。
+</p>
+<p>
+<b>Wave（ウェーブ）</b>がすすむほどてきが強くなります。
+5の倍数のWaveで <span class="emoji">👑</span> ボス、10の倍数で <span class="emoji">👹</span> 巨大ボスが出てきます。
+Wave 20からは「☠️ 地獄Wave」でてきがどっとふえます！
+</p>
+</section>
+
+<section id="controls">
+<h2>🎮 そうさ</h2>
+<h3>キーボード（パソコン）</h3>
+<table>
+<tr><th>キー</th><th>うごき</th></tr>
+<tr><td>↑ ↓ ← →（やじるし）</td><td>プレイヤーがうごく</td></tr>
+<tr><td>スペースキー</td><td>いちばん近いてきをうつ</td></tr>
+<tr><td>タイルをクリック</td><td>えらんだぶき・壁をおく</td></tr>
+</table>
+<h3>スマホ・タブレット</h3>
+<table>
+<tr><th>ボタン</th><th>うごき</th></tr>
+<tr><td>↑ ↓ ← → ボタン</td><td>プレイヤーがうごく</td></tr>
+<tr><td>「撃つ」ボタン</td><td>てきをうつ</td></tr>
+<tr><td>マスをタップ</td><td>ぶき・壁をおく</td></tr>
+</table>
+<div class="tip">💡 青く光っているマスにだけぶきをおけます。おけるはんいは「⬜ 基地拡張」でひろげられます。</div>
+</section>
+
+<section id="weapons">
+<h2>🔫 ぶき・たてもの</h2>
+<p>ボタンでえらんでから、青いマスをタップしておきます。電力（⚡）が足りないとおけません。</p>
+<table>
+<tr><th>なまえ</th><th>ねだん</th><th>電力</th><th>とくちょう</th></tr>
+<tr><td>🔫 銃</td><td>50</td><td>1</td><td>近いてきを早うちする基本のぶき</td></tr>
+<tr><td>⚡ レーザー</td><td>120</td><td>3</td><td>とおく（320）までつよい一発</td></tr>
+<tr><td>💥 爆発砲</td><td>150</td><td>4</td><td>あたると まわりのてきもまとめてダメージ</td></tr>
+<tr><td>🕳️ ブラックホール</td><td>250</td><td>5</td><td>てきを すいこんで じわじわダメージ</td></tr>
+<tr><td>🪵 壁</td><td>25</td><td>-</td><td>てきの足どめ。HP120でじょうぶ</td></tr>
+<tr><td>🔺 トゲ</td><td>40</td><td>-</td><td>のったてきにダメージ</td></tr>
+<tr><td>💣 地雷</td><td>60</td><td>-</td><td>てきがのると大ばくはつ（1回きり）</td></tr>
+</table>
+<h3>つよくする・なかま</h3>
+<table>
+<tr><th>なまえ</th><th>ねだん</th><th>こうか</th></tr>
+<tr><td>⬜ 基地拡張</td><td>100</td><td>おけるはんい＋1、コアの最大HP＋5</td></tr>
+<tr><td>⚡ 発電強化</td><td>120</td><td>つかえる電力＋3</td></tr>
+<tr><td>🤖 ロボ</td><td>180</td><td>自分でうごいて てきをうつ なかま</td></tr>
+<tr><td>💣 自爆ロボ</td><td>220</td><td>てきにとっこうして大ばくはつ</td></tr>
+<tr><td>🔧 修理</td><td>80</td><td>コアとプレイヤーのHPをかいふく</td></tr>
+</table>
+</section>
+
+<section id="enemies">
+<h2>👾 てきのしゅるい</h2>
+<table>
+<tr><th>てき</th><th>とくちょう</th></tr>
+<tr><td>👾 ふつう</td><td>まっすぐコアをめざす</td></tr>
+<tr><td>🟠 はやい (fast)</td><td>HPは少ないけど とてもはやい</td></tr>
+<tr><td>🟣 タンク (tank)</td><td>HPが4ばい。おそいけどタフ</td></tr>
+<tr><td>⬛ ばくだん (bomber)</td><td>壁にぶつかると ばくはつしてこわす</td></tr>
+<tr><td>🟦 そら (fly)</td><td>だんだんスピードアップ</td></tr>
+<tr><td>🟪 レーザー (laserEnemy)</td><td>ぶきをねらってくる</td></tr>
+<tr><td>🟢 ぶんれつ (splitter)</td><td>たおすと2ひきにわかれる！ふやしすぎ注意</td></tr>
+<tr><td>🟫 こわし屋 (breaker)</td><td>壁をはやくこわす</td></tr>
+<tr><td>👑 ボス</td><td>HPがすごく多い（5の倍数Wave）</td></tr>
+<tr><td>👹 巨大ボス</td><td>レーザーをうち、なかまのボスを召喚（10の倍数Wave）</td></tr>
+</table>
+<div class="tip">⚠️ 🟢ぶんれつは ふえすぎると画面いっぱいに！ HUDの「🟢分裂」の数を見ながら、はやめにたおそう。</div>
+</section>
+
+<section id="tips">
+<h2>💡 かちかたのコツ</h2>
+<ul>
+<li>さいしょは <b>壁</b> でかこって、すきまに <b>🔫 銃</b> をならべる</li>
+<li>お金がたまったら <b>⚡ 発電強化</b> → つよいぶきをおけるようになる</li>
+<li><b>💥 爆発砲</b> はてきがかたまるところに置くと大かつやく</li>
+<li>ボスWaveのまえに <b>🔧 修理</b> でコアをまんたんに</li>
+<li>あぶなくなったら <span class="emoji">😎</span> プレイヤーで てきをうって時間をかせぐ</li>
+<li>Wave 6からは <span class="emoji">🌙</span> 夜モードで画面がくらくなる。あわてずに！</li>
+</ul>
+<a class="btn" href="../games/base-defense/index.html">▶ ゲームにもどってあそぶ</a>
+</section>
+
+<a class="back" href="../index.html">← トップにもどる</a>
+</main>
+
+<footer>こうちゃんのゲームランド 📖 せつめいしょ</footer>
+</body>
+</html>
