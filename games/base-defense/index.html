@@ -7,8 +7,25 @@
 <style>
 body{margin:0;background:#111;color:white;font-family:sans-serif;text-align:center;overflow:auto;user-select:none}
 h1{margin:6px}
-#hud{font-size:18px;margin:6px;line-height:1.6}
-button{font-size:16px;padding:8px 12px;margin:3px;border-radius:12px}
+/* HUD：ステータスをカテゴリごとのチップに分割 */
+#hud{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:8px auto;max-width:920px;padding:0 8px}
+.chip{background:#1c1c2e;border:2px solid #333;border-radius:12px;padding:5px 10px;min-width:80px}
+.chip .l{font-size:11px;opacity:.65;letter-spacing:1px}
+.chip .v{font-size:17px;font-weight:bold;white-space:nowrap}
+.chip .bar{height:6px;background:#333;border-radius:3px;margin-top:4px;overflow:hidden}
+.chip .bar i{display:block;height:100%;border-radius:3px;transition:width .2s}
+button{font-size:16px;padding:8px 12px;margin:3px;border-radius:12px;touch-action:manipulation}
+/* ショップ：カテゴリ別メニュー */
+#shop{max-width:940px;margin:10px auto;padding:0 8px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.shop-group{background:rgba(255,255,255,.05);border:2px solid #333;border-radius:14px;padding:8px 10px;flex:1 1 270px;min-width:250px}
+.shop-group h3{margin:0 0 6px;font-size:13px;opacity:.85;text-align:left;border-bottom:1px solid #444;padding-bottom:4px}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px}
+.shop-grid button{margin:0;width:100%;min-height:48px;font-size:14px;background:#26263a;color:#fff;border:2px solid #444;line-height:1.15}
+.shop-grid button b{display:block;font-size:14px}
+.shop-grid button .price{display:block;font-size:11px;opacity:.8;margin-top:2px}
+.tool-btn.active{border-color:#ffcc00;background:#3a3a1a;box-shadow:0 0 10px #ffcc00}
+.shop-grid button.cant{opacity:.4}
+.start-btn{background:#2a7d2a !important;border-color:#5fd35f !important;font-weight:bold}
 #game{width:900px;height:600px;max-width:96vw;margin:auto;position:relative;overflow:hidden;border:5px solid white;background:#224422}
 .tile{position:absolute;width:45px;height:45px;box-sizing:border-box;border:1px solid rgba(255,255,255,.12)}
 .buildable{background:rgba(0,255,255,.15)}
@@ -53,35 +70,67 @@ button{font-size:16px;padding:8px 12px;margin:3px;border-radius:12px}
 .explosion{position:absolute;font-size:36px;z-index:50;animation:boom .45s forwards;pointer-events:none}
 @keyframes boom{0%{transform:scale(.5);opacity:1}100%{transform:scale(1.8);opacity:0}}
 #message{position:absolute;top:245px;width:100%;font-size:34px;color:yellow;text-shadow:3px 3px black;z-index:60}
-#controls{margin-top:8px}
-.ctrl{width:75px;height:55px;font-size:22px}
+#controls{margin:12px auto 30px;display:flex;justify-content:center}
+.pad{display:inline-flex;flex-direction:column;align-items:center;gap:6px}
+.pad-mid{display:flex;gap:6px;align-items:center}
+.ctrl{width:64px;height:58px;font-size:24px;background:#26263a;color:#fff;border:2px solid #555}
+.ctrl.shoot{background:#aa2233;border-color:#ff6677;font-size:15px;font-weight:bold}
 </style>
 </head>
 <body>
 <h1>☠️ こうちゃん地獄基地防衛 全部版 ☠️</h1>
 <div id="hud"></div>
-<div>
-<button onclick="mode='turret';updateHud()">🔫 銃 50</button>
-<button onclick="mode='laser';updateHud()">⚡ レーザー 120</button>
-<button onclick="mode='cannon';updateHud()">💥 爆発砲 150</button>
-<button onclick="mode='blackhole';updateHud()">🕳️ ブラックホール 250</button>
-<button onclick="mode='wall';updateHud()">🪵 壁 25</button>
-<button onclick="mode='spike';updateHud()">🔺 トゲ 40</button>
-<button onclick="mode='mine';updateHud()">💣 地雷 60</button>
-<button onclick="expandBase()">⬜ 基地拡張 100</button>
-<button onclick="buyPower()">⚡ 発電強化 120</button>
-<button onclick="buyRobot()">🤖 ロボ 180</button>
-<button onclick="buyBomberRobot()">💣 自爆ロボ 220</button>
-<button onclick="repair()">🔧 修理 80</button>
-<button onclick="start()">▶️ スタート</button>
+<div id="shop">
+<div class="shop-group">
+<h3>🔫 ぶき（タワー）</h3>
+<div class="shop-grid">
+<button class="tool-btn" data-mode="turret" data-cost="50" data-power="1" onclick="selectTool('turret')"><b>🔫 銃</b><span class="price">💰50 ⚡1</span></button>
+<button class="tool-btn" data-mode="laser" data-cost="120" data-power="3" onclick="selectTool('laser')"><b>⚡ レーザー</b><span class="price">💰120 ⚡3</span></button>
+<button class="tool-btn" data-mode="cannon" data-cost="150" data-power="4" onclick="selectTool('cannon')"><b>💥 爆発砲</b><span class="price">💰150 ⚡4</span></button>
+<button class="tool-btn" data-mode="blackhole" data-cost="250" data-power="5" onclick="selectTool('blackhole')"><b>🕳️ ブラックホール</b><span class="price">💰250 ⚡5</span></button>
+</div>
+</div>
+<div class="shop-group">
+<h3>🧱 ぼうぎょ（かべ・トラップ）</h3>
+<div class="shop-grid">
+<button class="tool-btn" data-mode="wall" data-cost="25" data-power="0" onclick="selectTool('wall')"><b>🪵 壁</b><span class="price">💰25</span></button>
+<button class="tool-btn" data-mode="spike" data-cost="40" data-power="0" onclick="selectTool('spike')"><b>🔺 トゲ</b><span class="price">💰40</span></button>
+<button class="tool-btn" data-mode="mine" data-cost="60" data-power="0" onclick="selectTool('mine')"><b>💣 地雷</b><span class="price">💰60</span></button>
+</div>
+</div>
+<div class="shop-group">
+<h3>🤖 なかま（ロボット）</h3>
+<div class="shop-grid">
+<button class="act-btn" data-cost="180" onclick="buyRobot()"><b>🤖 ロボ</b><span class="price">💰180</span></button>
+<button class="act-btn" data-cost="220" onclick="buyBomberRobot()"><b>💣 自爆ロボ</b><span class="price">💰220</span></button>
+</div>
+</div>
+<div class="shop-group">
+<h3>🏰 きょうか（基地・修理）</h3>
+<div class="shop-grid">
+<button class="act-btn" data-cost="100" onclick="expandBase()"><b>⬜ 基地拡張</b><span class="price">💰100</span></button>
+<button class="act-btn" data-cost="120" onclick="buyPower()"><b>⚡ 発電強化</b><span class="price">💰120</span></button>
+<button class="act-btn" data-cost="80" onclick="repair()"><b>🔧 修理</b><span class="price">💰80</span></button>
+</div>
+</div>
+<div class="shop-group">
+<h3>🎮 ゲーム</h3>
+<div class="shop-grid">
+<button class="start-btn" onclick="start()"><b>▶️ スタート</b></button>
+</div>
+</div>
 </div>
 <div id="game"><div id="message">基地を作れ！</div></div>
 <div id="controls">
-<button class="ctrl" id="up">↑</button><br>
+<div class="pad">
+<button class="ctrl" id="up">↑</button>
+<div class="pad-mid">
 <button class="ctrl" id="left">←</button>
-<button class="ctrl" id="shoot">撃つ</button>
-<button class="ctrl" id="right">→</button><br>
+<button class="ctrl shoot" id="shoot">うつ<br>💥</button>
+<button class="ctrl" id="right">→</button>
+</div>
 <button class="ctrl" id="down">↓</button>
+</div>
 </div>
 
 <script>
@@ -126,15 +175,44 @@ let playerEl=document.createElement("div");
 playerEl.className="player";
 game.appendChild(playerEl);
 
+function chip(l,v){return '<div class="chip"><div class="l">'+l+'</div><div class="v">'+v+'</div></div>'}
+function chipBar(l,icon,cur,max,color){
+let pct=Math.max(0,Math.min(100,(cur/max)*100));
+return '<div class="chip"><div class="l">'+l+'</div><div class="v">'+icon+' '+cur+'/'+max+'</div>'+
+'<div class="bar"><i style="width:'+pct+'%;background:'+color+'"></i></div></div>';
+}
+
 function updateHud(){
 let usedPower=towers.reduce((a,t)=>a+t.power,0);
-hud.innerHTML="💰お金:"+money+" ❤️コア:"+hp+"/"+maxHp+" 😎HP:"+playerHp+"/"+playerMaxHp+
-" ⚡電力:"+usedPower+"/"+power+" 🌊Wave:"+wave+" 👾残:"+enemiesLeft+" 🟢分裂:"+splitCount+"/"+splitLimit+" ⬜範囲:"+buildRange;
+hud.innerHTML=
+chip("しげん","💰 "+money)+
+chipBar("コア","❤️",hp,maxHp,"#ff4455")+
+chipBar("プレイヤー","😎",playerHp,playerMaxHp,"#3ad65f")+
+chip("でんりょく","⚡ "+usedPower+"/"+power)+
+chip("ウェーブ","🌊 "+wave)+
+chip("てきのこり","👾 "+enemiesLeft)+
+chip("ぶんれつ","🟢 "+splitCount+"/"+splitLimit)+
+chip("はんい","⬜ "+buildRange);
+refreshShop();
 tiles.forEach(t=>{
 if(t.type==="empty"&&canBuild(t.x,t.y))t.el.className="tile buildable";
 else if(t.type==="empty")t.el.className="tile";
 });
 }
+
+// 選択中の道具をハイライト＋買えないボタンを暗く表示
+function refreshShop(){
+let usedPower=towers.reduce((a,t)=>a+t.power,0);
+document.querySelectorAll(".tool-btn").forEach(b=>{
+b.classList.toggle("active",b.dataset.mode===mode);
+b.classList.toggle("cant",money<Number(b.dataset.cost)||usedPower+Number(b.dataset.power)>power);
+});
+document.querySelectorAll(".act-btn").forEach(b=>{
+b.classList.toggle("cant",money<Number(b.dataset.cost));
+});
+}
+
+function selectTool(m){mode=m;updateHud()}
 
 function canBuild(x,y){return Math.abs(x-9.5)<=buildRange && Math.abs(y-6.5)<=buildRange}
 function show(text){message.textContent=text;setTimeout(()=>{if(message.textContent===text)message.textContent=""},1200)}
