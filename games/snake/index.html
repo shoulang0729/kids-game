@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐍 としおのへびゲーム</title>
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;min-height:100vh;color:#fff;text-align:center;
+font-family:"Hiragino Maru Gothic Pro","Yu Gothic",sans-serif;
+background:linear-gradient(160deg,#0d3b2e,#16613f 60%,#0d3b2e);
+user-select:none;-webkit-user-select:none;touch-action:none;
+}
+h1{margin:14px 6px 4px;font-size:clamp(24px,5vw,38px);text-shadow:2px 2px 0 #000}
+#score{font-size:22px;margin:4px;font-weight:bold}
+#best{font-size:15px;opacity:.85;margin-bottom:6px}
+#wrap{position:relative;display:inline-block;margin:6px auto}
+canvas{
+background:#0a2a20;border:5px solid #fff;border-radius:14px;
+max-width:94vw;height:auto;touch-action:none;
+}
+#overlay{
+position:absolute;inset:0;display:flex;flex-direction:column;
+align-items:center;justify-content:center;gap:14px;
+background:rgba(0,0,0,.55);border-radius:14px;
+}
+#overlay.hidden{display:none}
+#overlay h2{margin:0;font-size:30px;text-shadow:2px 2px 0 #000}
+.btn{
+font-size:20px;font-weight:bold;padding:12px 28px;border:none;
+border-radius:999px;background:#ffd83d;color:#143;cursor:pointer;
+box-shadow:0 4px 0 #b89200;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #b89200}
+#pad{margin:14px auto 8px;display:inline-grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(3,64px);gap:8px}
+.dbtn{
+font-size:26px;border:none;border-radius:14px;
+background:rgba(255,255,255,.15);color:#fff;cursor:pointer;
+}
+.dbtn:active{background:#ffd83d;color:#143}
+#up{grid-column:2;grid-row:1}#left{grid-column:1;grid-row:2}
+#right{grid-column:3;grid-row:2}#down{grid-column:2;grid-row:3}
+.hint{font-size:13px;opacity:.7;margin:4px}
+a.back{display:inline-block;margin:10px;color:#ffd83d;font-weight:bold;text-decoration:none}
+a.back:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<h1>🐍 としおのへびゲーム</h1>
+<div id="score">てんすう：0</div>
+<div id="best">さいこう記録：0</div>
+
+<div id="wrap">
+<canvas id="cv" width="400" height="400"></canvas>
+<div id="overlay">
+<h2 id="ovTitle">🐍 へびゲーム</h2>
+<button class="btn" id="startBtn">▶ はじめる</button>
+<div class="hint">やじるしキー / スワイプ / 下のボタン で うごく</div>
+</div>
+</div>
+
+<div id="pad">
+<button class="dbtn" id="up">⬆️</button>
+<button class="dbtn" id="left">⬅️</button>
+<button class="dbtn" id="right">➡️</button>
+<button class="dbtn" id="down">⬇️</button>
+</div>
+
+<div><a class="back" href="../../index.html">← トップにもどる</a></div>
+
+<script>
+const cv = document.getElementById("cv");
+const ctx = cv.getContext("2d");
+const scoreEl = document.getElementById("score");
+const bestEl = document.getElementById("best");
+const overlay = document.getElementById("overlay");
+const ovTitle = document.getElementById("ovTitle");
+const startBtn = document.getElementById("startBtn");
+
+const CELL = 20, COLS = 20, ROWS = 20;   // 400 / 20
+let snake, dir, nextDir, food, score, speed, timer, alive = false;
+let best = Number(localStorage.getItem("snakeBest") || 0);
+bestEl.textContent = "さいこう記録：" + best;
+
+function reset(){
+  snake = [{x:9,y:10},{x:8,y:10},{x:7,y:10}];
+  dir = {x:1,y:0};
+  nextDir = {x:1,y:0};
+  score = 0;
+  speed = 160;
+  placeFood();
+  scoreEl.textContent = "てんすう：0";
+}
+
+function placeFood(){
+  while(true){
+    food = {x: Math.floor(Math.random()*COLS), y: Math.floor(Math.random()*ROWS)};
+    if(!snake.some(s => s.x===food.x && s.y===food.y)) break;
+  }
+}
+
+function start(){
+  reset();
+  alive = true;
+  overlay.classList.add("hidden");
+  clearInterval(timer);
+  timer = setInterval(tick, speed);
+}
+
+function gameOver(){
+  alive = false;
+  clearInterval(timer);
+  if(score > best){
+    best = score;
+    localStorage.setItem("snakeBest", best);
+    bestEl.textContent = "さいこう記録：" + best;
+  }
+  ovTitle.textContent = "💥 おわり！ てんすう " + score;
+  startBtn.textContent = "▶ もういちど";
+  overlay.classList.remove("hidden");
+}
+
+function setDir(x,y){
+  // 反対むきには曲がれない
+  if(dir.x === -x && dir.y === -y) return;
+  nextDir = {x,y};
+}
+
+function tick(){
+  dir = nextDir;
+  const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
+
+  // 壁にぶつかった
+  if(head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS){ gameOver(); return; }
+  // 自分にぶつかった
+  if(snake.some(s => s.x===head.x && s.y===head.y)){ gameOver(); return; }
+
+  snake.unshift(head);
+
+  if(head.x === food.x && head.y === food.y){
+    score += 10;
+    scoreEl.textContent = "てんすう：" + score;
+    placeFood();
+    // だんだん はやくなる
+    if(speed > 70){
+      speed -= 4;
+      clearInterval(timer);
+      timer = setInterval(tick, speed);
+    }
+  } else {
+    snake.pop();
+  }
+  draw();
+}
+
+function draw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+
+  // りんご
+  ctx.font = "18px serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("🍎", food.x*CELL + CELL/2, food.y*CELL + CELL/2 + 1);
+
+  // へび
+  snake.forEach((s,i) => {
+    if(i === 0){
+      ctx.fillText("😊", s.x*CELL + CELL/2, s.y*CELL + CELL/2 + 1);
+    } else {
+      const t = i / snake.length;
+      ctx.fillStyle = `hsl(140, 70%, ${55 - t*20}%)`;
+      ctx.fillRect(s.x*CELL+2, s.y*CELL+2, CELL-4, CELL-4);
+    }
+  });
+}
+
+// ---- そうさ ----
+document.addEventListener("keydown", e => {
+  const k = e.key;
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(k)) e.preventDefault();
+  if(k === "ArrowUp") setDir(0,-1);
+  if(k === "ArrowDown") setDir(0,1);
+  if(k === "ArrowLeft") setDir(-1,0);
+  if(k === "ArrowRight") setDir(1,0);
+  if(k === " " && !alive) start();
+});
+
+document.getElementById("up").onclick = () => setDir(0,-1);
+document.getElementById("down").onclick = () => setDir(0,1);
+document.getElementById("left").onclick = () => setDir(-1,0);
+document.getElementById("right").onclick = () => setDir(1,0);
+
+// スワイプ
+let sx=0, sy=0;
+cv.addEventListener("touchstart", e => {
+  const t = e.touches[0]; sx = t.clientX; sy = t.clientY;
+}, {passive:true});
+cv.addEventListener("touchmove", e => {
+  if(!sx && !sy) return;
+  const t = e.touches[0];
+  const dx = t.clientX - sx, dy = t.clientY - sy;
+  if(Math.abs(dx) + Math.abs(dy) < 24) return;
+  if(Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0);
+  else setDir(0, dy > 0 ? 1 : -1);
+  sx = 0; sy = 0;
+}, {passive:true});
+
+startBtn.onclick = start;
+
+// さいしょの絵
+reset();
+draw();
+</script>
+</body>
+</html>
