@@ -141,7 +141,21 @@ function applyLevel(n){
   const lv = levels[currentLevel];
   GRID = lv.grid; movesPerSec = lv.speed; moveInterval = 1000 / movesPerSec;
   levelEl.textContent = currentLevel+1; gridEl.textContent = GRID;
+  fitSnakeToGrid();
   generateObstacles(lv.obstacles);
+}
+
+// グリッドが縮んだときにヘビが盤外に出て理不尽に即ゲームオーバーに
+// ならないよう、はみ出す場合は中央に作り直す。
+function fitSnakeToGrid(){
+  if(!snake || snake.length === 0) return;
+  const tooBig = snake.some(s => s.x < 0 || s.y < 0 || s.x >= GRID || s.y >= GRID);
+  if(tooBig){
+    const c = Math.floor(GRID/2);
+    snake = [ {x:c,y:c}, {x:c-1,y:c}, {x:c-2,y:c} ];
+    dir = {x:1,y:0};
+    nextDir = {x:1,y:0};
+  }
 }
 
 function allCells(){
@@ -158,7 +172,16 @@ function shuffle(arr){
 
 function generateObstacles(count){
   obstacles = [];
-  const empties = allCells().filter(c => !isOnSnake(c) && !isFood(c));
+  // ヘビの頭の数マス前には障害物を置かない（避けられない死を防ぐ）
+  const head = snake && snake[0];
+  const safe = [];
+  if(head){
+    for(let i=1;i<=3;i++) safe.push({x:head.x+dir.x*i, y:head.y+dir.y*i});
+  }
+  const empties = allCells().filter(c =>
+    !isOnSnake(c) && !isFood(c) &&
+    !safe.some(s => s.x===c.x && s.y===c.y)
+  );
   shuffle(empties);
   obstacles = empties.slice(0, count);
 }

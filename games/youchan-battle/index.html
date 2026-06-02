@@ -526,6 +526,8 @@ let nextExp = 100;
 
 let defending = false;
 
+let battleEnded = false;
+
 let currentWeapon = {
 
   name:"🗡️ 木の剣",
@@ -785,6 +787,8 @@ function startDefenseWave(){
 
 function startBattle(){
 
+  battleEnded = false;
+
   hideAll();
 
   document.getElementById("battleScreen")
@@ -812,6 +816,12 @@ function baseArea(show){
 
 function defend(){
 
+  if(battleEnded){
+
+    return;
+
+  }
+
   defending = true;
 
   log(
@@ -820,9 +830,19 @@ function defend(){
 
   enemyTurn();
 
+  reduceCooldowns();
+
+  updateButtons();
+
 }
 
 function useSkill(skillName){
+
+  if(battleEnded){
+
+    return;
+
+  }
 
   if(cooldowns[skillName] > 0){
 
@@ -1001,6 +1021,8 @@ function bossTransform(){
       "真・宇宙魔王"
     );
 
+    battleEnded = false;
+
     return;
 
   }
@@ -1015,6 +1037,8 @@ function bossTransform(){
       "🔥👑🔥",
       "GOD宇宙魔王"
     );
+
+    battleEnded = false;
 
     return;
 
@@ -1038,6 +1062,8 @@ function bossTransform(){
 }
 
 function winBattle(){
+
+  battleEnded = true;
 
   addExp(50);
 
@@ -1079,6 +1105,8 @@ function winBattle(){
     );
 
     playerHp = playerMaxHp;
+
+    battleEnded = false;
 
   }
 
@@ -1122,6 +1150,8 @@ function winBattle(){
 
 function loseBattle(){
 
+  battleEnded = true;
+
   log("💀 負けた！");
 
   setTimeout(
@@ -1131,30 +1161,47 @@ function loseBattle(){
 
 }
 
+const upgradeCosts = {
+
+  hp:100,
+  attack:100,
+  base:150,
+  robot:300,
+  cannon:500
+
+};
+
 function buyUpgrade(type){
 
-  if(type === "hp" &&
-     coins >= 100){
+  const cost = upgradeCosts[type];
 
-    coins -= 100;
+  if(coins < cost){
+
+    log("💰 コインが足りない！");
+
+    return;
+
+  }
+
+  coins -= cost;
+
+  if(type === "hp"){
 
     playerMaxHp += 20;
 
+    log("❤️ さいだいHPアップ！");
+
   }
 
-  if(type === "attack" &&
-     coins >= 100){
-
-    coins -= 100;
+  if(type === "attack"){
 
     attackBoost += 10;
 
+    log("⚔️ こうげき力アップ！");
+
   }
 
-  if(type === "base" &&
-     coins >= 150){
-
-    coins -= 150;
+  if(type === "base"){
 
     baseHp += 200;
 
@@ -1164,23 +1211,23 @@ function buyUpgrade(type){
 
     }
 
+    log("🏯 基地を回復した！");
+
   }
 
-  if(type === "robot" &&
-     coins >= 300){
-
-    coins -= 300;
+  if(type === "robot"){
 
     robots++;
 
+    log("🤖 ロボ兵がなかまになった！");
+
   }
 
-  if(type === "cannon" &&
-     coins >= 500){
-
-    coins -= 500;
+  if(type === "cannon"){
 
     cannons++;
+
+    log("🔫 砲台をせっちした！");
 
   }
 
@@ -1188,57 +1235,39 @@ function buyUpgrade(type){
 
   updateRobot();
 
+  updateBars();
+
 }
+
+const weapons = {
+
+  fire:{ cost:300, name:"🔥 炎ソード", bonus:15 },
+  thunder:{ cost:700, name:"⚡ 雷神剣", bonus:30 },
+  cosmo:{ cost:1500, name:"🌌 宇宙剣", bonus:50 },
+  god:{ cost:5000, name:"👑 GOD剣", bonus:100 }
+
+};
 
 function buyWeapon(type){
 
-  if(type === "fire" &&
-     coins >= 300){
+  const w = weapons[type];
 
-    coins -= 300;
+  if(coins < w.cost){
 
-    currentWeapon = {
-      name:"🔥 炎ソード",
-      bonus:15
-    };
+    log("💰 コインが足りない！");
+
+    return;
 
   }
 
-  if(type === "thunder" &&
-     coins >= 700){
+  coins -= w.cost;
 
-    coins -= 700;
+  currentWeapon = {
+    name:w.name,
+    bonus:w.bonus
+  };
 
-    currentWeapon = {
-      name:"⚡ 雷神剣",
-      bonus:30
-    };
-
-  }
-
-  if(type === "cosmo" &&
-     coins >= 1500){
-
-    coins -= 1500;
-
-    currentWeapon = {
-      name:"🌌 宇宙剣",
-      bonus:50
-    };
-
-  }
-
-  if(type === "god" &&
-     coins >= 5000){
-
-    coins -= 5000;
-
-    currentWeapon = {
-      name:"👑 GOD剣",
-      bonus:100
-    };
-
-  }
+  log(w.name + " を手に入れた！");
 
   updateWeapon();
 
