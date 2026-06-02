@@ -11,9 +11,11 @@
   --accent-cyan:#7CE7FF; --accent-purple:#9B8CFF; --muted:#DCEFFF;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0}
+html{height:100%}
 body{
+  min-height:100%;margin:0;
   display:flex;align-items:center;justify-content:center;
+  padding:24px 12px;
   background: linear-gradient(180deg,var(--bg1) 0%, var(--bg2) 100%);
   color:var(--muted);font-family:Inter, system-ui, -apple-system, "Hiragino Maru Gothic Pro","Yu Gothic",sans-serif;
   -webkit-font-smoothing:antialiased;user-select:none;touch-action:none;
@@ -42,18 +44,12 @@ canvas{width:100%;height:100%;display:block;border-radius:12px;background:transp
 .btn{font-size:16px;font-weight:700;padding:10px 22px;border:none;border-radius:999px;background:linear-gradient(90deg,var(--accent-cyan),var(--accent-purple));color:#051426;cursor:pointer;box-shadow:0 6px 18px rgba(124,181,255,0.12);}
 .btn:active{transform:translateY(2px)}
 .hint{font-size:13px;opacity:.85}
-.controls{display:flex;gap:12px;align-items:center}
-.pad{display:inline-grid;grid-template-columns:repeat(3,56px);grid-template-rows:repeat(3,56px);gap:8px}
-.dbtn{font-size:22px;border:none;border-radius:10px;background:rgba(255,255,255,0.03);color:var(--muted);cursor:pointer}
-.dbtn:active{background:linear-gradient(90deg,var(--accent-cyan),var(--accent-purple));color:#051426}
+.controls{display:flex;gap:12px;align-items:center;justify-content:center}
 .back{color:var(--accent-cyan);text-decoration:none;font-weight:700}
 .legend{display:flex;gap:12px;align-items:center;font-size:13px}
 .note{font-size:12px;opacity:.85}
 /* Neon glow for snake head */
 .glow{filter:drop-shadow(0 0 8px rgba(124,181,255,0.55))}
-@media (max-width:420px){
-  .pad{grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,48px)}
-}
 </style>
 </head>
 <body>
@@ -73,20 +69,12 @@ canvas{width:100%;height:100%;display:block;border-radius:12px;background:transp
       <div id="overlay" class="overlay">
         <h2 id="ovTitle">🐍 へびゲーム</h2>
         <button class="btn" id="startBtn">▶ はじめる</button>
-        <div class="hint">やじるしキー / スワイプ / 下のボタン で うごく</div>
+        <div class="hint">やじるしキー / スワイプ で うごく</div>
       </div>
     </div>
   </div>
 
   <div class="controls">
-    <div class="pad" id="pad">
-      <button class="dbtn" id="u">⬆️</button>
-      <div></div>
-      <div></div>
-      <button class="dbtn" id="l">⬅️</button>
-      <button class="dbtn" id="d">⬇️</button>
-      <button class="dbtn" id="r">➡️</button>
-    </div>
     <div class="legend">
       <div class="note">レベル: <span id="level">1</span></div>
       <div class="note">グリッド: <span id="gridSize">20</span></div>
@@ -316,10 +304,6 @@ document.addEventListener('keydown', e=>{
   if(k==='ArrowRight') setDir(1,0);
   if(k===' ' && !alive) start();
 });
-
-['u','l','d','r'].forEach(id=>{ document.getElementById(id).onclick = ()=>{
-  if(id==='u') setDir(0,-1); if(id==='d') setDir(0,1); if(id==='l') setDir(-1,0); if(id==='r') setDir(1,0);
-}});
 
 // touch swipe
 let sx=0, sy=0;
