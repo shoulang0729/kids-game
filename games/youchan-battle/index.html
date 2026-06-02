@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ようちゃんバトル ULTIMATE GOD</title>
+
+<style>
+
+body{
+  margin:0;
+  font-family:sans-serif;
+  background:#05051a;
+  color:white;
+  text-align:center;
+}
+
+.screen{
+  display:none;
+  min-height:100vh;
+  padding:20px;
+}
+
+#loginScreen{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.box{
+  background:#151540;
+  padding:25px;
+  border-radius:20px;
+  box-shadow:0 0 20px cyan;
+  max-width:430px;
+  margin:auto;
+}
+
+input{
+  font-size:20px;
+  padding:12px;
+  margin:10px;
+  border-radius:10px;
+  border:none;
+  width:85%;
+}
+
+button{
+  font-size:18px;
+  padding:13px 18px;
+  margin:7px;
+  border:none;
+  border-radius:15px;
+  background:#00aaff;
+  color:white;
+}
+
+button:disabled{
+  background:#555;
+  color:#aaa;
+}
+
+.modeBtn{
+  font-size:28px;
+  width:85%;
+  max-width:430px;
+  padding:30px;
+}
+
+.bar{
+  width:85%;
+  height:28px;
+  background:#444;
+  border-radius:20px;
+  margin:10px auto;
+  overflow:hidden;
+}
+
+.fill{
+  height:100%;
+  width:100%;
+}
+
+#playerBar{
+  background:lime;
+}
+
+#enemyBar{
+  background:red;
+}
+
+#baseBar{
+  background:cyan;
+}
+
+#enemy{
+  font-size:120px;
+  margin:20px;
+}
+
+#log{
+  font-size:22px;
+  min-height:60px;
+  margin:20px;
+}
+
+.wave{
+  font-size:34px;
+  color:yellow;
+}
+
+.shopBtn{
+  background:#ff8800;
+}
+
+.weaponBox{
+  background:#222266;
+  padding:15px;
+  border-radius:15px;
+  max-width:420px;
+  margin:auto;
+}
+
+.mapNode{
+  background:#222266;
+  margin:10px auto;
+  padding:18px;
+  border-radius:20px;
+  font-size:22px;
+  max-width:400px;
+}
+
+.line{
+  font-size:28px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ログイン -->
+
+<div id="loginScreen" class="screen">
+
+  <div class="box">
+
+    <h1>🔐 ようちゃんバトル</h1>
+
+    <input id="username"
+      placeholder="ユーザー名">
+
+    <input id="password"
+      type="password"
+      placeholder="パスワード">
+
+    <br>
+
+    <button id="loginBtn"
+      onclick="login()">
+
+      ログイン
+
+    </button>
+
+    <p id="error"></p>
+
+    <p id="lockInfo"></p>
+
+  </div>
+
+</div>
+
+<!-- モード -->
+
+<div id="selectScreen" class="screen">
+
+  <h1>🎮 モード選択</h1>
+
+  <button class="modeBtn"
+    onclick="showStoryMap()">
+
+    📖 ストーリー
+
+  </button>
+
+  <button class="modeBtn"
+    onclick="startInfinite()">
+
+    ♾️ 無限モード
+
+  </button>
+
+  <button class="modeBtn"
+    onclick="startDefense()">
+
+    🏰 防衛モード
+
+  </button>
+
+</div>
+
+<!-- マップ -->
+
+<div id="mapScreen" class="screen">
+
+  <h1>🗺️ 冒険マップ</h1>
+
+  <div class="mapNode"
+    onclick="enterNode(1)">
+
+    🌲 森の入口
+
+  </div>
+
+  <div class="line">↓</div>
+
+  <div class="mapNode"
+    onclick="enterNode(2)">
+
+    🎁 宝箱
+
+  </div>
+
+  <div class="line">↓</div>
+
+  <div class="mapNode"
+    onclick="enterNode(3)">
+
+    🕳️ 闇の洞窟
+
+  </div>
+
+  <div class="line">↓</div>
+
+  <div class="mapNode"
+    onclick="enterNode(4)">
+
+    💚 回復の泉
+
+  </div>
+
+  <div class="line">↓</div>
+
+  <div class="mapNode"
+    onclick="enterNode(5)">
+
+    🌋 火山鬼
+
+  </div>
+
+  <div class="line">↓</div>
+
+  <div class="mapNode"
+    onclick="enterNode(6)">
+
+    🐉 ドラゴン城
+
+  </div>
+
+  <div class="line">↓</div>
+
+  <div class="mapNode"
+    onclick="enterNode(7)">
+
+    👑 宇宙魔王
+
+  </div>
+
+  <button onclick="showSelect()">
+    戻る
+  </button>
+
+</div>
+
+<!-- バトル -->
+
+<div id="battleScreen"
+  class="screen">
+
+  <h1 id="title">
+
+    ⚔️ バトル
+
+  </h1>
+
+  <div id="waveText"
+    class="wave">
+
+  </div>
+
+  <div class="weaponBox">
+
+    <h2>
+
+      ⚔️ 武器:
+      <span id="weaponText">
+
+        🗡️ 木の剣 +0
+
+      </span>
+
+    </h2>
+
+    <h2>
+
+      🧬 レベル:
+      <span id="levelText">
+
+        1
+
+      </span>
+
+    </h2>
+
+    <h2>
+
+      EXP:
+      <span id="expText">
+
+        0
+
+      </span>
+
+      /
+
+      <span id="nextExpText">
+
+        100
+
+      </span>
+
+    </h2>
+
+  </div>
+
+  <h2>❤️ プレイヤーHP</h2>
+
+  <div class="bar">
+
+    <div id="playerBar"
+      class="fill">
+
+    </div>
+
+  </div>
+
+  <h2>👾 敵HP</h2>
+
+  <div class="bar">
+
+    <div id="enemyBar"
+      class="fill">
+
+    </div>
+
+  </div>
+
+  <div id="baseArea">
+
+    <h2>🏯 基地HP</h2>
+
+    <div class="bar">
+
+      <div id="baseBar"
+        class="fill">
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div id="enemy">👾</div>
+
+  <button id="attackBtn"
+    onclick="useSkill('attack')">
+
+    ⚔️ 攻撃
+
+  </button>
+
+  <button id="fireBtn"
+    onclick="useSkill('fire')">
+
+    🔥 ファイヤー
+
+  </button>
+
+  <button id="thunderBtn"
+    onclick="useSkill('thunder')">
+
+    ⚡ サンダー
+
+  </button>
+
+  <button id="healBtn"
+    onclick="useSkill('heal')">
+
+    💚 回復
+
+  </button>
+
+  <button id="ultimateBtn"
+    onclick="useSkill('ultimate')">
+
+    🌈 必殺技
+
+  </button>
+
+  <button id="defendBtn"
+    onclick="defend()">
+
+    🛡️ 防御
+
+  </button>
+
+  <br>
+
+  <!-- 武器ショップ -->
+
+  <button class="shopBtn"
+    onclick="buyWeapon('fire')">
+
+    🔥 炎ソード 300
+
+  </button>
+
+  <button class="shopBtn"
+    onclick="buyWeapon('thunder')">
+
+    ⚡ 雷神剣 700
+
+  </button>
+
+  <button class="shopBtn"
+    onclick="buyWeapon('cosmo')">
+
+    🌌 宇宙剣 1500
+
+  </button>
+
+  <button class="shopBtn"
+    onclick="buyWeapon('god')">
+
+    👑 GOD剣 5000
+
+  </button>
+
+  <br>
+
+  <!-- 強化 -->
+
+  <button class="shopBtn"
+    onclick="buyUpgrade('hp')">
+
+    ❤️ HP強化 100
+
+  </button>
+
+  <button class="shopBtn"
+    onclick="buyUpgrade('attack')">
+
+    ⚔️ 攻撃強化 100
+
+  </button>
+
+  <button class="shopBtn"
+    onclick="buyUpgrade('base')">
+
+    🏯 基地回復 150
+
+  </button>
+
+  <button class="shopBtn"
+    onclick="buyUpgrade('robot')">
+
+    🤖 ロボ兵 300
+
+  </button>
+
+  <button class="shopBtn"
+    onclick="buyUpgrade('cannon')">
+
+    🔫 砲台 500
+
+  </button>
+
+  <h2>
+
+    💰 コイン:
+    <span id="coinsText">
+
+      0
+
+    </span>
+
+  </h2>
+
+  <h2>
+
+    🤖 ロボ兵:
+    <span id="robotText">
+
+      0
+
+    </span>
+
+  </h2>
+
+  <h2>
+
+    🔫 砲台:
+    <span id="cannonText">
+
+      0
+
+    </span>
+
+  </h2>
+
+  <div id="log"></div>
+
+</div>
+
+<script>
+
+const LOGIN_USER = "youchan";
+const LOGIN_PASS = "810043";
+
+let failedAttempts = 0;
+let lockLevel = 0;
+let lockedUntil = 0;
+
+let playerMaxHp = 150;
+let playerHp = 150;
+
+let enemyMaxHp = 100;
+let enemyHp = 100;
+
+let baseMaxHp = 1000;
+let baseHp = 1000;
+
+let enemyAttackPower = 15;
+
+let currentNode = 1;
+
+let infiniteLevel = 1;
+
+let defenseWave = 1;
+
+let coins = 0;
+
+let robots = 0;
+
+let cannons = 0;
+
+let attackBoost = 0;
+
+let mode = "";
+
+let bossPhase = 1;
+
+let level = 1;
+
+let exp = 0;
+
+let nextExp = 100;
+
+let defending = false;
+
+let currentWeapon = {
+
+  name:"🗡️ 木の剣",
+  bonus:0
+
+};
+
+let cooldowns = {
+
+  attack:0,
+  fire:0,
+  thunder:0,
+  heal:0,
+  ultimate:0
+
+};
+
+const skills = {
+
+  attack:{
+    name:"⚔️ 攻撃",
+    damage:[14,24],
+    cooldown:0
+  },
+
+  fire:{
+    name:"🔥 ファイヤー",
+    damage:[28,45],
+    cooldown:2
+  },
+
+  thunder:{
+    name:"⚡ サンダー",
+    damage:[45,68],
+    cooldown:3
+  },
+
+  heal:{
+    name:"💚 回復",
+    heal:45,
+    cooldown:3
+  },
+
+  ultimate:{
+    name:"🌈 必殺技",
+    damage:[90,130],
+    cooldown:5
+  }
+
+};
+
+showLogin();
+
+setInterval(updateLockInfo,1000);
+
+function hideAll(){
+
+  document.querySelectorAll(".screen")
+    .forEach(screen=>{
+
+      screen.style.display = "none";
+
+    });
+
+}
+
+function showLogin(){
+
+  hideAll();
+
+  document.getElementById("loginScreen")
+    .style.display = "flex";
+
+}
+
+function login(){
+
+  if(Date.now() < lockedUntil){
+
+    return;
+
+  }
+
+  const user =
+    document.getElementById("username").value;
+
+  const pass =
+    document.getElementById("password").value;
+
+  if(user === LOGIN_USER &&
+     pass === LOGIN_PASS){
+
+    failedAttempts = 0;
+
+    showSelect();
+
+  }else{
+
+    failedAttempts++;
+
+    if(failedAttempts >= 10){
+
+      lockLevel++;
+
+      const minutes =
+        Math.pow(10, lockLevel);
+
+      lockedUntil =
+        Date.now() +
+        minutes * 60 * 1000;
+
+      failedAttempts = 0;
+
+    }
+
+    document.getElementById("error")
+      .innerText =
+      "❌ 間違い";
+
+  }
+
+}
+
+function updateLockInfo(){
+
+  const btn =
+    document.getElementById("loginBtn");
+
+  const info =
+    document.getElementById("lockInfo");
+
+  if(Date.now() < lockedUntil){
+
+    const left =
+      lockedUntil - Date.now();
+
+    const min =
+      Math.floor(left / 60000);
+
+    const sec =
+      Math.floor((left % 60000) / 1000);
+
+    btn.disabled = true;
+
+    info.innerText =
+      "⏳ ロック中 " +
+      min + "分 " +
+      sec + "秒";
+
+  }else{
+
+    btn.disabled = false;
+
+    info.innerText =
+      "失敗回数 " +
+      failedAttempts +
+      " / 10";
+
+  }
+
+}
+
+function showSelect(){
+
+  hideAll();
+
+  document.getElementById("selectScreen")
+    .style.display = "block";
+
+}
+
+function showStoryMap(){
+
+  hideAll();
+
+  document.getElementById("mapScreen")
+    .style.display = "block";
+
+}
+
+function enterNode(node){
+
+  currentNode = node;
+
+  if(node === 2){
+
+    playerMaxHp += 20;
+
+    coins += 200;
+
+    alert("🎁 HPアップ！");
+
+    return;
+
+  }
+
+  if(node === 4){
+
+    playerHp = playerMaxHp;
+
+    coins += 300;
+
+    alert("💚 全回復！");
+
+    return;
+
+  }
+
+  startStoryBattle(node);
+
+}
+
+function enemySetup(hp,attack,emoji,title){
+
+  enemyMaxHp = hp;
+
+  enemyHp = hp;
+
+  enemyAttackPower = attack;
+
+  document.getElementById("enemy")
+    .innerText = emoji;
+
+  document.getElementById("title")
+    .innerText = title;
+
+}
+
+function startStoryBattle(node){
+
+  mode = "story";
+
+  playerHp = playerMaxHp;
+
+  bossPhase = 1;
+
+  baseArea(false);
+
+  resetCooldowns();
+
+  if(node === 1){
+
+    enemySetup(
+      140,
+      16,
+      "👾",
+      "🌲 森"
+    );
+
+  }
+
+  if(node === 3){
+
+    enemySetup(
+      230,
+      22,
+      "💀",
+      "🕳️ 洞窟"
+    );
+
+  }
+
+  if(node === 5){
+
+    enemySetup(
+      280,
+      24,
+      "👹",
+      "🌋 火山鬼"
+    );
+
+  }
+
+  if(node === 6){
+
+    enemySetup(
+      320,
+      27,
+      "🐉",
+      "🏰 ドラゴン"
+    );
+
+  }
+
+  if(node === 7){
+
+    enemySetup(
+      340,
+      25,
+      "👑",
+      "🌌 宇宙魔王"
+    );
+
+  }
+
+  startBattle();
+
+}
+
+function startInfinite(){
+
+  mode = "infinite";
+
+  infiniteLevel = 1;
+
+  playerHp = playerMaxHp;
+
+  baseArea(false);
+
+  enemySetup(
+    120,
+    18,
+    "👾",
+    "♾️ 無限モード"
+  );
+
+  startBattle();
+
+}
+
+function startDefense(){
+
+  mode = "defense";
+
+  defenseWave = 1;
+
+  baseHp = baseMaxHp;
+
+  playerHp = playerMaxHp;
+
+  baseArea(true);
+
+  startDefenseWave();
+
+}
+
+function startDefenseWave(){
+
+  enemySetup(
+    120 + defenseWave * 25,
+    12 + defenseWave * 2,
+    defenseWave === 50 ? "👑" : "👾",
+    "🏰 防衛"
+  );
+
+  document.getElementById("waveText")
+    .innerText =
+    "🌊 Wave " +
+    defenseWave +
+    " / 50";
+
+  startBattle();
+
+}
+
+function startBattle(){
+
+  hideAll();
+
+  document.getElementById("battleScreen")
+    .style.display = "block";
+
+  updateBars();
+
+  updateButtons();
+
+  updateCoins();
+
+  updateWeapon();
+
+  updateLevel();
+
+}
+
+function baseArea(show){
+
+  document.getElementById("baseArea")
+    .style.display =
+    show ? "block" : "none";
+
+}
+
+function defend(){
+
+  defending = true;
+
+  log(
+    "🛡️ 防御！ 次のダメージ半分！"
+  );
+
+  enemyTurn();
+
+}
+
+function useSkill(skillName){
+
+  if(cooldowns[skillName] > 0){
+
+    log("⏳ クールダウン");
+
+    return;
+
+  }
+
+  const skill =
+    skills[skillName];
+
+  if(skill.damage){
+
+    let autoDamage =
+      robots * 10 +
+      cannons * 20;
+
+    let dmg =
+      random(
+        skill.damage[0],
+        skill.damage[1]
+      ) +
+      currentWeapon.bonus +
+      attackBoost +
+      autoDamage;
+
+    if(Math.random() < 0.1){
+
+      dmg *= 2;
+
+      log(
+        "💥 クリティカル！ " +
+        dmg +
+        "ダメージ！"
+      );
+
+    }else{
+
+      log(
+        skill.name +
+        " " +
+        dmg +
+        "ダメージ！"
+      );
+
+    }
+
+    enemyHp -= dmg;
+
+  }
+
+  if(skill.heal){
+
+    playerHp += skill.heal;
+
+    if(playerHp > playerMaxHp){
+
+      playerHp = playerMaxHp;
+
+    }
+
+  }
+
+  cooldowns[skillName] =
+    skill.cooldown;
+
+  if(enemyHp <= 0){
+
+    enemyHp = 0;
+
+    winBattle();
+
+    return;
+
+  }
+
+  enemyTurn();
+
+  reduceCooldowns();
+
+  updateButtons();
+
+  updateBars();
+
+}
+
+function enemyTurn(){
+
+  let dmg =
+    random(
+      enemyAttackPower - 5,
+      enemyAttackPower + 7
+    );
+
+  if(defending){
+
+    dmg =
+      Math.floor(dmg / 2);
+
+    defending = false;
+
+  }
+
+  playerHp -= dmg;
+
+  if(mode === "defense"){
+
+    baseHp -=
+      Math.floor(dmg / 2);
+
+  }
+
+  if(playerHp < 0){
+
+    playerHp = 0;
+
+  }
+
+  if(baseHp < 0){
+
+    baseHp = 0;
+
+  }
+
+  updateBars();
+
+  if(playerHp <= 0 ||
+     baseHp <= 0){
+
+    loseBattle();
+
+  }
+
+}
+
+function addExp(amount){
+
+  exp += amount;
+
+  if(exp >= nextExp){
+
+    exp -= nextExp;
+
+    level++;
+
+    nextExp += 100;
+
+    playerMaxHp += 20;
+
+    attackBoost += 5;
+
+    playerHp = playerMaxHp;
+
+    log(
+      "🧬 レベルアップ！ Lv." +
+      level
+    );
+
+  }
+
+  updateLevel();
+
+}
+
+function bossTransform(){
+
+  if(bossPhase === 1){
+
+    bossPhase = 2;
+
+    enemySetup(
+      500,
+      35,
+      "👑💀",
+      "真・宇宙魔王"
+    );
+
+    return;
+
+  }
+
+  if(bossPhase === 2){
+
+    bossPhase = 3;
+
+    enemySetup(
+      800,
+      45,
+      "🔥👑🔥",
+      "GOD宇宙魔王"
+    );
+
+    return;
+
+  }
+
+  if(bossPhase === 3){
+
+    coins += 3000;
+
+    log(
+      "🏆 完全クリア！"
+    );
+
+    setTimeout(
+      showSelect,
+      3000
+    );
+
+  }
+
+}
+
+function winBattle(){
+
+  addExp(50);
+
+  if(mode === "story"){
+
+    coins += 200;
+
+    if(currentNode === 7){
+
+      bossTransform();
+
+      return;
+
+    }
+
+    log("🏆 勝利！");
+
+    setTimeout(
+      showStoryMap,
+      1500
+    );
+
+  }
+
+  if(mode === "infinite"){
+
+    coins +=
+      100 +
+      infiniteLevel * 30;
+
+    infiniteLevel++;
+
+    enemySetup(
+      120 + infiniteLevel * 80,
+      18 + infiniteLevel * 5,
+      "👾",
+      "♾️ レベル " +
+      infiniteLevel
+    );
+
+    playerHp = playerMaxHp;
+
+  }
+
+  if(mode === "defense"){
+
+    coins +=
+      50 +
+      defenseWave * 10;
+
+    defenseWave++;
+
+    playerHp = playerMaxHp;
+
+    if(defenseWave > 50){
+
+      log(
+        "🏆 防衛制覇！"
+      );
+
+      setTimeout(
+        showSelect,
+        3000
+      );
+
+      return;
+
+    }
+
+    setTimeout(
+      startDefenseWave,
+      1500
+    );
+
+  }
+
+  updateCoins();
+
+  updateBars();
+
+}
+
+function loseBattle(){
+
+  log("💀 負けた！");
+
+  setTimeout(
+    showSelect,
+    2000
+  );
+
+}
+
+function buyUpgrade(type){
+
+  if(type === "hp" &&
+     coins >= 100){
+
+    coins -= 100;
+
+    playerMaxHp += 20;
+
+  }
+
+  if(type === "attack" &&
+     coins >= 100){
+
+    coins -= 100;
+
+    attackBoost += 10;
+
+  }
+
+  if(type === "base" &&
+     coins >= 150){
+
+    coins -= 150;
+
+    baseHp += 200;
+
+    if(baseHp > baseMaxHp){
+
+      baseHp = baseMaxHp;
+
+    }
+
+  }
+
+  if(type === "robot" &&
+     coins >= 300){
+
+    coins -= 300;
+
+    robots++;
+
+  }
+
+  if(type === "cannon" &&
+     coins >= 500){
+
+    coins -= 500;
+
+    cannons++;
+
+  }
+
+  updateCoins();
+
+  updateRobot();
+
+}
+
+function buyWeapon(type){
+
+  if(type === "fire" &&
+     coins >= 300){
+
+    coins -= 300;
+
+    currentWeapon = {
+      name:"🔥 炎ソード",
+      bonus:15
+    };
+
+  }
+
+  if(type === "thunder" &&
+     coins >= 700){
+
+    coins -= 700;
+
+    currentWeapon = {
+      name:"⚡ 雷神剣",
+      bonus:30
+    };
+
+  }
+
+  if(type === "cosmo" &&
+     coins >= 1500){
+
+    coins -= 1500;
+
+    currentWeapon = {
+      name:"🌌 宇宙剣",
+      bonus:50
+    };
+
+  }
+
+  if(type === "god" &&
+     coins >= 5000){
+
+    coins -= 5000;
+
+    currentWeapon = {
+      name:"👑 GOD剣",
+      bonus:100
+    };
+
+  }
+
+  updateWeapon();
+
+  updateCoins();
+
+}
+
+function updateWeapon(){
+
+  document.getElementById("weaponText")
+    .innerText =
+    currentWeapon.name +
+    " +" +
+    currentWeapon.bonus;
+
+}
+
+function updateCoins(){
+
+  document.getElementById("coinsText")
+    .innerText = coins;
+
+}
+
+function updateRobot(){
+
+  document.getElementById("robotText")
+    .innerText = robots;
+
+  document.getElementById("cannonText")
+    .innerText = cannons;
+
+}
+
+function updateLevel(){
+
+  document.getElementById("levelText")
+    .innerText = level;
+
+  document.getElementById("expText")
+    .innerText = exp;
+
+  document.getElementById("nextExpText")
+    .innerText = nextExp;
+
+}
+
+function resetCooldowns(){
+
+  for(let key in cooldowns){
+
+    cooldowns[key] = 0;
+
+  }
+
+}
+
+function reduceCooldowns(){
+
+  for(let key in cooldowns){
+
+    if(cooldowns[key] > 0){
+
+      cooldowns[key]--;
+
+    }
+
+  }
+
+}
+
+function updateButtons(){
+
+  for(let key in cooldowns){
+
+    const btn =
+      document.getElementById(
+        key + "Btn"
+      );
+
+    const names = {
+
+      attack:"⚔️ 攻撃",
+
+      fire:"🔥 ファイヤー",
+
+      thunder:"⚡ サンダー",
+
+      heal:"💚 回復",
+
+      ultimate:"🌈 必殺技"
+
+    };
+
+    btn.innerText =
+      cooldowns[key] > 0
+      ? names[key] +
+        " " +
+        cooldowns[key]
+      : names[key];
+
+  }
+
+}
+
+function updateBars(){
+
+  document.getElementById("playerBar")
+    .style.width =
+    (playerHp / playerMaxHp * 100)
+    + "%";
+
+  document.getElementById("enemyBar")
+    .style.width =
+    (enemyHp / enemyMaxHp * 100)
+    + "%";
+
+  document.getElementById("baseBar")
+    .style.width =
+    (baseHp / baseMaxHp * 100)
+    + "%";
+
+}
+
+function log(text){
+
+  document.getElementById("log")
+    .innerText = text;
+
+}
+
+function random(min,max){
+
+  return Math.floor(
+    Math.random() *
+    (max-min+1)
+  ) + min;
+
+}
+
+</script>
+
+</body>
+</html>

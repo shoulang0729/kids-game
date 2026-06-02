@@ -17,6 +17,7 @@ GitHub Pages で公開しています：
 |--------|----------|----------|----------|
 | ☠️ 地獄基地防衛 | 基地をつくって、せめてくるてきからコアをまもる | こうちゃん | `games/base-defense/` |
 | 🐍 へびゲーム | りんごを食べてへびをのばす。かべと自分に注意 | としお | `games/snake/` |
+| ⚔️ ようちゃんバトル | ストーリー・無限・防衛モードのRPGバトル | ようちゃん | `games/youchan-battle/` |
 
 ## 📁 リポジトリ構成
 
@@ -26,8 +27,10 @@ kids-game/
 ├── games/
 │   ├── base-defense/
 │   │   └── index.html      ← 地獄基地防衛（こうちゃん）
-│   └── snake/
-│       └── index.html      ← へびゲーム（としお）
+│   ├── snake/
+│   │   └── index.html      ← へびゲーム（としお）
+│   └── youchan-battle/
+│       └── index.html      ← ようちゃんバトル（ようちゃん）
 ├── wiki/
 │   └── index.html          ← せつめいしょ
 └── README.md
