@@ -21,12 +21,6 @@ body{
   padding:20px;
 }
 
-#loginScreen{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-
 .box{
   background:#151540;
   padding:25px;
@@ -139,43 +133,13 @@ button:disabled{
 
 <body>
 
-<!-- ログイン -->
-
-<div id="loginScreen" class="screen">
-
-  <div class="box">
-
-    <h1>🔐 ようちゃんバトル</h1>
-
-    <input id="username"
-      placeholder="ユーザー名">
-
-    <input id="password"
-      type="password"
-      placeholder="パスワード">
-
-    <br>
-
-    <button id="loginBtn"
-      onclick="login()">
-
-      ログイン
-
-    </button>
-
-    <p id="error"></p>
-
-    <p id="lockInfo"></p>
-
-  </div>
-
-</div>
-
 <!-- モード -->
 
 <div id="selectScreen" class="screen">
 
-  <h1>🎮 モード選択</h1>
+  <h1>⚔️ ようちゃんバトル</h1>
+
+  <h2>🎮 モード選択</h2>
 
   <button class="modeBtn"
     onclick="showStoryMap()">
@@ -525,13 +489,6 @@ button:disabled{
 
 <script>
 
-const LOGIN_USER = "youchan";
-const LOGIN_PASS = "810043";
-
-let failedAttempts = 0;
-let lockLevel = 0;
-let lockedUntil = 0;
-
 let playerMaxHp = 150;
 let playerHp = 150;
 
@@ -620,9 +577,7 @@ const skills = {
 
 };
 
-showLogin();
-
-setInterval(updateLockInfo,1000);
+showSelect();
 
 function hideAll(){
 
@@ -632,102 +587,6 @@ function hideAll(){
       screen.style.display = "none";
 
     });
-
-}
-
-function showLogin(){
-
-  hideAll();
-
-  document.getElementById("loginScreen")
-    .style.display = "flex";
-
-}
-
-function login(){
-
-  if(Date.now() < lockedUntil){
-
-    return;
-
-  }
-
-  const user =
-    document.getElementById("username").value;
-
-  const pass =
-    document.getElementById("password").value;
-
-  if(user === LOGIN_USER &&
-     pass === LOGIN_PASS){
-
-    failedAttempts = 0;
-
-    showSelect();
-
-  }else{
-
-    failedAttempts++;
-
-    if(failedAttempts >= 10){
-
-      lockLevel++;
-
-      const minutes =
-        Math.pow(10, lockLevel);
-
-      lockedUntil =
-        Date.now() +
-        minutes * 60 * 1000;
-
-      failedAttempts = 0;
-
-    }
-
-    document.getElementById("error")
-      .innerText =
-      "❌ 間違い";
-
-  }
-
-}
-
-function updateLockInfo(){
-
-  const btn =
-    document.getElementById("loginBtn");
-
-  const info =
-    document.getElementById("lockInfo");
-
-  if(Date.now() < lockedUntil){
-
-    const left =
-      lockedUntil - Date.now();
-
-    const min =
-      Math.floor(left / 60000);
-
-    const sec =
-      Math.floor((left % 60000) / 1000);
-
-    btn.disabled = true;
-
-    info.innerText =
-      "⏳ ロック中 " +
-      min + "分 " +
-      sec + "秒";
-
-  }else{
-
-    btn.disabled = false;
-
-    info.innerText =
-      "失敗回数 " +
-      failedAttempts +
-      " / 10";
-
-  }
 
 }
 
