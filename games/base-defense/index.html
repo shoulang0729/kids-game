@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>こうちゃん地獄基地防衛 全部版</title>
+<style>
+body{margin:0;background:#111;color:white;font-family:sans-serif;text-align:center;overflow:auto;user-select:none}
+h1{margin:6px}
+#hud{font-size:18px;margin:6px;line-height:1.6}
+button{font-size:16px;padding:8px 12px;margin:3px;border-radius:12px}
+#game{width:900px;height:600px;max-width:96vw;margin:auto;position:relative;overflow:hidden;border:5px solid white;background:#224422}
+.tile{position:absolute;width:45px;height:45px;box-sizing:border-box;border:1px solid rgba(255,255,255,.12)}
+.buildable{background:rgba(0,255,255,.15)}
+.base{background:#777;border:3px solid #ccc}
+.core{background:#ff2244;border:3px solid white;border-radius:50%}
+.core::after{content:"❤️";font-size:26px}
+.wall{background:#8b5a2b;border:3px solid #d6a86a}
+.spike{background:#444;border:3px solid #aaa}
+.spike::after{content:"▲▲";color:white}
+.mine{background:#111;border:3px solid yellow;border-radius:50%}
+.mine::after{content:"💣"}
+.turret,.laser,.cannon,.blackhole{border-radius:50%}
+.turret{background:#222;border:3px solid cyan}.turret::after{content:"🔫"}
+.laser{background:#101060;border:3px solid #66f}.laser::after{content:"⚡"}
+.cannon{background:#552200;border:3px solid orange}.cannon::after{content:"💥"}
+.blackhole{background:#000;border:3px solid violet;box-shadow:0 0 20px violet}.blackhole::after{content:"🕳️"}
+.blackholeField{position:absolute;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(180,0,255,.9),rgba(40,0,70,.55),rgba(0,0,0,0));pointer-events:none;z-index:15;animation:spin 2s linear infinite}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.enemy{position:absolute;width:38px;height:38px;border-radius:50%;z-index:5;background:red;border:3px solid #ffaaaa}
+.enemy::after{content:"👾";font-size:24px}
+.enemy.fast{background:orange}
+.enemy.tank{background:purple;width:48px;height:48px}
+.enemy.bomber{background:black;border:4px solid orange}
+.enemy.fly{background:cyan;border:4px solid white;border-radius:0}
+.enemy.laserEnemy{background:#ff00ff;border:4px solid white}
+.enemy.breaker{background:#552200;border:4px solid yellow}
+.enemy.splitter{background:#00cc66;border:4px solid #aaffaa}
+.enemy.splitter::after{content:"🟢";font-size:24px}
+.enemy.boss{background:#000;border:5px solid red;width:80px;height:80px}
+.enemy.boss::after{content:"👑";font-size:42px}
+.enemy.giantBoss{background:#050505;border:8px solid red;width:150px;height:150px;box-shadow:0 0 30px red}
+.enemy.giantBoss::after{content:"👹";font-size:90px}
+.hpBar{position:absolute;height:6px;background:#222;border:1px solid white;z-index:30}
+.hpFill{height:100%;background:red;width:100%}
+.player{position:absolute;width:38px;height:38px;background:#ff3333;border:3px solid white;border-radius:10px;z-index:10}
+.player::after{content:"😎";font-size:25px}
+.robot{position:absolute;width:35px;height:35px;background:#00aaff;border:3px solid white;border-radius:8px;z-index:9}
+.robot::after{content:"🤖"}
+.bullet{position:absolute;width:10px;height:10px;background:yellow;border-radius:50%;box-shadow:0 0 10px yellow;z-index:20}
+.warning{position:absolute;width:120px;height:120px;border:5px solid red;border-radius:50%;box-shadow:0 0 25px red;z-index:45;animation:pulse .25s infinite alternate;pointer-events:none}
+@keyframes pulse{from{transform:scale(.8);opacity:.5}to{transform:scale(1.2);opacity:1}}
+.explosion{position:absolute;font-size:36px;z-index:50;animation:boom .45s forwards;pointer-events:none}
+@keyframes boom{0%{transform:scale(.5);opacity:1}100%{transform:scale(1.8);opacity:0}}
+#message{position:absolute;top:245px;width:100%;font-size:34px;color:yellow;text-shadow:3px 3px black;z-index:60}
+#controls{margin-top:8px}
+.ctrl{width:75px;height:55px;font-size:22px}
+</style>
+</head>
+<body>
+<h1>☠️ こうちゃん地獄基地防衛 全部版 ☠️</h1>
+<div id="hud"></div>
+<div>
+<button onclick="mode='turret';updateHud()">🔫 銃 50</button>
+<button onclick="mode='laser';updateHud()">⚡ レーザー 120</button>
+<button onclick="mode='cannon';updateHud()">💥 爆発砲 150</button>
+<button onclick="mode='blackhole';updateHud()">🕳️ ブラックホール 250</button>
+<button onclick="mode='wall';updateHud()">🪵 壁 25</button>
+<button onclick="mode='spike';updateHud()">🔺 トゲ 40</button>
+<button onclick="mode='mine';updateHud()">💣 地雷 60</button>
+<button onclick="expandBase()">⬜ 基地拡張 100</button>
+<button onclick="buyPower()">⚡ 発電強化 120</button>
+<button onclick="buyRobot()">🤖 ロボ 180</button>
+<button onclick="buyBomberRobot()">💣 自爆ロボ 220</button>
+<button onclick="repair()">🔧 修理 80</button>
+<button onclick="start()">▶️ スタート</button>
+</div>
+<div id="game"><div id="message">基地を作れ！</div></div>
+<div id="controls">
+<button class="ctrl" id="up">↑</button><br>
+<button class="ctrl" id="left">←</button>
+<button class="ctrl" id="shoot">撃つ</button>
+<button class="ctrl" id="right">→</button><br>
+<button class="ctrl" id="down">↓</button>
+</div>
+
+<script>
+const game=document.getElementById("game");
+const hud=document.getElementById("hud");
+const message=document.getElementById("message");
+
+const size=45, cols=20, rows=13;
+let money=300,hp=40,maxHp=40,playerHp=20,playerMaxHp=20,power=6;
+let mode="turret",running=false,buildRange=3,wave=1,enemiesLeft=6,night=false;
+let splitCount=0,splitLimit=130;
+let tiles=[],enemies=[],bullets=[],towers=[],robots=[],blackholes=[];
+let player={x:450,y:300,cool:0};
+let keys={};
+
+for(let y=0;y<rows;y++){
+for(let x=0;x<cols;x++){
+let t=document.createElement("div");
+t.className="tile";
+t.style.left=x*size+"px";
+t.style.top=y*size+"px";
+game.appendChild(t);
+let tile={el:t,x,y,type:"empty",hp:0};
+tiles.push(tile);
+t.onclick=()=>build(x,y);
+}
+}
+
+function getTile(x,y){return tiles.find(t=>t.x===x&&t.y===y)}
+
+[[9,6],[10,6],[9,7],[10,7]].forEach(([x,y])=>{
+let t=getTile(x,y);
+t.type="base";
+t.el.className="tile base";
+});
+
+let core=getTile(9,6);
+core.type="core";
+core.el.className="tile core";
+
+let playerEl=document.createElement("div");
+playerEl.className="player";
+game.appendChild(playerEl);
+
+function updateHud(){
+let usedPower=towers.reduce((a,t)=>a+t.power,0);
+hud.innerHTML="💰お金:"+money+" ❤️コア:"+hp+"/"+maxHp+" 😎HP:"+playerHp+"/"+playerMaxHp+
+" ⚡電力:"+usedPower+"/"+power+" 🌊Wave:"+wave+" 👾残:"+enemiesLeft+" 🟢分裂:"+splitCount+"/"+splitLimit+" ⬜範囲:"+buildRange;
+tiles.forEach(t=>{
+if(t.type==="empty"&&canBuild(t.x,t.y))t.el.className="tile buildable";
+else if(t.type==="empty")t.el.className="tile";
+});
+}
+
+function canBuild(x,y){return Math.abs(x-9.5)<=buildRange && Math.abs(y-6.5)<=buildRange}
+function show(text){message.textContent=text;setTimeout(()=>{if(message.textContent===text)message.textContent=""},1200)}
+
+function build(x,y){
+let t=getTile(x,y);
+if(!t||t.type!=="empty")return;
+if(!canBuild(x,y)){show("基地を広げろ！");return}
+let cost=0,powerUse=0,hpv=0;
+if(mode==="turret"){cost=50;powerUse=1;hpv=50}
+if(mode==="laser"){cost=120;powerUse=3;hpv=40}
+if(mode==="cannon"){cost=150;powerUse=4;hpv=60}
+if(mode==="blackhole"){cost=250;powerUse=5;hpv=70}
+if(mode==="wall"){cost=25;hpv=120}
+if(mode==="spike"){cost=40;hpv=80}
+if(mode==="mine"){cost=60;hpv=1}
+let usedPower=towers.reduce((a,t)=>a+t.power,0);
+if(money<cost){show("金不足！");return}
+if(usedPower+powerUse>power){show("電力不足！");return}
+money-=cost;
+t.type=mode;
+t.hp=hpv;
+t.el.className="tile "+mode;
+if(mode==="turret"||mode==="laser"||mode==="cannon"||mode==="blackhole"){
+towers.push({x:x*size+22,y:y*size+22,type:mode,cool:0,power:powerUse});
+}
+updateHud();
+}
+
+function expandBase(){if(money<100){show("金不足！");return}money-=100;buildRange++;maxHp+=5;hp+=5;show("基地拡張！");updateHud()}
+function buyPower(){if(money<120){show("金不足！");return}money-=120;power+=3;show("発電強化！");updateHud()}
+function repair(){if(money<80){show("金不足！");return}money-=80;hp=Math.min(maxHp,hp+12);playerHp=Math.min(playerMaxHp,playerHp+5);show("修理完了！");updateHud()}
+
+function buyRobot(){
+if(money<180){show("金不足！");return}
+money-=180;
+let el=document.createElement("div");
+el.className="robot";
+game.appendChild(el);
+robots.push({el,x:430,y:300,cool:0,type:"normal"});
+updateHud();
+}
+
+function buyBomberRobot(){
+if(money<220){show("金不足！");return}
+money-=220;
+let el=document.createElement("div");
+el.className="robot";
+el.innerHTML="💣";
+el.style.background="orange";
+game.appendChild(el);
+robots.push({el,x:430,y:300,cool:0,type:"bomber"});
+show("自爆ロボ出撃！");
+updateHud();
+}
+
+function start(){if(running)return;running=true;show("Wave "+wave+" 開始！")}
+document.onkeydown=e=>{keys[e.key]=true;if(e.key===" ")playerShoot()};
+document.onkeyup=e=>{keys[e.key]=false};
+
+function hold(id,key){
+let b=document.getElementById(id);
+b.addEventListener("touchstart",e=>{e.preventDefault();keys[key]=true});
+b.addEventListener("touchend",e=>{e.preventDefault();keys[key]=false});
+b.addEventListener("mousedown",()=>keys[key]=true);
+b.addEventListener("mouseup",()=>keys[key]=false);
+}
+hold("up","ArrowUp");hold("down","ArrowDown");hold("left","ArrowLeft");hold("right","ArrowRight");
+document.getElementById("shoot").ontouchstart=e=>{e.preventDefault();playerShoot()};
+document.getElementById("shoot").onmousedown=playerShoot;
+
+function makeHpBar(e){
+let hpBar=document.createElement("div");
+hpBar.className="hpBar";
+let hpFill=document.createElement("div");
+hpFill.className="hpFill";
+hpBar.appendChild(hpFill);
+game.appendChild(hpBar);
+e.hpBar=hpBar;
+e.hpFill=hpFill;
+}
+
+function spawnEnemy(){
+if(!running||enemiesLeft<=0)return;
+enemiesLeft--;
+let side=Math.floor(Math.random()*4),x=0,y=0;
+if(side===0){x=0;y=Math.random()*560}
+if(side===1){x=860;y=Math.random()*560}
+if(side===2){x=Math.random()*860;y=0}
+if(side===3){x=Math.random()*860;y=560}
+
+let type="normal",r=Math.random();
+if(wave>=2&&r<0.2)type="fast";
+else if(wave>=3&&r<0.35)type="tank";
+else if(wave>=4&&r<0.5)type="bomber";
+else if(wave>=5&&r<0.6)type="fly";
+else if(wave>=6&&r<0.72)type="laserEnemy";
+else if(wave>=7&&r<0.86)type="splitter";
+else if(wave>=8&&r<0.92)type="breaker";
+if(wave%5===0&&enemiesLeft===0)type="boss";
+if(wave%10===0&&enemiesLeft===0)type="giantBoss";
+
+let el=document.createElement("div");
+el.className="enemy "+type;
+game.appendChild(el);
+
+let hpv=6+wave*2,sp=0.7+wave*0.04;
+if(type==="fast"){hpv*=0.7;sp*=2.2}
+if(type==="tank"){hpv*=4;sp*=0.6}
+if(type==="bomber"){hpv*=1.5}
+if(type==="fly"){hpv*=1.2;sp*=1.8}
+if(type==="laserEnemy"){hpv*=2}
+if(type==="splitter"){hpv*=2.2;sp*=1.1}
+if(type==="breaker"){hpv*=3}
+if(type==="boss"){hpv*=15;sp*=0.45}
+if(type==="giantBoss"){hpv*=45;sp*=0.25}
+
+let enemy={el,x,y,hp:hpv,maxHp:hpv,speed:sp,type,cool:160,summon1:false,summon2:false,splitLevel:type==="splitter"?7:0};
+makeHpBar(enemy);
+enemies.push(enemy);
+updateHud();
+}
+
+function spawnSplit(x,y,level){
+if(level<=0||splitCount>=splitLimit)return;
+for(let i=0;i<2;i++){
+if(splitCount>=splitLimit)return;
+let el=document.createElement("div");
+el.className="enemy splitter";
+game.appendChild(el);
+let hpv=6+wave*1.2;
+let e={el,x:x+Math.random()*60-30,y:y+Math.random()*60-30,hp:hpv,maxHp:hpv,speed:1.5+wave*0.03,type:"splitter",cool:0,summon1:false,summon2:false,splitLevel:level-1};
+makeHpBar(e);
+enemies.push(e);
+splitCount++;
+}
+show("🟢 分裂！");
+updateHud();
+}
+
+function summonBoss(x,y,strong=false){
+let el=document.createElement("div");
+el.className="enemy boss";
+game.appendChild(el);
+let enemy={el,x:x+Math.random()*180-90,y:y+Math.random()*180-90,hp:strong?180+wave*18:120+wave*12,maxHp:strong?180+wave*18:120+wave*12,speed:strong?0.8:0.7,type:"boss",cool:0,summon1:false,summon2:false,splitLevel:0};
+makeHpBar(enemy);
+enemies.push(enemy);
+explosion(x,y,"👑");
+}
+
+function findNearestEnemy(x,y,range){
+let nearest=null,best=range*range;
+enemies.forEach(e=>{let d=(e.x-x)**2+(e.y-y)**2;if(d<best){best=d;nearest=e}});
+return nearest;
+}
+
+function makeBullet(x,y,tx,ty,power,type){
+let dx=tx-x,dy=ty-y,len=Math.sqrt(dx*dx+dy*dy)||1;
+let el=document.createElement("div");
+el.className="bullet";
+if(type==="laser")el.style.background="#66f";
+if(type==="cannon")el.style.background="orange";
+game.appendChild(el);
+bullets.push({el,x,y,vx:dx/len*8,vy:dy/len*8,power,type});
+}
+
+function makeBlackhole(x,y){
+let el=document.createElement("div");
+el.className="blackholeField";
+el.style.left=(x-70)+"px";
+el.style.top=(y-70)+"px";
+game.appendChild(el);
+blackholes.push({el,x,y,life:130});
+}
+
+function playerShoot(){
+if(!running||player.cool>0||playerHp<=0)return;
+let target=findNearestEnemy(player.x,player.y,500);
+if(target){makeBullet(player.x+20,player.y+20,target.x,target.y,4,"player");player.cool=15}
+}
+
+function explosion(x,y,text="💥"){
+let boom=document.createElement("div");
+boom.className="explosion";
+boom.textContent=text;
+boom.style.left=x+"px";
+boom.style.top=y+"px";
+game.appendChild(boom);
+setTimeout(()=>boom.remove(),450);
+}
+
+function warning(x,y){
+let w=document.createElement("div");
+w.className="warning";
+w.style.left=(x-60)+"px";
+w.style.top=(y-60)+"px";
+game.appendChild(w);
+return w;
+}
+
+function damageCore(amount){
+hp-=amount;
+explosion(430,280,"🚨");
+if(hp<=0){hp=0;running=false;message.textContent="☠️ コア破壊 ☠️"}
+updateHud();
+}
+
+function damagePlayer(amount){
+playerHp-=amount;
+explosion(player.x,player.y,"💢");
+if(playerHp<=0){
+playerHp=0;
+show("😎 ダウン！中央で復活！");
+setTimeout(()=>{playerHp=playerMaxHp;player.x=450;player.y=300;updateHud()},1200);
+}
+updateHud();
+}
+
+function giantBossLaser(e){
+e.cool--;
+if(e.cool>0)return;
+let targetX=430,targetY=280;
+if(Math.random()<0.3){targetX=player.x+20;targetY=player.y+20}
+let mark=warning(targetX,targetY);
+explosion(targetX,targetY,"🎯");
+setTimeout(()=>{
+mark.remove();
+explosion(targetX,targetY,"☢️");
+if(Math.abs(targetX-430)<80&&Math.abs(targetY-280)<80)damageCore(15);
+if(Math.abs(player.x-targetX)<80&&Math.abs(player.y-targetY)<80)damagePlayer(10);
+tiles.forEach(t=>{
+let px=t.x*45+22,py=t.y*45+22;
+if(Math.abs(px-targetX)<90&&Math.abs(py-targetY)<90){
+if(t.type==="wall"||t.type==="spike"||t.type==="mine"){t.type="empty";t.el.className="tile"}
+}
+});
+towers=towers.filter(t=>{
+if(Math.abs(t.x-targetX)<90&&Math.abs(t.y-targetY)<90){
+explosion(t.x,t.y,"🔥");
+let tile=getTile(Math.floor(t.x/45),Math.floor(t.y/45));
+if(tile){tile.type="empty";tile.el.className="tile"}
+return false;
+}
+return true;
+});
+updateHud();
+},1500);
+e.cool=360;
+}
+
+function removeEnemy(e){
+if(e.hpBar)e.hpBar.remove();
+e.el.remove();
+enemies=enemies.filter(x=>x!==e);
+}
+
+function killEnemy(e){
+if(e.dead)return;
+e.dead=true;
+if(e.type==="splitter"&&e.splitLevel>0)spawnSplit(e.x,e.y,e.splitLevel);
+explosion(e.x,e.y);
+money+=e.type==="giantBoss"?1000:e.type==="boss"?200:20+wave*4;
+removeEnemy(e);
+updateHud();
+}
+
+function updateEnemyHpBar(e){
+if(!e.hpBar)return;
+let w=38;
+if(e.type==="tank")w=48;
+if(e.type==="boss")w=80;
+if(e.type==="giantBoss")w=150;
+e.hpBar.style.left=e.x+"px";
+e.hpBar.style.top=(e.y-12)+"px";
+e.hpBar.style.width=w+"px";
+e.hpFill.style.width=Math.max(0,(e.hp/e.maxHp)*100)+"%";
+}
+
+function nextWaveCheck(){
+if(running&&enemiesLeft<=0&&enemies.length===0){
+wave++;
+enemiesLeft=6+wave*4;
+splitCount=0;
+if(wave>=20){enemiesLeft+=40;show("☠️ 地獄Wave ☠️")}
+else show("Wave "+wave);
+money+=50+wave*5;
+updateHud();
+}
+}
+
+function loop(){
+if(player.cool>0)player.cool--;
+if(playerHp>0){
+if(keys.ArrowUp)player.y-=4;
+if(keys.ArrowDown)player.y+=4;
+if(keys.ArrowLeft)player.x-=4;
+if(keys.ArrowRight)player.x+=4;
+}
+player.x=Math.max(0,Math.min(860,player.x));
+player.y=Math.max(0,Math.min(550,player.y));
+playerEl.style.left=player.x+"px";
+playerEl.style.top=player.y+"px";
+playerEl.style.opacity=playerHp<=0?"0.35":"1";
+
+towers.forEach(t=>{
+t.cool--;
+let range=t.type==="laser"?320:t.type==="cannon"?260:t.type==="blackhole"?300:220;
+let target=findNearestEnemy(t.x,t.y,range);
+if(target&&t.cool<=0){
+if(t.type==="turret"){makeBullet(t.x,t.y,target.x,target.y,2,"turret");t.cool=35}
+if(t.type==="laser"){makeBullet(t.x,t.y,target.x,target.y,7,"laser");t.cool=60}
+if(t.type==="cannon"){makeBullet(t.x,t.y,target.x,target.y,10,"cannon");t.cool=85}
+if(t.type==="blackhole"){makeBlackhole(target.x,target.y);t.cool=200}
+}
+});
+
+blackholes.slice().forEach(h=>{
+h.life--;
+enemies.forEach(e=>{
+let dx=h.x-e.x,dy=h.y-e.y,d=Math.sqrt(dx*dx+dy*dy)||1;
+if(d<150){
+let pull=2.3;
+if(e.type==="splitter")pull=0;
+if(e.type==="boss")pull*=0.25;
+if(e.type==="giantBoss")pull=0;
+e.x+=dx/d*pull;
+e.y+=dy/d*pull;
+if(e.type!=="giantBoss")e.hp-=0.06;
+}
+});
+if(h.life<=0){h.el.remove();blackholes=blackholes.filter(x=>x!==h)}
+});
+
+robots.slice().forEach(r=>{
+r.cool--;
+let target=findNearestEnemy(r.x,r.y,350);
+if(target){
+let dx=target.x-r.x,dy=target.y-r.y,len=Math.sqrt(dx*dx+dy*dy)||1;
+if(r.type==="bomber"){
+r.x+=dx/len*3.2;r.y+=dy/len*3.2;
+if(Math.abs(r.x-target.x)<40&&Math.abs(r.y-target.y)<40){
+explosion(r.x,r.y,"☢️");
+enemies.forEach(e=>{if(Math.abs(e.x-r.x)<120&&Math.abs(e.y-r.y)<120)e.hp-=35});
+r.el.remove();
+robots=robots.filter(x=>x!==r);
+}
+}else{
+r.x+=dx/len*1.6;r.y+=dy/len*1.6;
+if(r.cool<=0){makeBullet(r.x,r.y,target.x,target.y,2,"robot");r.cool=30}
+}
+}
+r.el.style.left=r.x+"px";
+r.el.style.top=r.y+"px";
+});
+
+enemies.slice().forEach(e=>{
+let dx=430-e.x,dy=280-e.y,len=Math.sqrt(dx*dx+dy*dy)||1;
+e.x+=dx/len*e.speed;
+e.y+=dy/len*e.speed;
+let t=getTile(Math.floor(e.x/45),Math.floor(e.y/45));
+if(e.type==="fly")e.speed*=1.0004;
+if(e.type==="giantBoss"){
+giantBossLaser(e);
+if(!e.summon1&&e.hp<e.maxHp*0.5){e.summon1=true;summonBoss(e.x,e.y,true);summonBoss(e.x,e.y,true);show("👹 巨大ボスがボスを召喚！")}
+if(!e.summon2&&e.hp<e.maxHp*0.25){e.summon2=true;summonBoss(e.x,e.y,true);summonBoss(e.x,e.y,true);summonBoss(e.x,e.y,true);show("👑 ボス大量召喚！")}
+}
+if(e.type==="bomber"&&t&&t.type==="wall"){explosion(e.x,e.y,"💣");t.hp-=60;e.hp=0}
+if(e.type==="breaker"&&t&&t.type==="wall")t.hp-=1.3;
+if(e.type==="laserEnemy"){
+e.cool--;
+if(e.cool<=0){let target=towers[0];if(target)explosion(target.x,target.y,"⚡");e.cool=120}
+}
+if(t){
+if(t.type==="wall"){t.hp-=0.25;e.speed*=0.97}
+if(t.type==="spike")e.hp-=0.15;
+if(t.type==="mine"){explosion(e.x,e.y,"💣");e.hp-=20;t.type="empty";t.el.className="tile"}
+if(t.hp<=0&&t.type!=="core"){t.type="empty";t.el.className="tile"}
+}
+e.el.style.left=e.x+"px";
+e.el.style.top=e.y+"px";
+updateEnemyHpBar(e);
+if(Math.abs(e.x-player.x)<28&&Math.abs(e.y-player.y)<28&&playerHp>0)damagePlayer(e.type==="boss"?4:e.type==="giantBoss"?8:1);
+if(Math.abs(e.x-430)<35&&Math.abs(e.y-280)<35){removeEnemy(e);damageCore(e.type==="giantBoss"?25:e.type==="boss"?10:2)}
+if(e.hp<=0)killEnemy(e);
+});
+
+bullets.slice().forEach(b=>{
+b.x+=b.vx;b.y+=b.vy;
+b.el.style.left=b.x+"px";
+b.el.style.top=b.y+"px";
+enemies.slice().forEach(e=>{
+if(Math.abs(b.x-e.x)<30&&Math.abs(b.y-e.y)<30){
+e.hp-=b.power;
+if(b.type==="cannon"){enemies.forEach(o=>{if(Math.abs(o.x-e.x)<80&&Math.abs(o.y-e.y)<80)o.hp-=5});explosion(e.x,e.y,"💥")}
+b.el.remove();
+bullets=bullets.filter(x=>x!==b);
+if(e.hp<=0)killEnemy(e);
+}
+});
+if(b.x<0||b.x>900||b.y<0||b.y>600){b.el.remove();bullets=bullets.filter(x=>x!==b)}
+});
+
+nextWaveCheck();
+requestAnimationFrame(loop);
+}
+
+setInterval(spawnEnemy,850);
+
+setInterval(()=>{
+if(wave>=6){
+night=true;
+game.style.filter="brightness(0.45)";
+show("🌙 夜モード");
+setTimeout(()=>{night=false;game.style.filter="brightness(1)"},15000);
+}
+},40000);
+
+setInterval(()=>{
+if(!running||wave<7)return;
+let x=Math.random()*850;
+explosion(x,120,"⚡");
+enemies.forEach(e=>{if(Math.abs(e.x-x)<120)e.hp-=25});
+},9000);
+
+setInterval(()=>{
+if(!running||wave<9)return;
+let x=Math.random()*850;
+explosion(x,0,"☄️");
+setTimeout(()=>{explosion(x,500,"💥");enemies.forEach(e=>{if(Math.abs(e.x-x)<120)e.hp-=60})},1000);
+},12000);
+
+updateHud();
+loop();
+</script>
+</body>
+</html>
