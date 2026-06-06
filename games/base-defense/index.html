@@ -26,7 +26,8 @@ button{font-size:16px;padding:8px 12px;margin:3px;border-radius:12px;touch-actio
 .tool-btn.active{border-color:#ffcc00;background:#3a3a1a;box-shadow:0 0 10px #ffcc00}
 .shop-grid button.cant{opacity:.4}
 .start-btn{background:#2a7d2a !important;border-color:#5fd35f !important;font-weight:bold}
-#game{width:900px;height:600px;max-width:96vw;margin:auto;position:relative;overflow:hidden;border:5px solid white;background:#224422}
+#stage{margin:10px auto;overflow:hidden}
+#game{width:900px;height:600px;margin:0 auto;position:relative;overflow:hidden;border:5px solid white;background:#224422;transform-origin:top left}
 .tile{position:absolute;width:45px;height:45px;box-sizing:border-box;border:1px solid rgba(255,255,255,.12)}
 .buildable{background:rgba(0,255,255,.15)}
 .base{background:#777;border:3px solid #ccc}
@@ -120,7 +121,7 @@ button{font-size:16px;padding:8px 12px;margin:3px;border-radius:12px;touch-actio
 </div>
 </div>
 </div>
-<div id="game"><div id="message">基地を作れ！</div></div>
+<div id="stage"><div id="game"><div id="message">基地を作れ！</div></div></div>
 <div id="controls">
 <div class="pad">
 <button class="ctrl" id="up">↑</button>
@@ -643,6 +644,19 @@ let x=Math.random()*850;
 explosion(x,0,"☄️");
 setTimeout(()=>{explosion(x,500,"💥");enemies.forEach(e=>{if(Math.abs(e.x-x)<120)e.hp-=60})},1000);
 },12000);
+
+// スマホでも基地全体が見えるように、画面幅に合わせて拡大縮小する
+function fitGame(){
+const stage=document.getElementById("stage");
+const w=910,h=610; // 900x600 + 枠5px
+const avail=Math.min(window.innerWidth-8,w);
+const scale=Math.min(1,avail/w);
+game.style.transform="scale("+scale+")";
+stage.style.width=(w*scale)+"px";
+stage.style.height=(h*scale)+"px";
+}
+window.addEventListener("resize",fitGame);
+fitGame();
 
 updateHud();
 loop();
