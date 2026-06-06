@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>料理ゲーム</title>
+
+<style>
+body{
+  margin:0;
+  font-family:sans-serif;
+  text-align:center;
+  background:linear-gradient(#fff7d6,#ffd39a);
+}
+h1{font-size:38px;}
+.screen{display:none;}
+.active{display:block;}
+
+#menuBtn{
+  position:fixed;
+  top:10px;
+  left:10px;
+  z-index:1000;
+  font-size:28px;
+  padding:10px 15px;
+}
+#menu{
+  display:none;
+  position:fixed;
+  top:70px;
+  left:10px;
+  background:white;
+  padding:15px;
+  border-radius:15px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.3);
+  z-index:1000;
+}
+#menu button{
+  display:block;
+  width:210px;
+  margin:8px 0;
+}
+
+#mission,#rankBox,#historyBox,#shopBox,#bookBox,#achievementBox{
+  background:white;
+  display:inline-block;
+  padding:15px 25px;
+  border-radius:20px;
+  font-size:22px;
+  margin:8px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+
+button{
+  font-size:22px;
+  padding:14px 20px;
+  margin:6px;
+  border:none;
+  border-radius:18px;
+  cursor:pointer;
+  background:#ff8c42;
+  color:white;
+  box-shadow:0 6px #c55d18;
+}
+button:active{
+  transform:translateY(4px);
+  box-shadow:0 2px #c55d18;
+}
+
+.bought{
+  background:#999;
+  box-shadow:0 6px #666;
+}
+
+#message{
+  font-size:28px;
+  font-weight:bold;
+}
+#dish{
+  font-size:75px;
+  min-height:130px;
+}
+
+.bowl-area{
+  position:relative;
+  width:500px;
+  height:300px;
+  margin:25px auto;
+}
+.bowl{
+  position:absolute;
+  bottom:0;
+  width:500px;
+  height:220px;
+  background:linear-gradient(#c7f0ff,#83d3ff);
+  border:10px solid #3e9cd8;
+  border-radius:0 0 250px 250px;
+  overflow:hidden;
+}
+#bowlItems{
+  position:absolute;
+  bottom:35px;
+  width:100%;
+  z-index:5;
+}
+.food{
+  display:inline-block;
+  margin:4px;
+  animation:drop .4s ease;
+}
+.foodEmoji{font-size:32px;}
+.foodName{
+  font-size:11px;
+  background:white;
+  border-radius:10px;
+  padding:3px 7px;
+}
+.deleteFoodBtn{
+  font-size:13px;
+  padding:3px 7px;
+  margin:2px;
+  border-radius:50%;
+  background:#ff4b4b;
+  box-shadow:0 3px #b51f1f;
+}
+
+@keyframes drop{
+  from{transform:translateY(-100px);opacity:0;}
+  to{transform:translateY(0);opacity:1;}
+}
+.spin{animation:spin .8s linear infinite;}
+@keyframes spin{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}
+
+#nextBtn{
+  display:none;
+  background:#4caf50;
+  box-shadow:0 6px #2f7d32;
+}
+#passBtn{
+  display:none;
+  background:#2196f3;
+  box-shadow:0 6px #0b5fa5;
+}
+.perfect{
+  animation:perfect .8s infinite alternate;
+}
+@keyframes perfect{
+  from{transform:scale(1);}
+  to{transform:scale(1.12);}
+}
+
+@media(max-width:600px){
+  .bowl-area{
+    width:340px;
+    height:240px;
+  }
+  .bowl{
+    width:340px;
+    height:170px;
+  }
+  button{
+    font-size:18px;
+    padding:12px 16px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<button id="menuBtn" onclick="toggleMenu()">☰</button>
+
+<div id="menu">
+  <button onclick="showScreen('gameScreen')">🍳料理</button>
+  <button onclick="showScreen('shopScreen')">🛒ショップ</button>
+  <button onclick="showScreen('bookScreen')">📖図鑑</button>
+  <button onclick="showScreen('achievementScreen')">🏆実績</button>
+</div>
+
+<div id="gameScreen" class="screen active">
+  <h1>🍳ミッション料理ゲーム🍳</h1>
+
+  <button onclick="startGame()">▶️スタート</button>
+
+  <br>
+
+  <div id="rankBox"></div>
+
+  <br>
+
+  <div id="mission">ミッション：スタートを押そう！</div>
+
+  <p id="message">スタートしてね！</p>
+
+  <div id="dish"></div>
+
+  <h2>🍽️使える食材</h2>
+  <div id="foodButtons"></div>
+
+  <div id="actions"></div>
+
+  <div class="bowl-area">
+    <div id="bowlItems"></div>
+    <div class="bowl"></div>
+  </div>
+
+  <button onclick="mix()">🌀混ぜる！</button>
+  <button id="passBtn" onclick="passMission()">⏩パス</button>
+  <button id="nextBtn" onclick="startGame()">➡️次のミッション</button>
+</div>
+
+<div id="shopScreen" class="screen">
+  <h1>🛒ショップ</h1>
+  <div id="shopBox">
+    <h2 id="shopMoney">💰お金：0</h2>
+    <div id="shopItems"></div>
+  </div>
+</div>
+
+<div id="bookScreen" class="screen">
+  <h1>📖料理図鑑</h1>
+  <div id="bookBox"></div>
+</div>
+
+<div id="achievementScreen" class="screen">
+  <h1>🏆実績</h1>
+  <div id="achievementBox"></div>
+  <br>
+  <div id="historyBox">
+    📖作った料理<br>
+    まだないよ
+  </div>
+</div>
+
+<script>
+let bowl=[];
+let score=0;
+let money=500;
+let currentMission=null;
+let history=[];
+let madeDishes=[];
+
+let unlockedFoods=[
+  "にんじん",
+  "たまご",
+  "塩",
+  "水"
+];
+
+let shopFoods=[
+  {name:"じゃがいも", emoji:"🥔", price:100},
+  {name:"たまねぎ", emoji:"🧅", price:100},
+  {name:"肉", emoji:"🥩", price:200},
+  {name:"魚", emoji:"🐟", price:250},
+  {name:"パン", emoji:"🍞", price:150},
+  {name:"チーズ", emoji:"🧀", price:300},
+  {name:"トマト", emoji:"🍅", price:120},
+  {name:"レタス", emoji:"🥬", price:120},
+  {name:"コーン", emoji:"🌽", price:180},
+  {name:"ごはん", emoji:"🍚", price:200},
+  {name:"めん", emoji:"🍜", price:250},
+  {name:"しょうゆ", emoji:"🟤", price:80},
+  {name:"ケチャップ", emoji:"🍅", price:100},
+  {name:"カレー粉", emoji:"🍛", price:350},
+  {name:"きのこ", emoji:"🍄", price:180},
+  {name:"えび", emoji:"🦐", price:300},
+  {name:"牛乳", emoji:"🥛", price:160},
+  {name:"バター", emoji:"🧈", price:220},
+  {name:"小麦粉", emoji:"🌾", price:180},
+  {name:"砂糖", emoji:"🍬", price:100},
+  {name:"りんご", emoji:"🍎", price:150},
+  {name:"いちご", emoji:"🍓", price:180},
+  {name:"チョコ", emoji:"🍫", price:250},
+  {name:"にんにく", emoji:"🧄", price:120}
+];
+
+let missions=[
+  {text:"🥗にんじんサラダを作れ！", answer:["千切りにんじん","塩","レタス"], dish:"🥗", success:"にんじんサラダ", reward:100, rare:false},
+  {text:"🍳たまご焼きを作れ！", answer:["焼いたたまご","塩"], dish:"🍳", success:"たまご焼き", reward:100, rare:false},
+  {text:"🍛カレーを作れ！", answer:["角切りじゃがいも","みじん切りたまねぎ","焼いた肉","水","カレー粉"], dish:"🍛", success:"カレー", reward:130, rare:false},
+  {text:"🍔ハンバーガーを作れ！", answer:["パン","焼いた肉","レタス","ケチャップ"], dish:"🍔", success:"ハンバーガー", reward:130, rare:false},
+  {text:"🍙おにぎりを作れ！", answer:["ごはん","塩"], dish:"🍙", success:"おにぎり", reward:80, rare:false},
+  {text:"🍣おすしを作れ！", answer:["ごはん","切った魚"], dish:"🍣", success:"おすし", reward:120, rare:false},
+  {text:"🍜ラーメンを作れ！", answer:["めん","水","しょうゆ"], dish:"🍜", success:"ラーメン", reward:130, rare:false},
+  {text:"🥪サンドイッチを作れ！", answer:["パン","レタス","トマト"], dish:"🥪", success:"サンドイッチ", reward:120, rare:false},
+  {text:"🍕ピザを作れ！", answer:["パン","チーズ","ケチャップ","焼いた肉"], dish:"🍕", success:"ピザ", reward:180, rare:false},
+  {text:"🍲シチューを作れ！", answer:["角切りじゃがいも","にんじん","焼いた肉","水","牛乳"], dish:"🍲", success:"シチュー", reward:180, rare:false},
+  {text:"🍝えびパスタを作れ！", answer:["めん","えび","トマト","にんにく"], dish:"🍝", success:"えびパスタ", reward:220, rare:false},
+  {text:"🍄きのこソテーを作れ！", answer:["きのこ","バター","塩"], dish:"🍄", success:"きのこソテー", reward:160, rare:false},
+  {text:"🥞パンケーキを作れ！", answer:["小麦粉","たまご","牛乳","砂糖"], dish:"🥞", success:"パンケーキ", reward:200, rare:false},
+  {text:"🥧アップルパイを作れ！", answer:["りんご","小麦粉","バター","砂糖"], dish:"🥧", success:"アップルパイ", reward:220, rare:false},
+  {text:"🍓いちごチョコを作れ！", answer:["いちご","チョコ"], dish:"🍓🍫", success:"いちごチョコ", reward:180, rare:false},
+  {text:"👑🍛レア！王様カレーを作れ！", answer:["角切りじゃがいも","みじん切りたまねぎ","焼いた肉","水","カレー粉","チーズ"], dish:"👑🍛", success:"王様カレー", reward:300, rare:true},
+  {text:"🌈👑超レア！神様のフルコースを作れ！", answer:["焼いた肉","チーズ","トマト","レタス","パン","焼いたたまご","コーン","えび"], dish:"🌈👑🍽️", success:"神様のフルコース", reward:1000, rare:true}
+];
+
+function toggleMenu(){
+  let menu=document.getElementById("menu");
+  menu.style.display = menu.style.display==="block" ? "none" : "block";
+}
+
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(screen=>{
+    screen.classList.remove("active");
+  });
+
+  document.getElementById(id).classList.add("active");
+  document.getElementById("menu").style.display="none";
+
+  updateRank();
+  updateShop();
+  updateBook();
+  updateAchievements();
+}
+
+function startGame(){
+  bowl=[];
+  updateBowl();
+
+  let possibleMissions=missions.filter(mission=>{
+    return mission.answer.every(item=>canMakeItem(item));
+  });
+
+  if(possibleMissions.length===0){
+    currentMission=null;
+    document.getElementById("mission").innerHTML=
+      "🎯ミッション：作れる料理がない！";
+    document.getElementById("message").innerHTML=
+      "🛒ショップで食材を買ってね！";
+    document.getElementById("passBtn").style.display="none";
+    document.getElementById("nextBtn").style.display="none";
+    return;
+  }
+
+  let rares=possibleMissions.filter(m=>m.rare);
+  let normals=possibleMissions.filter(m=>!m.rare);
+  let r=Math.random();
+
+  if(r<0.15 && rares.length>0){
+    currentMission=rares[Math.floor(Math.random()*rares.length)];
+  }else{
+    currentMission=normals[Math.floor(Math.random()*normals.length)];
+  }
+
+  document.getElementById("mission").innerHTML=
+    "🎯ミッション：" + currentMission.text;
+
+  let passText = madeDishes.includes(currentMission.success)
+    ? "<br>📖図鑑登録済み！パスできるよ"
+    : "";
+
+  document.getElementById("message").innerHTML=
+    (currentMission.rare ? "✨レアミッション発生！✨" : "食材を選ぼう！") + passText;
+
+  document.getElementById("dish").innerHTML="";
+  document.getElementById("dish").classList.remove("perfect");
+  document.getElementById("actions").innerHTML="";
+  document.getElementById("nextBtn").style.display="none";
+
+  if(madeDishes.includes(currentMission.success)){
+    document.getElementById("passBtn").style.display="inline-block";
+  }else{
+    document.getElementById("passBtn").style.display="none";
+  }
+
+  updateRank();
+  updateFoodButtons();
+  updateShop();
+}
+
+function canMakeItem(item){
+  if(item.includes("にんじん")) return unlockedFoods.includes("にんじん");
+  if(item.includes("じゃがいも")) return unlockedFoods.includes("じゃがいも");
+  if(item.includes("たまねぎ")) return unlockedFoods.includes("たまねぎ");
+  if(item.includes("たまご")) return unlockedFoods.includes("たまご");
+  if(item.includes("肉")) return unlockedFoods.includes("肉");
+  if(item.includes("魚")) return unlockedFoods.includes("魚");
+  return unlockedFoods.includes(item);
+}
+
+function updateFoodButtons(){
+  let area=document.getElementById("foodButtons");
+  area.innerHTML="";
+
+  unlockedFoods.forEach(food=>{
+    let btn=document.createElement("button");
+    btn.innerHTML=getEmoji(food)+food;
+    btn.onclick=function(){
+      chooseFood(food);
+    };
+    area.appendChild(btn);
+  });
+}
+
+function updateShop(){
+  let area=document.getElementById("shopItems");
+  if(!area) return;
+
+  document.getElementById("shopMoney").innerHTML="💰お金："+money;
+  area.innerHTML="";
+
+  shopFoods.forEach(item=>{
+    let btn=document.createElement("button");
+
+    if(unlockedFoods.includes(item.name)){
+      btn.innerHTML=item.emoji+item.name+" ✅購入済み";
+      btn.className="bought";
+      btn.disabled=true;
+    }else{
+      btn.innerHTML=item.emoji+item.name+" "+item.price+"💰";
+      btn.onclick=function(){
+        buyFood(item.name,item.price);
+      };
+    }
+
+    area.appendChild(btn);
+  });
+}
+
+function buyFood(food,price){
+  if(money<price){
+    alert("💰お金が足りない！");
+    return;
+  }
+
+  money-=price;
+  unlockedFoods.push(food);
+
+  updateRank();
+  updateShop();
+  updateFoodButtons();
+
+  alert(food+"を買った！食材ボタンが追加された！");
+}
+
+function chooseFood(food){
+  let actions=document.getElementById("actions");
+
+  if(food==="にんじん"){
+    actions.innerHTML=`
+      <h2>🥕にんじんをどう切る？</h2>
+      <button onclick="addFood('🥕','にんじん')">そのまま</button>
+      <button onclick="addFood('🥕','千切りにんじん')">🔪千切り</button>
+      <button onclick="addFood('🥕','輪切りにんじん')">🔪輪切り</button>
+      <button onclick="addFood('🥕','みじん切りにんじん')">🔪みじん切り</button>
+    `;
+  }else if(food==="じゃがいも"){
+    actions.innerHTML=`
+      <h2>🥔じゃがいもをどうする？</h2>
+      <button onclick="addFood('🥔','角切りじゃがいも')">🔪角切り</button>
+      <button onclick="addFood('🍟','揚げたじゃがいも')">🔥揚げる</button>
+      <button onclick="addFood('🥔','つぶしたじゃがいも')">💥つぶす</button>
+    `;
+  }else if(food==="たまねぎ"){
+    actions.innerHTML=`
+      <h2>🧅たまねぎをどう切る？</h2>
+      <button onclick="addFood('🧅','みじん切りたまねぎ')">🔪みじん切り</button>
+      <button onclick="addFood('🧅','薄切りたまねぎ')">🔪薄切り</button>
+    `;
+  }else if(food==="たまご"){
+    actions.innerHTML=`
+      <h2>🥚たまごをどうする？</h2>
+      <button onclick="addFood('🥚','たまご')">そのまま</button>
+      <button onclick="addFood('🍳','焼いたたまご')">🔥焼く</button>
+      <button onclick="addFood('🥚','ゆでたまご')">♨️ゆでる</button>
+    `;
+  }else if(food==="肉"){
+    actions.innerHTML=`
+      <h2>🥩肉をどうする？</h2>
+      <button onclick="addFood('🥩','焼いた肉')">🔥焼く</button>
+      <button onclick="addFood('🍖','揚げた肉')">🔥揚げる</button>
+      <button onclick="addFood('🥩','煮た肉')">🍲煮る</button>
+    `;
+  }else if(food==="魚"){
+    actions.innerHTML=`
+      <h2>🐟魚をどうする？</h2>
+      <button onclick="addFood('🐟','切った魚')">🔪切る</button>
+      <button onclick="addFood('🐟','焼いた魚')">🔥焼く</button>
+    `;
+  }else{
+    addFood(getEmoji(food),food);
+  }
+}
+
+function getEmoji(food){
+  let emojis={
+    "にんじん":"🥕","じゃがいも":"🥔","たまねぎ":"🧅","たまご":"🥚",
+    "肉":"🥩","魚":"🐟","パン":"🍞","チーズ":"🧀","トマト":"🍅",
+    "レタス":"🥬","コーン":"🌽","ごはん":"🍚","めん":"🍜","水":"💧",
+    "塩":"🧂","しょうゆ":"🟤","ケチャップ":"🍅","カレー粉":"🍛",
+    "きのこ":"🍄","えび":"🦐","牛乳":"🥛","バター":"🧈",
+    "小麦粉":"🌾","砂糖":"🍬","りんご":"🍎","いちご":"🍓",
+    "チョコ":"🍫","にんにく":"🧄"
+  };
+  return emojis[food] || "🍴";
+}
+
+function addFood(emoji,name){
+  bowl.push({emoji:emoji,name:name});
+  updateBowl();
+  document.getElementById("actions").innerHTML="";
+}
+
+function updateBowl(){
+  let bowlItems=document.getElementById("bowlItems");
+  bowlItems.innerHTML="";
+
+  bowl.forEach((item,index)=>{
+    let div=document.createElement("div");
+    div.className="food";
+    div.innerHTML=`
+      <div class="foodEmoji">${item.emoji}</div>
+      <div class="foodName">${item.name}</div>
+      <button class="deleteFoodBtn" onclick="removeFood(${index})">❌</button>
+    `;
+    bowlItems.appendChild(div);
+  });
+}
+
+function removeFood(index){
+  bowl.splice(index,1);
+  updateBowl();
+}
+
+function mix(){
+  if(currentMission===null){
+    document.getElementById("message").innerHTML="先にスタートしてね！";
+    return;
+  }
+
+  let bowlElement=document.querySelector(".bowl");
+  bowlElement.classList.add("spin");
+
+  document.getElementById("message").innerHTML="🌀まぜまぜまぜ...";
+  document.getElementById("dish").innerHTML="";
+  document.getElementById("dish").classList.remove("perfect");
+  document.getElementById("passBtn").style.display="none";
+
+  setTimeout(()=>{
+    bowlElement.classList.remove("spin");
+
+    let names=bowl.map(x=>x.name);
+    let clear=currentMission.answer.every(item=>names.includes(item));
+    let extra=names.filter(item=>!currentMission.answer.includes(item)).length;
+
+    if(clear){
+      let stars="";
+      let starText="";
+      let point=0;
+
+      if(extra===0){
+        stars="⭐⭐⭐";
+        starText="パーフェクト！";
+        point=currentMission.reward;
+        document.getElementById("dish").classList.add("perfect");
+      }else if(extra===1){
+        stars="⭐⭐";
+        starText="おしい！";
+        point=Math.floor(currentMission.reward*0.7);
+      }else{
+        stars="⭐";
+        starText="なんとか完成！";
+        point=Math.floor(currentMission.reward*0.5);
+      }
+
+      score+=point;
+      money+=point;
+
+      document.getElementById("message").innerHTML=
+        "🎉ミッション成功！ +" + point + "ポイント＆お金";
+
+      document.getElementById("dish").innerHTML=
+        currentMission.dish+
+        "<br><span style='font-size:35px'>"+currentMission.success+"</span>"+
+        "<br><span style='font-size:35px'>"+stars+"<br>"+starText+"</span>";
+
+      addHistory(currentMission.dish+" "+currentMission.success+" "+stars);
+      addBook(currentMission.success);
+
+    }else{
+      let madeDish=getMadeDish(names);
+
+      document.getElementById("message").innerHTML=
+        "😵ミッション失敗！変な料理になった！";
+
+      document.getElementById("dish").innerHTML=
+        madeDish.emoji+
+        "<br><span style='font-size:35px'>"+madeDish.name+"</span>"+
+        "<br><span style='font-size:28px'>⭐評価なし</span>";
+
+      addHistory(madeDish.emoji+" "+madeDish.name+" 評価なし");
+    }
+
+    updateRank();
+    updateHistory();
+    updateShop();
+    updateBook();
+    updateAchievements();
+
+    document.getElementById("nextBtn").style.display="inline-block";
+
+  },2000);
+}
+
+function passMission(){
+  if(currentMission===null){
+    return;
+  }
+
+  if(!madeDishes.includes(currentMission.success)){
+    document.getElementById("message").innerHTML=
+      "❌まだ一度も作ったことがない料理はパスできない！";
+    return;
+  }
+
+  let point=Math.floor(currentMission.reward*0.3);
+
+  score+=point;
+  money+=point;
+
+  document.getElementById("message").innerHTML=
+    "⏩パス！ +" + point + "ポイント＆お金";
+
+  document.getElementById("dish").innerHTML=
+    currentMission.dish+
+    "<br><span style='font-size:35px'>"+currentMission.success+"</span>"+
+    "<br><span style='font-size:28px'>パス報酬 30%</span>";
+
+  addHistory(currentMission.dish+" "+currentMission.success+" パス");
+
+  updateRank();
+  updateHistory();
+  updateShop();
+  updateBook();
+  updateAchievements();
+
+  document.getElementById("nextBtn").style.display="inline-block";
+  document.getElementById("passBtn").style.display="none";
+}
+
+function getMadeDish(names){
+  if(names.includes("ごはん") && names.includes("切った魚")) return {emoji:"🍣",name:"おすしっぽい料理"};
+  if(names.includes("ごはん") && names.includes("塩")) return {emoji:"🍙",name:"おにぎりっぽい料理"};
+  if(names.includes("焼いた肉") && names.includes("パン")) return {emoji:"🍔",name:"バーガーっぽい料理"};
+  if(names.includes("角切りじゃがいも") && names.includes("カレー粉")) return {emoji:"🍛",name:"カレーっぽい料理"};
+  if(names.includes("焼いたたまご")) return {emoji:"🍳",name:"たまご料理"};
+  if(names.includes("千切りにんじん") || names.includes("レタス")) return {emoji:"🥗",name:"サラダっぽい料理"};
+  if(names.includes("めん") && names.includes("水")) return {emoji:"🍜",name:"ラーメンっぽい料理"};
+  if(names.includes("小麦粉") && names.includes("砂糖")) return {emoji:"🥞",name:"甘い粉料理"};
+  if(names.includes("りんご")) return {emoji:"🥧",name:"りんごっぽい料理"};
+  if(names.includes("いちご") && names.includes("チョコ")) return {emoji:"🍓🍫",name:"いちごチョコっぽい料理"};
+  if(names.includes("焼いた肉")) return {emoji:"🍖",name:"肉料理"};
+  if(names.includes("焼いた魚") || names.includes("切った魚")) return {emoji:"🐟",name:"魚料理"};
+  if(names.length===0) return {emoji:"❓",name:"空っぽ料理"};
+  return {emoji:"🤢",name:"なぞの料理"};
+}
+
+function updateRank(){
+  document.getElementById("rankBox").innerHTML=
+    "🏆ランク：" + getRank() +
+    "<br>⭐ポイント：" + score +
+    "<br>💰お金：" + money;
+}
+
+function getRank(){
+  if(score>=1000)return "👑伝説の料理王";
+  if(score>=600)return "🏆マスターシェフ";
+  if(score>=300)return "⭐一流シェフ";
+  if(score>=100)return "🍳シェフ";
+  return "🥄見習いシェフ";
+}
+
+function addHistory(text){
+  history.push(text);
+  if(history.length>6) history.shift();
+}
+
+function updateHistory(){
+  if(history.length===0){
+    document.getElementById("historyBox").innerHTML=
+      "📖作った料理<br>まだないよ";
+    return;
+  }
+
+  document.getElementById("historyBox").innerHTML=
+    "📖作った料理<br>"+history.join("<br>");
+}
+
+function addBook(name){
+  if(!madeDishes.includes(name)){
+    madeDishes.push(name);
+  }
+}
+
+function updateBook(){
+  let box=document.getElementById("bookBox");
+  if(!box) return;
+
+  let html="";
+
+  missions.forEach(m=>{
+    if(madeDishes.includes(m.success)){
+      html+=m.dish+" "+m.success+" ✅<br>";
+    }else{
+      html+="？？？<br>";
+    }
+  });
+
+  box.innerHTML=html;
+}
+
+function updateAchievements(){
+  let box=document.getElementById("achievementBox");
+  if(!box) return;
+
+  let text="";
+
+  text += score>=100 ? "✅ 初めてのシェフ<br>" : "🔒 初めてのシェフ<br>";
+  text += score>=300 ? "✅ 一流への道<br>" : "🔒 一流への道<br>";
+  text += score>=1000 ? "✅ 伝説の料理王<br>" : "🔒 伝説の料理王<br>";
+  text += madeDishes.length>=5 ? "✅ 料理コレクター<br>" : "🔒 料理コレクター<br>";
+  text += unlockedFoods.length>=10 ? "✅ 食材マスター<br>" : "🔒 食材マスター<br>";
+
+  box.innerHTML=text;
+}
+
+updateRank();
+updateFoodButtons();
+updateShop();
+updateBook();
+updateAchievements();
+</script>
+
+</body>
+</html>

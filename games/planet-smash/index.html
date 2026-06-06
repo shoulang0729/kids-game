@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>攻撃で少し稼ぐ 惑星ぶっこわし3D</title>
+<style>
+body{
+ margin:0;
+ background:#050510;
+ color:white;
+ font-family:sans-serif;
+ text-align:center;
+ overflow-y:auto;
+ user-select:none;
+}
+h1{font-size:22px;margin:8px}
+.panel{font-size:18px;line-height:1.6}
+canvas{
+ background:#000;
+ border:4px solid white;
+ border-radius:16px;
+ width:700px;
+ max-width:94vw;
+ height:auto;
+ touch-action:none;
+}
+button{
+ font-size:16px;
+ padding:11px;
+ margin:4px;
+ border-radius:14px;
+}
+.shop{
+ width:720px;
+ max-width:96vw;
+ margin:10px auto 60px;
+ background:#111133;
+ border:3px solid white;
+ border-radius:16px;
+ padding:8px;
+}
+.sectionTitle{
+ font-size:22px;
+ margin-top:10px;
+ color:#ffff88;
+}
+.selected{
+ background:#ffff88;
+ color:#000;
+ border:3px solid red;
+}
+.locked{
+ background:#444;
+ color:#ccc;
+}
+#msg{
+ font-size:20px;
+ min-height:32px;
+}
+</style>
+</head>
+<body>
+
+<h1>🌌💰 攻撃で少し稼ぐ 惑星ぶっこわし3D 💰🌌</h1>
+
+<div class="panel">
+ステージ：<span id="stageName"></span><br>
+お金：<span id="money">0</span>円<br>
+選択攻撃：<span id="attackName"></span><br>
+HP：<span id="hp"></span>/<span id="maxHp"></span>
+破壊率：<span id="damage">0</span>%
+</div>
+
+<canvas id="c" width="700" height="400"></canvas>
+
+<h2 id="msg">惑星をタッチして攻撃！少しずつお金が入る！</h2>
+
+<div class="shop">
+ <div class="sectionTitle">🔫 攻撃を解放・選択</div>
+ <div id="attackButtons"></div>
+
+ <div class="sectionTitle">🔄 リセット</div>
+ <button onclick="resetGame()">🔄 もう一回</button>
+</div>
+
+<script>
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
+const msg=document.getElementById("msg");
+
+const stages=[
+ {name:"🌎 地球",hp:3000,color1:"#88f5ff",color2:"#1c8cff",land:"#18b957",bonus:500,ring:false},
+ {name:"🌕 月",hp:7000,color1:"#eeeeee",color2:"#777777",land:"#aaaaaa",bonus:1000,ring:false},
+ {name:"🔴 火星",hp:15000,color1:"#ff9966",color2:"#aa2200",land:"#772200",bonus:2000,ring:false},
+ {name:"🟠 木星",hp:30000,color1:"#ffcc88",color2:"#cc6600",land:"#aa5500",bonus:4000,ring:false},
+ {name:"🪐 土星",hp:50000,color1:"#ffe08a",color2:"#b8860b",land:"#ccaa55",bonus:7000,ring:true},
+ {name:"🧊 天王星",hp:80000,color1:"#99ffff",color2:"#33cccc",land:"#88ffff",bonus:10000,ring:true},
+ {name:"🌊 海王星",hp:120000,color1:"#4488ff",color2:"#0033aa",land:"#77aaff",bonus:15000,ring:false},
+ {name:"🌋 マグマ惑星",hp:220000,color1:"#ffcc44",color2:"#aa0000",land:"#ff3300",bonus:25000,ring:false},
+ {name:"🤖 ロボット惑星",hp:400000,color1:"#dddddd",color2:"#333333",land:"#00ffcc",bonus:40000,ring:false},
+ {name:"🐉 ドラゴン星",hp:550000,color1:"#ff8844",color2:"#550000",land:"#ffdd00",bonus:60000,ring:false},
+ {name:"☠️ SCP惑星",hp:700000,color1:"#dddddd",color2:"#111111",land:"#ff0000",bonus:80000,ring:false},
+ {name:"🚂 シンカリオン星",hp:900000,color1:"#99ccff",color2:"#003366",land:"#ffff00",bonus:100000,ring:false},
+ {name:"🏰 800砲台要塞星",hp:1200000,color1:"#aaaaaa",color2:"#222222",land:"#ff9900",bonus:140000,ring:true},
+ {name:"☀️ 太陽",hp:1600000,color1:"#ffff66",color2:"#ff5500",land:"#ff9900",bonus:200000,ring:false},
+ {name:"🕳️ ブラックホール",hp:2500000,color1:"#5555ff",color2:"#000000",land:"#9900ff",bonus:300000,ring:true},
+ {name:"🌌 銀河",hp:4000000,color1:"#ff99ff",color2:"#3333ff",land:"#ffffff",bonus:450000,ring:true},
+ {name:"♾️ 宇宙",hp:7000000,color1:"#ffffff",color2:"#000022",land:"#99ffff",bonus:700000,ring:true},
+ {name:"👑 宇宙皇帝ゼログ",hp:12000000,color1:"#ff0000",color2:"#220000",land:"#ffd700",bonus:0,ring:true}
+];
+
+const attacks=[
+ {name:"🔴 レッドレーザー",cost:0,dmg:20,color:"red",type:"beam",unlocked:true},
+ {name:"🪨 隕石",cost:500,dmg:80,color:"gray",type:"meteor",unlocked:false},
+ {name:"🔵 ブルービーム",cost:1000,dmg:100,color:"cyan",type:"beam",unlocked:false},
+ {name:"🌋 火山噴火",cost:2500,dmg:250,color:"orange",type:"blast",unlocked:false},
+ {name:"🟡 サンダービーム",cost:4500,dmg:400,color:"yellow",type:"beam",unlocked:false},
+ {name:"🌊 超巨大津波",cost:8000,dmg:700,color:"blue",type:"wave",unlocked:false},
+ {name:"🟣 ダークビーム",cost:13000,dmg:1000,color:"purple",type:"beam",unlocked:false},
+ {name:"☄️ 小惑星",cost:22000,dmg:1800,color:"brown",type:"meteor",unlocked:false},
+ {name:"🟢 毒ビーム",cost:35000,dmg:1200,color:"lime",type:"poison",unlocked:false},
+ {name:"🌈 レインボービーム",cost:60000,dmg:0,color:"white",type:"rainbow",unlocked:false},
+ {name:"🕳️ ブラックホールビーム",cost:120000,dmg:8000,color:"black",type:"blackhole",unlocked:false},
+ {name:"🏰 800砲台一斉射撃",cost:300000,dmg:20000,color:"gold",type:"turret",unlocked:false},
+ {name:"♾️ 宇宙破壊砲",cost:900000,dmg:80000,color:"white",type:"beam",unlocked:false},
+ {name:"👑 ゼログビーム",cost:2000000,dmg:200000,color:"red",type:"beam",unlocked:false}
+];
+
+let stage=0;
+let money=0;
+let hp=stages[0].hp;
+let maxHp=stages[0].hp;
+let selected=0;
+let rot=0;
+let shake=0;
+let boom=0;
+let cracks=[];
+let effects=[];
+let cleared=false;
+let poisonTimers=[];
+
+function stopPoison(timer){
+ clearInterval(timer);
+ let i=poisonTimers.indexOf(timer);
+ if(i>=0) poisonTimers.splice(i,1);
+}
+
+function clearAllPoison(){
+ poisonTimers.forEach(t=>clearInterval(t));
+ poisonTimers=[];
+}
+
+function makeButtons(){
+ const box=document.getElementById("attackButtons");
+ box.innerHTML="";
+ attacks.forEach((a,i)=>{
+  let btn=document.createElement("button");
+  btn.id="atk"+i;
+  btn.onclick=()=>attackButton(i);
+  box.appendChild(btn);
+ });
+ updateButtons();
+}
+
+function updateButtons(){
+ attacks.forEach((a,i)=>{
+  let btn=document.getElementById("atk"+i);
+  btn.className="";
+  if(i===selected)btn.classList.add("selected");
+  if(!a.unlocked)btn.classList.add("locked");
+
+  if(a.unlocked){
+   btn.textContent=a.name+" / "+a.dmg+"ダメージ";
+  }else{
+   btn.textContent="🔒 解放 "+a.cost+"円： "+a.name;
+  }
+ });
+}
+
+function attackButton(i){
+ let a=attacks[i];
+
+ if(a.unlocked){
+  selected=i;
+  msg.textContent=a.name+" を選択！惑星をタッチ！";
+  updateText();
+  updateButtons();
+  return;
+ }
+
+ if(money<a.cost){
+  msg.textContent="お金が足りない！必要："+a.cost+"円";
+  return;
+ }
+
+ money-=a.cost;
+ a.unlocked=true;
+ selected=i;
+ msg.textContent=a.name+" を解放！これから無料で使える！";
+ updateText();
+ updateButtons();
+}
+
+function updateText(){
+ document.getElementById("stageName").textContent=stages[stage].name;
+ document.getElementById("money").textContent=Math.floor(money);
+ document.getElementById("hp").textContent=Math.max(0,Math.floor(hp));
+ document.getElementById("maxHp").textContent=maxHp;
+ document.getElementById("attackName").textContent=attacks[selected].name;
+ let damage=Math.floor((1-hp/maxHp)*100);
+ document.getElementById("damage").textContent=Math.min(100,Math.max(0,damage));
+}
+
+function useAttack(tx,ty){
+ if(cleared){
+  msg.textContent="完全クリア済み！もう一回で最初から！";
+  return;
+ }
+
+ let a=attacks[selected];
+ let dmg=a.dmg;
+
+ if(a.type==="rainbow"){
+  dmg=3000+Math.floor(Math.random()*12000);
+ }
+
+ let reward=Math.max(1,Math.floor(dmg/25));
+ money+=reward;
+
+ effects.push({x:tx,y:ty,color:a.color,type:a.type,life:28});
+ damagePlanet(dmg,tx,ty);
+
+ if(a.type==="poison"){
+  msg.textContent=a.name+"！ "+dmg+"ダメージ！ +" + reward + "円！毒追加！";
+
+  let count=0;
+  let timer=setInterval(()=>{
+   if(cleared){
+    stopPoison(timer);
+    return;
+   }
+
+   let poisonDmg=700;
+   let poisonReward=Math.max(1,Math.floor(poisonDmg/40));
+   hp-=poisonDmg;
+   money+=poisonReward;
+   count++;
+
+   effects.push({x:tx,y:ty,color:"lime",type:"poison",life:16});
+   cracks.push({
+    a:Math.random()*Math.PI*2,
+    len:30+Math.random()*50,
+    x:tx-350,
+    y:ty-200
+   });
+
+   if(hp<=0){
+    hp=0;
+    clearStage();
+    stopPoison(timer);
+   }
+
+   if(count>=5)stopPoison(timer);
+   updateText();
+   updateButtons();
+  },600);
+  poisonTimers.push(timer);
+ }else{
+  msg.textContent=a.name+"！ "+dmg+"ダメージ！ +" + reward + "円！";
+ }
+
+ updateText();
+ updateButtons();
+}
+
+function damagePlanet(dmg,tx,ty){
+ hp-=dmg;
+ shake=18;
+ boom=25;
+
+ cracks.push({
+  a:Math.random()*Math.PI*2,
+  len:25+Math.random()*90,
+  x:tx-350,
+  y:ty-200
+ });
+
+ if(hp<=0){
+  hp=0;
+  clearStage();
+ }
+}
+
+function clearStage(){
+ clearAllPoison();
+ if(stage>=stages.length-1){
+  cleared=true;
+  msg.textContent="🏆 完全クリア！宇宙皇帝ゼログを破壊した！";
+  return;
+ }
+
+ let bonus=stages[stage].bonus;
+ money+=bonus;
+ stage++;
+ maxHp=stages[stage].hp;
+ hp=maxHp;
+ cracks=[];
+ boom=40;
+ shake=25;
+ msg.textContent="ステージクリア！ +" + bonus + "円！ 次は " + stages[stage].name;
+ updateText();
+ updateButtons();
+}
+
+function resetGame(){
+ clearAllPoison();
+ stage=0;
+ money=0;
+ maxHp=stages[0].hp;
+ hp=maxHp;
+ selected=0;
+ rot=0;
+ shake=0;
+ boom=0;
+ cracks=[];
+ effects=[];
+ cleared=false;
+
+ attacks.forEach((a,i)=>a.unlocked=(i===0));
+
+ msg.textContent="🔄 もう一回スタート！地球が復活した！";
+ updateText();
+ updateButtons();
+}
+
+canvas.addEventListener("click",function(e){
+ let rect=canvas.getBoundingClientRect();
+ let x=(e.clientX-rect.left)*(canvas.width/rect.width);
+ let y=(e.clientY-rect.top)*(canvas.height/rect.height);
+ useAttack(x,y);
+});
+
+canvas.addEventListener("touchstart",function(e){
+ let t=e.touches[0];
+ let rect=canvas.getBoundingClientRect();
+ let x=(t.clientX-rect.left)*(canvas.width/rect.width);
+ let y=(t.clientY-rect.top)*(canvas.height/rect.height);
+ useAttack(x,y);
+},{passive:true});
+
+function drawStars(){
+ ctx.fillStyle="white";
+ for(let i=0;i<90;i++){
+  let x=(i*97)%700;
+  let y=(i*53)%400;
+  let s=(i%3)+1;
+  ctx.globalAlpha=0.3+0.7*Math.sin(rot+i);
+  ctx.fillRect(x,y,s,s);
+ }
+ ctx.globalAlpha=1;
+}
+
+function drawPlanet(){
+ let st=stages[stage];
+ let cx=350+(Math.random()*shake-shake/2);
+ let cy=200+(Math.random()*shake-shake/2);
+ let r=115;
+
+ let grad=ctx.createRadialGradient(cx-45,cy-55,15,cx,cy,r);
+ grad.addColorStop(0,st.color1);
+ grad.addColorStop(0.45,st.color2);
+ grad.addColorStop(1,"#000014");
+
+ ctx.fillStyle=grad;
+ ctx.beginPath();
+ ctx.arc(cx,cy,r,0,Math.PI*2);
+ ctx.fill();
+
+ ctx.save();
+ ctx.beginPath();
+ ctx.arc(cx,cy,r,0,Math.PI*2);
+ ctx.clip();
+
+ ctx.fillStyle=st.land;
+ for(let i=0;i<8;i++){
+  let x=cx+Math.sin(rot+i)*90;
+  let y=cy+Math.cos(rot*0.7+i*2)*55;
+  ctx.beginPath();
+  ctx.ellipse(x,y,35,17,Math.sin(i),0,Math.PI*2);
+  ctx.fill();
+ }
+
+ ctx.strokeStyle="rgba(255,255,255,.22)";
+ for(let i=-90;i<=90;i+=25){
+  ctx.beginPath();
+  ctx.ellipse(cx,cy,r,Math.sqrt(r*r-i*i)/3,0,0,Math.PI*2);
+  ctx.stroke();
+ }
+
+ ctx.strokeStyle="rgba(255,0,0,.9)";
+ ctx.lineWidth=3;
+ cracks.forEach(cr=>{
+  ctx.beginPath();
+  let x=cx+cr.x;
+  let y=cy+cr.y;
+  ctx.moveTo(x,y);
+  ctx.lineTo(x+Math.cos(cr.a)*cr.len,y+Math.sin(cr.a)*cr.len);
+  ctx.lineTo(x+Math.cos(cr.a+0.8)*cr.len/2,y+Math.sin(cr.a+0.8)*cr.len/2);
+  ctx.stroke();
+ });
+
+ ctx.restore();
+
+ ctx.strokeStyle="rgba(120,200,255,.6)";
+ ctx.lineWidth=4;
+ ctx.beginPath();
+ ctx.arc(cx,cy,r+5,0,Math.PI*2);
+ ctx.stroke();
+
+ if(st.ring){
+  ctx.strokeStyle="rgba(255,220,120,.8)";
+  ctx.lineWidth=8;
+  ctx.beginPath();
+  ctx.ellipse(cx,cy,r+45,28,0.2,0,Math.PI*2);
+  ctx.stroke();
+ }
+
+ if(boom>0){
+  ctx.fillStyle="rgba(255,120,0,"+(boom/40)+")";
+  ctx.beginPath();
+  ctx.arc(cx,cy,150-boom*2,0,Math.PI*2);
+  ctx.fill();
+  boom--;
+ }
+
+ if(cleared){
+  ctx.fillStyle="rgba(255,80,0,.9)";
+  ctx.beginPath();
+  ctx.arc(cx,cy,170+Math.sin(rot*8)*20,0,Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle="white";
+  ctx.font="48px sans-serif";
+  ctx.fillText("完全勝利",cx-100,cy+18);
+ }
+
+ if(shake>0)shake--;
+}
+
+function drawEffects(){
+ for(let i=effects.length-1;i>=0;i--){
+  let e=effects[i];
+  ctx.globalAlpha=e.life/28;
+
+  if(e.type==="beam" || e.type==="poison" || e.type==="rainbow" || e.type==="blackhole"){
+   ctx.lineWidth=8;
+   ctx.strokeStyle=e.type==="rainbow"
+    ? ["red","orange","yellow","lime","cyan","blue","purple"][e.life%7]
+    : e.color;
+   ctx.beginPath();
+   ctx.moveTo(80,70);
+   ctx.lineTo(e.x,e.y);
+   ctx.stroke();
+  }
+
+  if(e.type==="meteor"){
+   ctx.font="46px sans-serif";
+   ctx.fillText("☄️",e.x-25,e.y+15);
+  }
+
+  if(e.type==="blast"){
+   ctx.font="46px sans-serif";
+   ctx.fillText("🌋",e.x-25,e.y+15);
+  }
+
+  if(e.type==="wave"){
+   ctx.font="46px sans-serif";
+   ctx.fillText("🌊",e.x-25,e.y+15);
+  }
+
+  if(e.type==="turret"){
+   ctx.font="40px sans-serif";
+   ctx.fillText("🏰🏰🏰",e.x-70,e.y+10);
+  }
+
+  ctx.fillStyle=e.color;
+  ctx.beginPath();
+  ctx.arc(e.x,e.y,30-e.life/2,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle="white";
+  ctx.font="24px sans-serif";
+  ctx.fillText("💥",e.x-13,e.y+9);
+
+  e.life--;
+  if(e.life<=0)effects.splice(i,1);
+ }
+ ctx.globalAlpha=1;
+}
+
+function loop(){
+ ctx.clearRect(0,0,700,400);
+ drawStars();
+ drawPlanet();
+ drawEffects();
+ rot+=0.018;
+ requestAnimationFrame(loop);
+}
+
+makeButtons();
+updateText();
+loop();
+</script>
+
+</body>
+</html>
