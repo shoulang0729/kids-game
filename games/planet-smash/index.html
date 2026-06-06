@@ -23,7 +23,7 @@ canvas{
  width:700px;
  max-width:94vw;
  height:auto;
- touch-action:auto;
+ touch-action:none;
 }
 button{
  font-size:16px;
@@ -138,6 +138,18 @@ let boom=0;
 let cracks=[];
 let effects=[];
 let cleared=false;
+let poisonTimers=[];
+
+function stopPoison(timer){
+ clearInterval(timer);
+ let i=poisonTimers.indexOf(timer);
+ if(i>=0) poisonTimers.splice(i,1);
+}
+
+function clearAllPoison(){
+ poisonTimers.forEach(t=>clearInterval(t));
+ poisonTimers=[];
+}
 
 function makeButtons(){
  const box=document.getElementById("attackButtons");
@@ -225,7 +237,7 @@ function useAttack(tx,ty){
   let count=0;
   let timer=setInterval(()=>{
    if(cleared){
-    clearInterval(timer);
+    stopPoison(timer);
     return;
    }
 
@@ -246,13 +258,14 @@ function useAttack(tx,ty){
    if(hp<=0){
     hp=0;
     clearStage();
-    clearInterval(timer);
+    stopPoison(timer);
    }
 
-   if(count>=5)clearInterval(timer);
+   if(count>=5)stopPoison(timer);
    updateText();
    updateButtons();
   },600);
+  poisonTimers.push(timer);
  }else{
   msg.textContent=a.name+"！ "+dmg+"ダメージ！ +" + reward + "円！";
  }
@@ -280,6 +293,7 @@ function damagePlanet(dmg,tx,ty){
 }
 
 function clearStage(){
+ clearAllPoison();
  if(stage>=stages.length-1){
   cleared=true;
   msg.textContent="🏆 完全クリア！宇宙皇帝ゼログを破壊した！";
@@ -300,6 +314,7 @@ function clearStage(){
 }
 
 function resetGame(){
+ clearAllPoison();
  stage=0;
  money=0;
  maxHp=stages[0].hp;

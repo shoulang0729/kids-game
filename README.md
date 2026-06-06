@@ -19,6 +19,7 @@ GitHub Pages で公開しています：
 | 🐍 へびゲーム | りんごを食べてへびをのばす。かべと自分に注意 | としお | `games/snake/` |
 | ⚔️ ようちゃんバトル | ストーリー・無限・防衛モードのRPGバトル | ようちゃん | `games/youchan-battle/` |
 | 🌌 惑星ぶっこわし3D | 惑星をタッチして破壊。お金で強い攻撃を解放する | ようちゃん | `games/planet-smash/` |
+| 🍳 料理ゲーム | ミッションの料理を作る。食材の調理・ショップ・図鑑・実績 | こうちゃん | `games/cooking/` |
 
 ## 📁 リポジトリ構成
 
@@ -32,8 +33,10 @@ kids-game/
 │   │   └── index.html      ← へびゲーム（としお）
 │   ├── youchan-battle/
 │   │   └── index.html      ← ようちゃんバトル（ようちゃん）
-│   └── planet-smash/
-│       └── index.html      ← 惑星ぶっこわし3D
+│   ├── planet-smash/
+│   │   └── index.html      ← 惑星ぶっこわし3D（ようちゃん）
+│   └── cooking/
+│       └── index.html      ← 料理ゲーム（こうちゃん）
 ├── wiki/
 │   └── index.html          ← せつめいしょ
 └── README.md
