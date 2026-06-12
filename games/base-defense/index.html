@@ -2,11 +2,13 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>こうちゃん地獄基地防衛 全部版</title>
 <style>
-body{margin:0;background:#111;color:white;font-family:sans-serif;text-align:center;overflow:auto;user-select:none}
-h1{margin:6px}
+*{box-sizing:border-box}
+html{overflow-x:hidden}
+body{margin:0;background:#111;color:white;font-family:sans-serif;text-align:center;overflow-x:hidden;overflow-y:auto;user-select:none;padding-bottom:env(safe-area-inset-bottom)}
+h1{margin:6px;font-size:clamp(18px,5vw,32px);line-height:1.15}
 /* HUD：ステータスをカテゴリごとのチップに分割 */
 #hud{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:8px auto;max-width:920px;padding:0 8px}
 .chip{background:#1c1c2e;border:2px solid #333;border-radius:12px;padding:5px 10px;min-width:80px}
@@ -14,7 +16,7 @@ h1{margin:6px}
 .chip .v{font-size:17px;font-weight:bold;white-space:nowrap}
 .chip .bar{height:6px;background:#333;border-radius:3px;margin-top:4px;overflow:hidden}
 .chip .bar i{display:block;height:100%;border-radius:3px;transition:width .2s}
-button{font-size:16px;padding:8px 12px;margin:3px;border-radius:12px;touch-action:manipulation}
+button{font-size:16px;padding:8px 12px;margin:3px;border-radius:12px;touch-action:manipulation;max-width:100%}
 /* ショップ：カテゴリ別メニュー */
 #shop{max-width:940px;margin:10px auto;padding:0 8px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .shop-group{background:rgba(255,255,255,.05);border:2px solid #333;border-radius:14px;padding:8px 10px;flex:1 1 270px;min-width:250px}
@@ -26,8 +28,8 @@ button{font-size:16px;padding:8px 12px;margin:3px;border-radius:12px;touch-actio
 .tool-btn.active{border-color:#ffcc00;background:#3a3a1a;box-shadow:0 0 10px #ffcc00}
 .shop-grid button.cant{opacity:.4}
 .start-btn{background:#2a7d2a !important;border-color:#5fd35f !important;font-weight:bold}
-#stage{margin:10px auto;overflow:hidden}
-#game{width:900px;height:600px;margin:0 auto;position:relative;overflow:hidden;border:5px solid white;background:#224422;transform-origin:top left}
+#stage{margin:10px auto;overflow:hidden;touch-action:none}
+#game{width:900px;height:600px;margin:0;position:relative;overflow:hidden;border:5px solid white;background:#224422;transform-origin:top left}
 .tile{position:absolute;width:45px;height:45px;box-sizing:border-box;border:1px solid rgba(255,255,255,.12)}
 .buildable{background:rgba(0,255,255,.15)}
 .base{background:#777;border:3px solid #ccc}
@@ -76,6 +78,21 @@ button{font-size:16px;padding:8px 12px;margin:3px;border-radius:12px;touch-actio
 .pad-mid{display:flex;gap:6px;align-items:center}
 .ctrl{width:64px;height:58px;font-size:24px;background:#26263a;color:#fff;border:2px solid #555}
 .ctrl.shoot{background:#aa2233;border-color:#ff6677;font-size:15px;font-weight:bold}
+@media(max-width:700px){
+#hud{gap:4px;margin:5px auto}
+.chip{min-width:66px;padding:4px 7px}
+.chip .l{font-size:9px}
+.chip .v{font-size:13px}
+#shop{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px auto;padding:0 6px}
+.shop-group{min-width:0;flex:auto;padding:6px}
+.shop-group h3{font-size:11px}
+.shop-grid{grid-template-columns:1fr;gap:4px}
+.shop-grid button{min-height:40px;font-size:12px;padding:6px 5px}
+.shop-grid button b{font-size:12px}
+#controls{margin:8px auto 16px}
+.ctrl{width:56px;height:50px}
+}
+@media(max-width:390px){#shop{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -648,14 +665,18 @@ setTimeout(()=>{explosion(x,500,"💥");enemies.forEach(e=>{if(Math.abs(e.x-x)<1
 // スマホでも基地全体が見えるように、画面幅に合わせて拡大縮小する
 function fitGame(){
 const stage=document.getElementById("stage");
+const controls=document.getElementById("controls");
 const w=910,h=610; // 900x600 + 枠5px
-const avail=Math.min(window.innerWidth-8,w);
-const scale=Math.min(1,avail/w);
+const availW=Math.min(window.innerWidth-8,w);
+const controlsH=controls ? controls.getBoundingClientRect().height : 0;
+const availH=Math.min(Math.max(220,window.innerHeight-controlsH-24),h);
+const scale=Math.min(1,availW/w,availH/h);
 game.style.transform="scale("+scale+")";
 stage.style.width=(w*scale)+"px";
 stage.style.height=(h*scale)+"px";
 }
 window.addEventListener("resize",fitGame);
+window.addEventListener("orientationchange",()=>setTimeout(fitGame,120));
 fitGame();
 
 updateHud();

@@ -2,12 +2,12 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>とみよこゲームランド 🎮</title>
 <style>
 *{box-sizing:border-box}
 body{
-margin:0;min-height:100vh;
+margin:0;min-height:100dvh;
 font-family:"Hiragino Maru Gothic Pro","Yu Gothic",sans-serif;
 color:#fff;text-align:center;
 background:linear-gradient(160deg,#1b1b3a,#3a1b5a 50%,#5a1b3a);
@@ -29,7 +29,7 @@ padding:8px 20px;border-radius:999px;transition:.15s;
 }
 .manual-link:hover{background:#ff4cf0;color:#111;border-color:#ff4cf0}
 #grid{
-display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));
 gap:22px;max-width:1000px;margin:30px auto;padding:0 18px 60px;
 }
 .card{
@@ -46,8 +46,8 @@ border-color:#ff4cf0;
 box-shadow:0 0 28px rgba(255,76,240,.5);
 }
 .card .emoji{font-size:64px;line-height:1}
-.card h2{font-size:22px;margin:6px 0 0}
-.card p{font-size:14px;opacity:.8;margin:0;min-height:40px}
+.card h2{font-size:22px;margin:6px 0 0;overflow-wrap:anywhere}
+.card p{font-size:14px;opacity:.8;margin:0;min-height:40px;overflow-wrap:anywhere}
 .badge{
 font-size:12px;background:#ff4cf0;color:#111;font-weight:bold;
 padding:3px 10px;border-radius:999px;

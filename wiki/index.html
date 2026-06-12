@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>📖 せつめいしょ - とみよこゲームランド</title>
 <style>
 *{box-sizing:border-box}
@@ -10,6 +10,7 @@ body{
 margin:0;color:#222;line-height:1.8;
 font-family:"Hiragino Maru Gothic Pro","Yu Gothic",sans-serif;
 background:#f4f1ff;
+overflow-x:hidden;
 }
 header{
 background:linear-gradient(160deg,#1b1b3a,#5a1b3a);
@@ -31,7 +32,7 @@ box-shadow:0 4px 14px rgba(60,20,90,.12);
 }
 h2{color:#7a1b9a;border-bottom:3px solid #ffd1fb;padding-bottom:6px;margin-top:0}
 h3{color:#3a1b6a;margin-top:22px}
-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:15px}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:15px;display:block;overflow-x:auto}
 th,td{border:1px solid #e0d6f5;padding:8px 10px;text-align:left}
 th{background:#f0e6ff}
 .emoji{font-size:20px}
@@ -44,6 +45,10 @@ padding:10px 22px;border-radius:999px;text-decoration:none;margin-top:8px;
 }
 .btn:hover{background:#ff7cf5}
 footer{text-align:center;padding:20px;color:#888;font-size:13px}
+@media(max-width:600px){
+nav{overflow-x:auto;white-space:nowrap}
+section{padding:18px 16px}
+}
 </style>
 </head>
 <body>

@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>🐍 としくんのへびゲーム</title>
 <style>
 :root{
@@ -11,27 +11,27 @@
   --accent-cyan:#7CE7FF; --accent-purple:#9B8CFF; --muted:#DCEFFF;
 }
 *{box-sizing:border-box}
-html{height:100%}
+html{height:100%;overflow-x:hidden}
 body{
-  min-height:100%;margin:0;
+  min-height:100dvh;margin:0;
   display:flex;align-items:center;justify-content:center;
-  padding:24px 12px;
+  padding:clamp(10px,3vw,24px) 10px;
   background: linear-gradient(180deg,var(--bg1) 0%, var(--bg2) 100%);
   color:var(--muted);font-family:Inter, system-ui, -apple-system, "Hiragino Maru Gothic Pro","Yu Gothic",sans-serif;
-  -webkit-font-smoothing:antialiased;user-select:none;touch-action:none;
+  -webkit-font-smoothing:antialiased;user-select:none;touch-action:none;overflow-x:hidden;
 }
 .container{
-  width: min(92vw, 920px); padding:28px; border-radius:18px;
+  width: min(96vw, 920px); padding:clamp(12px,3vw,28px); border-radius:18px;
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   box-shadow: 0 20px 50px rgba(2,6,23,0.6);
-  display:flex;flex-direction:column;align-items:center;gap:16px;position:relative;
+  display:flex;flex-direction:column;align-items:center;gap:clamp(8px,2vw,16px);position:relative;
 }
 .header{display:flex;flex-direction:column;align-items:center;gap:6px}
 h1{margin:0;font-size:clamp(20px,4vw,32px);letter-spacing:0.6px}
 .meta{display:flex;gap:12px;align-items:center}
 #score{font-size:18px;font-weight:700}
 #best{font-size:13px;opacity:.85}
-.wrap{position:relative;width:100%;max-width:780px}
+.wrap{position:relative;width:100%;max-width:min(780px,calc(100dvh - 210px),94vw)}
 .game-frame{width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;position:relative}
 canvas{width:100%;height:100%;display:block;border-radius:12px;background:transparent}
 .frame-bg{position:absolute;inset:0;border-radius:12px;padding:14px;pointer-events:none;
@@ -50,6 +50,19 @@ canvas{width:100%;height:100%;display:block;border-radius:12px;background:transp
 .note{font-size:12px;opacity:.85}
 /* Neon glow for snake head */
 .glow{filter:drop-shadow(0 0 8px rgba(124,181,255,0.55))}
+@media(max-width:600px){
+  body{align-items:flex-start}
+  .container{width:100%;min-height:100dvh;border-radius:0;padding:10px 8px}
+  .wrap{max-width:min(94vw,calc(100dvh - 180px))}
+  .overlay h2{font-size:20px}
+  .hint,.legend{font-size:11px}
+  .controls{flex-wrap:wrap}
+}
+@media(max-height:620px){
+  .wrap{max-width:min(70dvh,94vw)}
+  h1{font-size:20px}
+  .container{gap:8px}
+}
 </style>
 </head>
 <body>

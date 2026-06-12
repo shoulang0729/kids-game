@@ -2,18 +2,22 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>料理ゲーム</title>
 
 <style>
+*{box-sizing:border-box}
+html{overflow-x:hidden}
 body{
   margin:0;
+  padding:0 8px env(safe-area-inset-bottom);
   font-family:sans-serif;
   text-align:center;
   background:linear-gradient(#fff7d6,#ffd39a);
+  overflow-x:hidden;
 }
-h1{font-size:38px;}
-.screen{display:none;}
+h1{font-size:clamp(24px,8vw,38px);padding:0 52px;}
+.screen{display:none;max-width:100%;}
 .active{display:block;}
 
 #menuBtn{
@@ -29,6 +33,7 @@ h1{font-size:38px;}
   position:fixed;
   top:70px;
   left:10px;
+  max-width:calc(100vw - 20px);
   background:white;
   padding:15px;
   border-radius:15px;
@@ -44,6 +49,7 @@ h1{font-size:38px;}
 #mission,#rankBox,#historyBox,#shopBox,#bookBox,#achievementBox{
   background:white;
   display:inline-block;
+  max-width:calc(100vw - 20px);
   padding:15px 25px;
   border-radius:20px;
   font-size:22px;
@@ -61,6 +67,9 @@ button{
   background:#ff8c42;
   color:white;
   box-shadow:0 6px #c55d18;
+  max-width:100%;
+  overflow-wrap:anywhere;
+  touch-action:manipulation;
 }
 button:active{
   transform:translateY(4px);
@@ -80,18 +89,25 @@ button:active{
   font-size:75px;
   min-height:130px;
 }
+#foodButtons,#actions,#shopItems{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:4px;
+}
+#actions h2{flex-basis:100%}
 
 .bowl-area{
   position:relative;
-  width:500px;
-  height:300px;
+  width:min(500px,94vw);
+  height:clamp(210px,45vw,300px);
   margin:25px auto;
 }
 .bowl{
   position:absolute;
   bottom:0;
-  width:500px;
-  height:220px;
+  width:100%;
+  height:clamp(150px,34vw,220px);
   background:linear-gradient(#c7f0ff,#83d3ff);
   border:10px solid #3e9cd8;
   border-radius:0 0 250px 250px;
@@ -153,6 +169,8 @@ button:active{
 }
 
 @media(max-width:600px){
+  body{padding:0 6px env(safe-area-inset-bottom)}
+  h1{padding:0 46px}
   h1{font-size:26px}
   #dish{font-size:56px;min-height:100px}
   #message{font-size:22px}
@@ -162,7 +180,7 @@ button:active{
     height:240px;
   }
   .bowl{
-    width:min(340px,92vw);
+    width:100%;
     height:170px;
   }
   button{

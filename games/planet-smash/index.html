@@ -2,19 +2,23 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>攻撃で少し稼ぐ 惑星ぶっこわし3D</title>
 <style>
+*{box-sizing:border-box}
+html{overflow-x:hidden}
 body{
  margin:0;
+ padding:0 6px env(safe-area-inset-bottom);
  background:#050510;
  color:white;
  font-family:sans-serif;
  text-align:center;
+ overflow-x:hidden;
  overflow-y:auto;
  user-select:none;
 }
-h1{font-size:22px;margin:8px}
+h1{font-size:clamp(18px,5vw,22px);margin:8px}
 .panel{font-size:18px;line-height:1.6}
 canvas{
  background:#000;
@@ -23,6 +27,7 @@ canvas{
  width:700px;
  max-width:94vw;
  height:auto;
+ max-height:calc(100dvh - 190px);
  touch-action:none;
 }
 button{
@@ -30,10 +35,12 @@ button{
  padding:11px;
  margin:4px;
  border-radius:14px;
+ max-width:100%;
+ overflow-wrap:anywhere;
+ touch-action:manipulation;
 }
 .shop{
- width:720px;
- max-width:96vw;
+ width:min(720px,96vw);
  margin:10px auto 60px;
  background:#111133;
  border:3px solid white;
@@ -58,6 +65,7 @@ button{
  font-size:20px;
  min-height:32px;
 }
+#attackButtons{display:flex;flex-wrap:wrap;justify-content:center;gap:4px}
 /* スマホ向け：見出し・文字・ボタンを小さくして収める */
 @media(max-width:600px){
  h1{font-size:18px}
@@ -65,6 +73,7 @@ button{
  #msg{font-size:16px}
  button{font-size:14px;padding:9px;margin:3px}
  .shop{padding:6px}
+ canvas{max-height:46dvh}
 }
 </style>
 </head>
