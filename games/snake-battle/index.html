@@ -1,0 +1,11631 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+>
+<title>スネークバトル 完全版</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#07101f;
+  color:#fff;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+body{
+  touch-action:none;
+}
+
+button,input,select{
+  font-family:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+canvas{
+  display:block;
+}
+
+#game{
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  z-index:1;
+  touch-action:none;
+}
+
+/* =====================================================
+   分割線
+===================================================== */
+
+.splitV,.splitH{
+  position:fixed;
+  z-index:12;
+  display:none;
+  background:#ffffff55;
+  box-shadow:0 0 8px #fff;
+  pointer-events:none;
+}
+
+#splitV{
+  left:50%;
+  top:0;
+  bottom:0;
+  width:3px;
+  transform:translateX(-1px);
+}
+
+#splitH{
+  left:0;
+  right:0;
+  top:50%;
+  height:3px;
+  transform:translateY(-1px);
+}
+
+/* =====================================================
+   HUD
+===================================================== */
+
+.playerHud{
+  position:fixed;
+  z-index:30;
+  display:none;
+  pointer-events:none;
+}
+
+.hudRow{
+  display:flex;
+  gap:5px;
+  align-items:flex-start;
+}
+
+.status{
+  padding:7px 9px;
+  border-radius:11px;
+  background:#0b1221e8;
+  border:2px solid #ffffff22;
+  font-size:10px;
+  line-height:1.45;
+  font-weight:900;
+}
+
+.viewToggle{
+  padding:7px 8px;
+  border-radius:10px;
+  border:2px solid #5bd1ff;
+  background:#103952e8;
+  color:#fff;
+  font-size:9px;
+  font-weight:1000;
+  white-space:nowrap;
+  pointer-events:auto;
+  touch-action:manipulation;
+}
+
+#hud1{left:8px;top:8px}
+#hud2{left:calc(50% + 8px);top:8px}
+#hud3{left:8px;top:calc(50% + 8px)}
+#hud4{left:calc(50% + 8px);top:calc(50% + 8px)}
+
+/* =====================================================
+   撃破メッセージ
+===================================================== */
+
+.killMessage{
+  position:fixed;
+  z-index:70;
+  display:none;
+  opacity:0;
+  transform:translate(-50%,-50%) scale(.8);
+  padding:11px 15px;
+  border-radius:18px;
+  border:3px solid #ffffffbb;
+  background:#e73643ed;
+  color:#fff;
+  font-size:18px;
+  font-weight:1000;
+  text-align:center;
+  text-shadow:0 3px 8px #000;
+  box-shadow:0 0 18px #ff4d6d88;
+  pointer-events:none;
+  transition:.15s;
+}
+
+.killMessage.show{
+  display:block;
+  opacity:1;
+  transform:translate(-50%,-50%) scale(1);
+}
+
+#kill1{left:25%;top:27%}
+#kill2{left:75%;top:27%}
+#kill3{left:25%;top:77%}
+#kill4{left:75%;top:77%}
+
+.onePlayer #kill1{
+  left:50%;
+  top:38%;
+}
+
+.twoPlayer #kill1{
+  left:25%;
+  top:38%;
+}
+
+.twoPlayer #kill2{
+  left:75%;
+  top:38%;
+}
+
+/* =====================================================
+   1位メッセージ
+===================================================== */
+
+.firstPlaceMessage{
+  position:fixed;
+  z-index:75;
+  display:none;
+  opacity:0;
+  transform:translate(-50%,-50%) scale(.65);
+  padding:13px 20px;
+  border-radius:20px;
+  border:3px solid #fff3a1;
+  background:#d79d12f2;
+  color:#fff;
+  font-size:22px;
+  font-weight:1000;
+  text-align:center;
+  text-shadow:0 3px 8px #000;
+  box-shadow:0 0 24px #ffd84d99;
+  pointer-events:none;
+  transition:.18s;
+}
+
+.firstPlaceMessage.show{
+  display:block;
+  opacity:1;
+  transform:translate(-50%,-50%) scale(1);
+}
+
+#firstPlace1{left:25%;top:38%}
+#firstPlace2{left:75%;top:38%}
+#firstPlace3{left:25%;top:88%}
+#firstPlace4{left:75%;top:88%}
+
+.onePlayer #firstPlace1{
+  left:50%;
+  top:48%;
+}
+
+.twoPlayer #firstPlace1{
+  left:25%;
+  top:48%;
+}
+
+.twoPlayer #firstPlace2{
+  left:75%;
+  top:48%;
+}
+
+/* =====================================================
+   ランキング
+===================================================== */
+
+.ranking{
+  position:fixed;
+  z-index:24;
+  display:none;
+  width:200px;
+  max-height:200px;
+  overflow:hidden;
+  padding:7px;
+  border-radius:11px;
+  background:#0b1221e0;
+  border:2px solid #ffffff22;
+  font-size:8px;
+  line-height:1.4;
+  pointer-events:none;
+}
+
+#ranking1{top:8px;right:calc(50% + 6px)}
+#ranking2{top:8px;right:6px}
+#ranking3{bottom:8px;right:calc(50% + 6px)}
+#ranking4{bottom:8px;right:6px}
+
+.onePlayer #ranking1{
+  right:8px;
+}
+
+.playerHighlight{
+  padding:1px 3px;
+  border-radius:4px;
+  background:#ffffff16;
+}
+
+.rankingDivider{
+  height:0;
+  margin:5px 0;
+  border-top:2px solid #ffffff55;
+}
+
+/* =====================================================
+   方向
+===================================================== */
+
+.directions{
+  position:fixed;
+  z-index:25;
+  display:none;
+  gap:4px;
+  pointer-events:none;
+}
+
+#directions1{left:25%;top:8px;transform:translateX(-50%)}
+#directions2{left:75%;top:8px;transform:translateX(-50%)}
+#directions3{left:25%;top:calc(50% + 8px);transform:translateX(-50%)}
+#directions4{left:75%;top:calc(50% + 8px);transform:translateX(-50%)}
+
+.onePlayer #directions1{
+  left:50%;
+}
+
+.directionBox{
+  padding:5px 7px;
+  border-radius:15px;
+  background:#0b1221dc;
+  border:2px solid #ffffff22;
+  font-size:8px;
+  font-weight:1000;
+  white-space:nowrap;
+}
+
+.arrow{
+  display:inline-block;
+  font-size:13px;
+  transform-origin:center;
+}
+
+/* =====================================================
+   MAP
+===================================================== */
+
+.mapBox{
+  position:fixed;
+  z-index:23;
+  display:none;
+  padding:4px;
+  border-radius:10px;
+  background:#0b1221e0;
+  border:2px solid #ffffff22;
+  pointer-events:none;
+}
+
+.mapTitle{
+  margin-bottom:2px;
+  text-align:center;
+  font-size:8px;
+  font-weight:1000;
+}
+
+.mapCanvas{
+  width:88px;
+  height:88px;
+  background:#07101f;
+  border-radius:7px;
+}
+
+#mapBox1{right:calc(50% + 6px);bottom:calc(50% + 6px)}
+#mapBox2{right:6px;bottom:calc(50% + 6px)}
+#mapBox3{right:calc(50% + 6px);bottom:6px}
+#mapBox4{right:6px;bottom:6px}
+
+.onePlayer #mapBox1{
+  right:8px;
+  bottom:8px;
+}
+
+.twoPlayer #mapBox1,
+.twoPlayer #mapBox2{
+  bottom:8px;
+}
+
+/* =====================================================
+   BOOST
+===================================================== */
+
+.boost{
+  position:fixed;
+  z-index:40;
+  display:none;
+  width:62px;
+  height:62px;
+  border-radius:50%;
+  border:4px solid #ffb52b;
+  background:#ff741c;
+  color:#fff;
+  font-size:23px;
+  font-weight:1000;
+  touch-action:none;
+}
+
+.boost.active{
+  transform:scale(.9);
+  background:#ff3917;
+  box-shadow:0 0 16px #ff7b25;
+}
+
+#boost1{left:calc(50% - 168px);top:calc(50% - 78px)}
+#boost2{right:106px;top:calc(50% - 78px)}
+#boost3{left:calc(50% - 168px);bottom:18px}
+#boost4{right:106px;bottom:18px}
+
+.onePlayer #boost1{
+  left:auto;
+  right:110px;
+  top:auto;
+  bottom:20px;
+}
+
+.twoPlayer #boost1{
+  left:auto;
+  right:calc(50% + 108px);
+  top:auto;
+  bottom:20px;
+}
+
+.twoPlayer #boost2{
+  right:108px;
+  top:auto;
+  bottom:20px;
+}
+
+/* =====================================================
+   STICK
+===================================================== */
+
+.stick{
+  position:fixed;
+  z-index:41;
+  display:none;
+  width:92px;
+  height:92px;
+  border-radius:50%;
+  background:#15233dcc;
+  border:3px solid #ffffff44;
+  touch-action:none;
+}
+
+.knob{
+  position:absolute;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:#ffd84d;
+  border:3px solid #8c7518;
+  pointer-events:none;
+}
+
+#stick1{left:14px;top:calc(50% - 108px)}
+#stick2{left:calc(50% + 14px);top:calc(50% - 108px)}
+#stick3{left:14px;bottom:14px}
+#stick4{left:calc(50% + 14px);bottom:14px}
+
+.onePlayer #stick1{
+  top:auto;
+  bottom:16px;
+}
+
+.twoPlayer #stick1,
+.twoPlayer #stick2{
+  top:auto;
+  bottom:16px;
+}
+
+/* =====================================================
+   DEATH
+===================================================== */
+
+.deathMessage{
+  position:fixed;
+  z-index:50;
+  display:none;
+  transform:translate(-50%,-50%);
+  padding:8px 12px;
+  border-radius:15px;
+  background:#000b;
+  border:2px solid #ffffff33;
+  font-size:10px;
+  font-weight:1000;
+  pointer-events:none;
+}
+
+#death1{left:25%;top:25%}
+#death2{left:75%;top:25%}
+#death3{left:25%;top:75%}
+#death4{left:75%;top:75%}
+
+.onePlayer #death1{
+  left:50%;
+  top:50%;
+}
+
+.twoPlayer #death1{
+  left:25%;
+  top:50%;
+}
+
+.twoPlayer #death2{
+  left:75%;
+  top:50%;
+}
+
+/* =====================================================
+   START
+===================================================== */
+
+#start,
+#gameOver{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px;
+  overflow:auto;
+  background:#030712f4;
+}
+
+#gameOver{
+  display:none;
+}
+
+.panel{
+  width:min(920px,calc(100vw - 16px));
+  max-height:96vh;
+  overflow:auto;
+  padding:18px;
+  border-radius:20px;
+  background:#101a2d;
+  border:2px solid #ffffff22;
+  text-align:center;
+  touch-action:pan-y;
+  overscroll-behavior:contain;
+}
+
+h1{
+  margin:0 0 12px;
+}
+
+.section{
+  margin-top:10px;
+  padding:11px;
+  border-radius:13px;
+  background:#ffffff09;
+  border:1px solid #ffffff16;
+}
+
+.sectionTitle{
+  margin-bottom:7px;
+  font-size:14px;
+  font-weight:1000;
+}
+
+.small{
+  margin-top:5px;
+  color:#ffffff99;
+  font-size:10px;
+}
+
+.modeButtons{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+}
+
+.modeButton{
+  padding:10px 5px;
+  border-radius:10px;
+  border:3px solid transparent;
+  background:#25324b;
+  color:#fff;
+  font-size:12px;
+  font-weight:1000;
+}
+
+.modeButton.selected{
+  border-color:#ffd84d;
+  background:#3d4d70;
+}
+
+.playerSettings{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+
+.playerPanel{
+  background:#07101faa;
+}
+
+#player2Settings,
+#player3Settings,
+#player4Settings{
+  display:none;
+}
+
+input,
+select{
+  width:100%;
+  padding:9px;
+  border:2px solid #ffffff22;
+  border-radius:9px;
+  outline:none;
+  background:#08101f;
+  color:#fff;
+  text-align:center;
+  font-size:13px;
+}
+
+input{
+  user-select:text;
+  -webkit-user-select:text;
+}
+
+.twoCols{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+
+.controlChoice,
+.viewChoice{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+
+.choiceLabel{
+  position:relative;
+}
+
+.choiceLabel input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+
+.choiceChip{
+  display:block;
+  padding:8px 4px;
+  border-radius:9px;
+  background:#26344e;
+  border:3px solid transparent;
+  font-size:10px;
+  font-weight:1000;
+}
+
+.choiceLabel input:checked + .choiceChip{
+  border-color:#ffd84d;
+  background:#3d4d70;
+}
+
+.colorGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:5px;
+}
+
+.colorOption{
+  position:relative;
+}
+
+.colorOption input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+
+.colorChip{
+  display:block;
+  padding:7px 2px;
+  border-radius:8px;
+  border:3px solid transparent;
+  font-size:10px;
+  font-weight:1000;
+}
+
+.colorOption input:checked + .colorChip{
+  border-color:#fff;
+  box-shadow:0 0 8px #fff8;
+}
+
+.randomChip{
+  background:linear-gradient(
+    90deg,
+    #ff4d6d,
+    #ffd84d,
+    #5dff87,
+    #4fc3ff,
+    #b06cff
+  );
+  color:#111;
+}
+
+.drawOpenButton,
+.stageOpenButton{
+  width:100%;
+  margin-top:7px;
+  padding:9px;
+  border-radius:9px;
+  color:#fff;
+  font-weight:1000;
+}
+
+.drawOpenButton{
+  border:2px solid #b267ff;
+  background:#342054;
+}
+
+.stageOpenButton{
+  border:2px solid #ff5f69;
+  background:#4e1d2c;
+}
+
+.presetMainButton{
+  width:100%;
+  padding:11px;
+  border-radius:11px;
+  border:3px solid #54c8ff;
+  background:#14354e;
+  color:#fff;
+  font-weight:1000;
+}
+
+.playButton{
+  margin-top:14px;
+  padding:13px 30px;
+  border:0;
+  border-radius:13px;
+  background:#ffd84d;
+  color:#191919;
+  font-size:20px;
+  font-weight:1000;
+}
+
+/* =====================================================
+   INLINE FACE DRAW
+===================================================== */
+
+.inlineDraw{
+  display:none;
+  margin-top:9px;
+  padding:10px;
+  border-radius:13px;
+  background:#101a2d;
+  border:2px solid #9c64ff66;
+}
+
+.inlineDraw.open{
+  display:block;
+}
+
+.drawHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+  margin-bottom:7px;
+}
+
+.drawHeaderTitle{
+  font-size:13px;
+  font-weight:1000;
+}
+
+.closeInlineDraw{
+  padding:7px 10px;
+  border:0;
+  border-radius:8px;
+  background:#ffd84d;
+  color:#171717;
+  font-size:10px;
+  font-weight:1000;
+}
+
+.faceTabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:5px;
+  margin-bottom:7px;
+}
+
+.faceTab{
+  padding:8px;
+  border:2px solid #ffffff22;
+  border-radius:9px;
+  background:#25324b;
+  color:#fff;
+  font-weight:1000;
+}
+
+.faceTab.selected{
+  border-color:#ffd84d;
+  background:#3c4d6f;
+}
+
+.faceCanvasWrap{
+  width:100%;
+  max-width:420px;
+  aspect-ratio:1/1;
+  margin:auto;
+  position:relative;
+  border-radius:50%;
+  overflow:hidden;
+  border:4px solid #fff8;
+  background:#4fc3ff;
+}
+
+.faceCanvas{
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  touch-action:none;
+  overscroll-behavior:none;
+}
+
+.drawTools{
+  display:grid;
+  grid-template-columns:70px 1fr;
+  gap:6px;
+  margin-top:7px;
+}
+
+.drawTools input[type="color"]{
+  height:42px;
+  padding:2px;
+}
+
+.drawTools input[type="range"]{
+  padding:0;
+}
+
+.drawBottom{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:7px;
+}
+
+.drawBottom button{
+  flex:1 1 120px;
+  padding:8px;
+  border:0;
+  border-radius:8px;
+  font-weight:1000;
+}
+
+.clearDraw{
+  background:#8b2938;
+  color:#fff;
+}
+
+.faceFrameButton{
+  background:#365b8c;
+  color:#fff;
+}
+
+/* =====================================================
+   STAGE EDITOR
+===================================================== */
+
+#stageEditor{
+  display:none;
+  margin-top:10px;
+  padding:10px;
+  border-radius:14px;
+  background:#091221;
+  border:2px solid #ff5f6966;
+}
+
+#stageEditor.open{
+  display:block;
+}
+
+.stageModeButtons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin:8px 0;
+}
+
+.stageModeButton{
+  padding:10px 6px;
+  border:3px solid transparent;
+  border-radius:10px;
+  background:#26344e;
+  color:#fff;
+  font-weight:1000;
+}
+
+.stageModeButton.selected{
+  border-color:#ffd84d;
+  background:#40577d;
+}
+
+#stageCanvas{
+  width:min(100%,600px);
+  aspect-ratio:1/1;
+  margin:auto;
+  border:4px solid #ff4d6d;
+  border-radius:10px;
+  background:
+    linear-gradient(#ffffff08 1px,transparent 1px),
+    linear-gradient(90deg,#ffffff08 1px,transparent 1px),
+    #07101f;
+  background-size:30px 30px;
+  touch-action:none;
+  overscroll-behavior:none;
+}
+
+.stageTools{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+  margin-top:8px;
+}
+
+.stageTools button{
+  padding:9px 5px;
+  border:0;
+  border-radius:9px;
+  color:#fff;
+  font-weight:1000;
+}
+
+#stageUndo{background:#40506c}
+#stageClearWalls{background:#8b2938}
+#stageClearBoundary{background:#8b4d29}
+#stageClose{background:#ffd84d;color:#161616}
+
+.stageInfo{
+  margin-top:6px;
+  font-size:10px;
+  color:#ffffff99;
+}
+
+/* =====================================================
+   PRESETS
+===================================================== */
+
+#presetModal,
+#confirmModal{
+  position:fixed;
+  inset:0;
+  z-index:300;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:12px;
+  background:#000d;
+}
+
+.modalPanel{
+  width:min(540px,95vw);
+  max-height:88vh;
+  overflow:auto;
+  padding:16px;
+  border-radius:18px;
+  background:#111d31;
+  border:2px solid #ffffff33;
+  touch-action:pan-y;
+}
+
+.modalTitle{
+  margin-bottom:10px;
+  font-size:20px;
+  font-weight:1000;
+}
+
+.presetSaveRow{
+  display:flex;
+  gap:6px;
+}
+
+.presetSaveRow input{
+  flex:1;
+}
+
+.savePresetButton,
+.modalClose{
+  padding:10px;
+  border:0;
+  border-radius:9px;
+  font-weight:1000;
+}
+
+.savePresetButton{
+  background:#ffd84d;
+  color:#191919;
+}
+
+.modalClose{
+  width:100%;
+  margin-top:10px;
+  background:#45516a;
+  color:#fff;
+}
+
+.presetList{
+  margin-top:10px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.presetRow{
+  display:flex;
+  gap:5px;
+}
+
+.presetUse{
+  flex:1;
+  min-width:0;
+  padding:10px;
+  border:2px solid #ffffff22;
+  border-radius:9px;
+  background:#25324b;
+  color:#fff;
+  text-align:left;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-weight:900;
+}
+
+.presetDelete{
+  padding:10px;
+  border:2px solid #ff6373;
+  border-radius:9px;
+  background:#5d1f29;
+  color:#fff;
+  font-weight:1000;
+}
+
+.confirmButtons{
+  display:flex;
+  gap:7px;
+  margin-top:14px;
+}
+
+.confirmButtons button{
+  flex:1;
+  padding:11px;
+  border:0;
+  border-radius:9px;
+  font-weight:1000;
+}
+
+#confirmYes{
+  background:#ffd84d;
+  color:#191919;
+}
+
+#confirmNo{
+  background:#465168;
+  color:#fff;
+}
+
+#overviewLabel{
+  position:fixed;
+  left:75%;
+  top:calc(50% + 10px);
+  transform:translateX(-50%);
+  z-index:20;
+  display:none;
+  padding:6px 10px;
+  border-radius:15px;
+  background:#0b1221dc;
+  border:2px solid #61ceff77;
+  font-size:10px;
+  font-weight:1000;
+  pointer-events:none;
+}
+
+@media(max-width:700px){
+
+  .panel{
+    padding:12px;
+  }
+
+  .playerSettings{
+    grid-template-columns:1fr;
+  }
+
+  .modeButtons{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .ranking{
+    width:150px;
+    font-size:7px;
+  }
+
+  .status{
+    font-size:8px;
+  }
+
+  .viewToggle{
+    font-size:7px;
+    padding:5px;
+  }
+
+  .directions{
+    display:none !important;
+  }
+
+  .mapCanvas{
+    width:72px;
+    height:72px;
+  }
+
+  .boost{
+    width:54px;
+    height:54px;
+    font-size:19px;
+  }
+
+  .stick{
+    width:78px;
+    height:78px;
+  }
+
+  .knob{
+    width:30px;
+    height:30px;
+  }
+
+  .killMessage{
+    font-size:13px;
+    padding:8px 10px;
+  }
+
+  .firstPlaceMessage{
+    font-size:16px;
+    padding:10px 14px;
+  }
+
+  .stageTools{
+    grid-template-columns:1fr 1fr;
+  }
+
+}
+</style>
+</head>
+
+<body class="onePlayer">
+
+<canvas id="game"></canvas>
+
+<div id="splitV" class="splitV"></div>
+<div id="splitH" class="splitH"></div>
+
+<div id="overviewLabel">🌍 常時・全体表示</div>
+
+<div id="kill1" class="killMessage">💥 CPUを倒した！</div>
+<div id="kill2" class="killMessage">💥 CPUを倒した！</div>
+<div id="kill3" class="killMessage">💥 CPUを倒した！</div>
+<div id="kill4" class="killMessage">💥 CPUを倒した！</div>
+
+<div id="firstPlace1" class="firstPlaceMessage">👑 1位になった！</div>
+<div id="firstPlace2" class="firstPlaceMessage">👑 1位になった！</div>
+<div id="firstPlace3" class="firstPlaceMessage">👑 1位になった！</div>
+<div id="firstPlace4" class="firstPlaceMessage">👑 1位になった！</div>
+
+<div id="hud1" class="playerHud">
+  <div class="hudRow">
+    <div class="status">
+      🔵 <span id="nameHud1">PLAYER 1</span><br>
+      📏 <span id="length1">0.0</span>m<br>
+      ↔️ <span id="width1">0.00</span>m<br>
+      ✨ <span id="points1">0</span>pt<br>
+      💀 CPU撃破 <span id="kills1">0</span><br>
+      ⚔️ プレイヤー撃破 <span id="playerKills1">0</span>
+    </div>
+    <button id="viewToggle1" class="viewToggle">🌍 全体表示にする</button>
+  </div>
+</div>
+
+<div id="hud2" class="playerHud">
+  <div class="hudRow">
+    <div class="status">
+      🔴 <span id="nameHud2">PLAYER 2</span><br>
+      📏 <span id="length2">0.0</span>m<br>
+      ↔️ <span id="width2">0.00</span>m<br>
+      ✨ <span id="points2">0</span>pt<br>
+      💀 CPU撃破 <span id="kills2">0</span><br>
+      ⚔️ プレイヤー撃破 <span id="playerKills2">0</span>
+    </div>
+    <button id="viewToggle2" class="viewToggle">🌍 全体表示にする</button>
+  </div>
+</div>
+
+<div id="hud3" class="playerHud">
+  <div class="hudRow">
+    <div class="status">
+      🟢 <span id="nameHud3">PLAYER 3</span><br>
+      📏 <span id="length3">0.0</span>m<br>
+      ↔️ <span id="width3">0.00</span>m<br>
+      ✨ <span id="points3">0</span>pt<br>
+      💀 CPU撃破 <span id="kills3">0</span><br>
+      ⚔️ プレイヤー撃破 <span id="playerKills3">0</span>
+    </div>
+    <button id="viewToggle3" class="viewToggle">🌍 全体表示にする</button>
+  </div>
+</div>
+
+<div id="hud4" class="playerHud">
+  <div class="hudRow">
+    <div class="status">
+      🟣 <span id="nameHud4">PLAYER 4</span><br>
+      📏 <span id="length4">0.0</span>m<br>
+      ↔️ <span id="width4">0.00</span>m<br>
+      ✨ <span id="points4">0</span>pt<br>
+      💀 CPU撃破 <span id="kills4">0</span><br>
+      ⚔️ プレイヤー撃破 <span id="playerKills4">0</span>
+    </div>
+    <button id="viewToggle4" class="viewToggle">🌍 全体表示にする</button>
+  </div>
+</div>
+
+<div id="directions1" class="directions">
+  <div class="directionBox">👑 <span id="arrow11" class="arrow">➜</span> <span id="distance11">--</span></div>
+  <div class="directionBox">🥈 <span id="arrow12" class="arrow">➜</span> <span id="distance12">--</span></div>
+</div>
+
+<div id="directions2" class="directions">
+  <div class="directionBox">👑 <span id="arrow21" class="arrow">➜</span> <span id="distance21">--</span></div>
+  <div class="directionBox">🥈 <span id="arrow22" class="arrow">➜</span> <span id="distance22">--</span></div>
+</div>
+
+<div id="directions3" class="directions">
+  <div class="directionBox">👑 <span id="arrow31" class="arrow">➜</span> <span id="distance31">--</span></div>
+  <div class="directionBox">🥈 <span id="arrow32" class="arrow">➜</span> <span id="distance32">--</span></div>
+</div>
+
+<div id="directions4" class="directions">
+  <div class="directionBox">👑 <span id="arrow41" class="arrow">➜</span> <span id="distance41">--</span></div>
+  <div class="directionBox">🥈 <span id="arrow42" class="arrow">➜</span> <span id="distance42">--</span></div>
+</div>
+
+<div id="ranking1" class="ranking"></div>
+<div id="ranking2" class="ranking"></div>
+<div id="ranking3" class="ranking"></div>
+<div id="ranking4" class="ranking"></div>
+
+<div id="mapBox1" class="mapBox">
+  <div class="mapTitle">1P MAP</div>
+  <canvas id="map1" class="mapCanvas" width="300" height="300"></canvas>
+</div>
+
+<div id="mapBox2" class="mapBox">
+  <div class="mapTitle">2P MAP</div>
+  <canvas id="map2" class="mapCanvas" width="300" height="300"></canvas>
+</div>
+
+<div id="mapBox3" class="mapBox">
+  <div class="mapTitle">3P MAP</div>
+  <canvas id="map3" class="mapCanvas" width="300" height="300"></canvas>
+</div>
+
+<div id="mapBox4" class="mapBox">
+  <div class="mapTitle">4P MAP</div>
+  <canvas id="map4" class="mapCanvas" width="300" height="300"></canvas>
+</div>
+
+<button id="boost1" class="boost">⚡</button>
+<button id="boost2" class="boost">⚡</button>
+<button id="boost3" class="boost">⚡</button>
+<button id="boost4" class="boost">⚡</button>
+
+<div id="stick1" class="stick"><div id="knob1" class="knob"></div></div>
+<div id="stick2" class="stick"><div id="knob2" class="knob"></div></div>
+<div id="stick3" class="stick"><div id="knob3" class="knob"></div></div>
+<div id="stick4" class="stick"><div id="knob4" class="knob"></div></div>
+
+<div id="death1" class="deathMessage">💥 脱落・全体表示中</div>
+<div id="death2" class="deathMessage">💥 脱落・全体表示中</div>
+<div id="death3" class="deathMessage">💥 脱落・全体表示中</div>
+<div id="death4" class="deathMessage">💥 脱落・全体表示中</div>
+
+<div id="start">
+<div class="panel">
+
+<h1>🐍 スネークバトル</h1>
+
+<button id="openPresetButton" class="presetMainButton">
+  💾 設定保存欄
+</button>
+
+<div class="section">
+
+  <div class="sectionTitle">🎮 プレイ人数</div>
+
+  <div class="modeButtons">
+    <button class="modeButton selected" data-count="1">1人</button>
+    <button class="modeButton" data-count="2">2人</button>
+    <button class="modeButton" data-count="3">3人</button>
+    <button class="modeButton" data-count="4">4人</button>
+  </div>
+
+  <div class="small">
+    3人プレイは右下が常時🌍全体表示
+  </div>
+
+</div>
+
+<div class="playerSettings">
+
+<div id="player1Settings" class="section playerPanel">
+  <div class="sectionTitle">🔵 1P設定</div>
+  <input id="nameInput1" maxlength="12" placeholder="1Pの名前">
+
+  <div class="twoCols" style="margin-top:6px">
+    <div>
+      <div class="small">📏 最初の長さ m</div>
+      <input id="startLength1" type="number" min="2" value="12">
+    </div>
+
+    <div>
+      <div class="small">🎮 操作</div>
+      <div class="controlChoice">
+        <label class="choiceLabel">
+          <input type="radio" name="control1" value="slide" checked>
+          <span class="choiceChip">👆 スライド</span>
+        </label>
+        <label class="choiceLabel">
+          <input type="radio" name="control1" value="stick">
+          <span class="choiceChip">🕹️ スティック</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="small">📷 最初の画面</div>
+
+  <div class="viewChoice">
+    <label class="choiceLabel">
+      <input type="radio" name="view1" value="normal" checked>
+      <span class="choiceChip">🐍 普通</span>
+    </label>
+    <label class="choiceLabel">
+      <input type="radio" name="view1" value="overview">
+      <span class="choiceChip">🌍 全体</span>
+    </label>
+  </div>
+
+  <div class="sectionTitle" style="margin-top:8px">🎨 色</div>
+  <div id="colors1" class="colorGrid"></div>
+
+  <button class="drawOpenButton" data-player="1">
+    ✏️ 絵を描く
+  </button>
+
+  <div id="inlineDraw1" class="inlineDraw">
+    <div class="drawHeader">
+      <div class="drawHeaderTitle">🎨 1Pの顔</div>
+      <button class="closeInlineDraw" data-player="1">✅ 閉じる</button>
+    </div>
+
+    <div class="small">
+      背景は選択しているヘビの色になります。↑ 上側が進む方向
+    </div>
+
+    <div class="faceTabs">
+      <button class="faceTab selected" data-player="1" data-face="normal">🙂 普通</button>
+      <button class="faceTab" data-player="1" data-face="angry">😠 怒り</button>
+    </div>
+
+    <div id="faceCanvasWrap1" class="faceCanvasWrap">
+      <canvas id="faceCanvas1" class="faceCanvas" width="500" height="500"></canvas>
+    </div>
+
+    <div class="drawTools">
+      <input id="drawColor1" type="color" value="#111111">
+      <input id="drawSize1" type="range" min="2" max="45" value="15">
+    </div>
+
+    <div class="drawBottom">
+      <button class="faceFrameButton" data-player="1">⭕ 顔の枠を確認</button>
+      <button class="clearDraw" data-player="1">🧹 全消し</button>
+    </div>
+  </div>
+</div>
+
+<div id="player2Settings" class="section playerPanel">
+  <div class="sectionTitle">🔴 2P設定</div>
+  <input id="nameInput2" maxlength="12" placeholder="2Pの名前">
+
+  <div class="twoCols" style="margin-top:6px">
+    <div>
+      <div class="small">📏 最初の長さ m</div>
+      <input id="startLength2" type="number" min="2" value="12">
+    </div>
+
+    <div>
+      <div class="small">🎮 操作</div>
+      <div class="controlChoice">
+        <label class="choiceLabel">
+          <input type="radio" name="control2" value="slide" checked>
+          <span class="choiceChip">👆 スライド</span>
+        </label>
+        <label class="choiceLabel">
+          <input type="radio" name="control2" value="stick">
+          <span class="choiceChip">🕹️ スティック</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="small">📷 最初の画面</div>
+
+  <div class="viewChoice">
+    <label class="choiceLabel">
+      <input type="radio" name="view2" value="normal" checked>
+      <span class="choiceChip">🐍 普通</span>
+    </label>
+    <label class="choiceLabel">
+      <input type="radio" name="view2" value="overview">
+      <span class="choiceChip">🌍 全体</span>
+    </label>
+  </div>
+
+  <div class="sectionTitle" style="margin-top:8px">🎨 色</div>
+  <div id="colors2" class="colorGrid"></div>
+
+  <button class="drawOpenButton" data-player="2">
+    ✏️ 絵を描く
+  </button>
+
+  <div id="inlineDraw2" class="inlineDraw">
+    <div class="drawHeader">
+      <div class="drawHeaderTitle">🎨 2Pの顔</div>
+      <button class="closeInlineDraw" data-player="2">✅ 閉じる</button>
+    </div>
+
+    <div class="small">
+      背景は選択しているヘビの色になります。↑ 上側が進む方向
+    </div>
+
+    <div class="faceTabs">
+      <button class="faceTab selected" data-player="2" data-face="normal">🙂 普通</button>
+      <button class="faceTab" data-player="2" data-face="angry">😠 怒り</button>
+    </div>
+
+    <div id="faceCanvasWrap2" class="faceCanvasWrap">
+      <canvas id="faceCanvas2" class="faceCanvas" width="500" height="500"></canvas>
+    </div>
+
+    <div class="drawTools">
+      <input id="drawColor2" type="color" value="#111111">
+      <input id="drawSize2" type="range" min="2" max="45" value="15">
+    </div>
+
+    <div class="drawBottom">
+      <button class="faceFrameButton" data-player="2">⭕ 顔の枠を確認</button>
+      <button class="clearDraw" data-player="2">🧹 全消し</button>
+    </div>
+  </div>
+</div>
+
+<div id="player3Settings" class="section playerPanel">
+  <div class="sectionTitle">🟢 3P設定</div>
+  <input id="nameInput3" maxlength="12" placeholder="3Pの名前">
+
+  <div class="twoCols" style="margin-top:6px">
+    <div>
+      <div class="small">📏 最初の長さ m</div>
+      <input id="startLength3" type="number" min="2" value="12">
+    </div>
+
+    <div>
+      <div class="small">🎮 操作</div>
+      <div class="controlChoice">
+        <label class="choiceLabel">
+          <input type="radio" name="control3" value="slide" checked>
+          <span class="choiceChip">👆 スライド</span>
+        </label>
+        <label class="choiceLabel">
+          <input type="radio" name="control3" value="stick">
+          <span class="choiceChip">🕹️ スティック</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="small">📷 最初の画面</div>
+
+  <div class="viewChoice">
+    <label class="choiceLabel">
+      <input type="radio" name="view3" value="normal" checked>
+      <span class="choiceChip">🐍 普通</span>
+    </label>
+    <label class="choiceLabel">
+      <input type="radio" name="view3" value="overview">
+      <span class="choiceChip">🌍 全体</span>
+    </label>
+  </div>
+
+  <div class="sectionTitle" style="margin-top:8px">🎨 色</div>
+  <div id="colors3" class="colorGrid"></div>
+
+  <button class="drawOpenButton" data-player="3">
+    ✏️ 絵を描く
+  </button>
+
+  <div id="inlineDraw3" class="inlineDraw">
+    <div class="drawHeader">
+      <div class="drawHeaderTitle">🎨 3Pの顔</div>
+      <button class="closeInlineDraw" data-player="3">✅ 閉じる</button>
+    </div>
+
+    <div class="small">
+      背景は選択しているヘビの色になります。↑ 上側が進む方向
+    </div>
+
+    <div class="faceTabs">
+      <button class="faceTab selected" data-player="3" data-face="normal">🙂 普通</button>
+      <button class="faceTab" data-player="3" data-face="angry">😠 怒り</button>
+    </div>
+
+    <div id="faceCanvasWrap3" class="faceCanvasWrap">
+      <canvas id="faceCanvas3" class="faceCanvas" width="500" height="500"></canvas>
+    </div>
+
+    <div class="drawTools">
+      <input id="drawColor3" type="color" value="#111111">
+      <input id="drawSize3" type="range" min="2" max="45" value="15">
+    </div>
+
+    <div class="drawBottom">
+      <button class="faceFrameButton" data-player="3">⭕ 顔の枠を確認</button>
+      <button class="clearDraw" data-player="3">🧹 全消し</button>
+    </div>
+  </div>
+</div>
+
+<div id="player4Settings" class="section playerPanel">
+  <div class="sectionTitle">🟣 4P設定</div>
+  <input id="nameInput4" maxlength="12" placeholder="4Pの名前">
+
+  <div class="twoCols" style="margin-top:6px">
+    <div>
+      <div class="small">📏 最初の長さ m</div>
+      <input id="startLength4" type="number" min="2" value="12">
+    </div>
+
+    <div>
+      <div class="small">🎮 操作</div>
+      <div class="controlChoice">
+        <label class="choiceLabel">
+          <input type="radio" name="control4" value="slide" checked>
+          <span class="choiceChip">👆 スライド</span>
+        </label>
+        <label class="choiceLabel">
+          <input type="radio" name="control4" value="stick">
+          <span class="choiceChip">🕹️ スティック</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="small">📷 最初の画面</div>
+
+  <div class="viewChoice">
+    <label class="choiceLabel">
+      <input type="radio" name="view4" value="normal" checked>
+      <span class="choiceChip">🐍 普通</span>
+    </label>
+    <label class="choiceLabel">
+      <input type="radio" name="view4" value="overview">
+      <span class="choiceChip">🌍 全体</span>
+    </label>
+  </div>
+
+  <div class="sectionTitle" style="margin-top:8px">🎨 色</div>
+  <div id="colors4" class="colorGrid"></div>
+
+  <button class="drawOpenButton" data-player="4">
+    ✏️ 絵を描く
+  </button>
+
+  <div id="inlineDraw4" class="inlineDraw">
+    <div class="drawHeader">
+      <div class="drawHeaderTitle">🎨 4Pの顔</div>
+      <button class="closeInlineDraw" data-player="4">✅ 閉じる</button>
+    </div>
+
+    <div class="small">
+      背景は選択しているヘビの色になります。↑ 上側が進む方向
+    </div>
+
+    <div class="faceTabs">
+      <button class="faceTab selected" data-player="4" data-face="normal">🙂 普通</button>
+      <button class="faceTab" data-player="4" data-face="angry">😠 怒り</button>
+    </div>
+
+    <div id="faceCanvasWrap4" class="faceCanvasWrap">
+      <canvas id="faceCanvas4" class="faceCanvas" width="500" height="500"></canvas>
+    </div>
+
+    <div class="drawTools">
+      <input id="drawColor4" type="color" value="#111111">
+      <input id="drawSize4" type="range" min="2" max="45" value="15">
+    </div>
+
+    <div class="drawBottom">
+      <button class="faceFrameButton" data-player="4">⭕ 顔の枠を確認</button>
+      <button class="clearDraw" data-player="4">🧹 全消し</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="section">
+
+  <div class="sectionTitle">
+    🌍 ステージの形・壁
+  </div>
+
+  <button id="stageOpenButton" class="stageOpenButton">
+    🖌️ ステージを自分で描く
+  </button>
+
+  <div id="stageEditor">
+
+    <div class="drawHeader">
+      <div class="drawHeaderTitle">
+        🌍 ステージお絵描き
+      </div>
+
+      <span id="stageWallCount" class="small">
+        壁 0本
+      </span>
+    </div>
+
+    <div class="stageInfo">
+      「🌍 外枠を描く」でステージそのものの形を描けます。<br>
+      「🧱 中の壁を描く」でステージ内部にも壁を追加できます。<br>
+      外枠は1本の線でぐるっと囲むように描いてください。
+    </div>
+
+    <div class="stageModeButtons">
+
+      <button
+        id="stageBoundaryMode"
+        class="stageModeButton selected"
+      >
+        🌍 外枠を描く
+      </button>
+
+      <button
+        id="stageWallMode"
+        class="stageModeButton"
+      >
+        🧱 中の壁を描く
+      </button>
+
+    </div>
+
+    <canvas
+      id="stageCanvas"
+      width="600"
+      height="600"
+    ></canvas>
+
+    <div class="stageTools">
+
+      <button id="stageUndo">
+        ↩️ 1本戻す
+      </button>
+
+      <button id="stageClearWalls">
+        🧹 壁を消す
+      </button>
+
+      <button id="stageClearBoundary">
+        🌍 外枠を消す
+      </button>
+
+      <button id="stageClose">
+        ✅ 閉じる
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="section">
+
+  <div class="sectionTitle">
+    🤖 CPU設定
+  </div>
+
+  <div class="twoCols">
+
+    <div>
+      <div class="small">CPU数</div>
+      <input id="cpuCount" type="number" min="0" value="26">
+    </div>
+
+    <div>
+      <div class="small">難易度</div>
+
+      <select id="difficulty">
+        <option value="beginner">🌱 初級</option>
+        <option value="normal" selected>🔥 中級</option>
+      </select>
+    </div>
+
+    <div>
+      <div class="small">CPU最小長さ m</div>
+      <input id="cpuMin" type="number" min="2" value="20">
+    </div>
+
+    <div>
+      <div class="small">CPU最大長さ m</div>
+      <input id="cpuMax" type="number" min="2" value="80">
+    </div>
+
+  </div>
+
+</div>
+
+<button id="startButton" class="playButton">
+  ▶ スタート！
+</button>
+
+</div>
+</div>
+
+<div id="presetModal">
+
+  <div class="modalPanel">
+
+    <div class="modalTitle">
+      💾 設定保存欄
+    </div>
+
+    <div class="presetSaveRow">
+
+      <input
+        id="presetNameInput"
+        maxlength="30"
+        placeholder="保存名"
+      >
+
+      <button
+        id="savePresetButton"
+        class="savePresetButton"
+      >
+        💾 保存
+      </button>
+
+    </div>
+
+    <div id="presetList" class="presetList"></div>
+
+    <button id="closePresetButton" class="modalClose">
+      ✖ 閉じる
+    </button>
+
+  </div>
+
+</div>
+
+<div id="confirmModal">
+
+  <div class="modalPanel">
+
+    <div id="confirmTitle" class="modalTitle">
+      確認
+    </div>
+
+    <div id="confirmText"></div>
+
+    <div class="confirmButtons">
+      <button id="confirmYes">はい</button>
+      <button id="confirmNo">キャンセル</button>
+    </div>
+
+  </div>
+
+</div>
+
+<div id="gameOver">
+
+  <div class="panel">
+
+    <h1>💥 ゲームオーバー！</h1>
+
+    <div id="gameOverResult"></div>
+
+    <button id="retryButton" class="playButton">
+      🔄 もう一回
+    </button>
+
+  </div>
+
+</div>
+
+<script>
+
+const canvas =
+document.getElementById("game");
+
+const ctx =
+canvas.getContext("2d");
+
+const WORLD =
+6000;
+
+const SEGMENT_DISTANCE =
+8;
+
+const METERS_PER_SEGMENT =
+0.25;
+
+const STORAGE_KEY =
+"snakeBattlePresetsV7";
+
+const SWIPE_THRESHOLD =
+28;
+
+const SWIPE_SENSITIVITY =
+0.14;
+
+const DEATH_ZOOM_TIME =
+2500;
+
+const AFTER_DEATH_WAIT =
+5000;
+
+const STAGE_EDITOR_SIZE =
+600;
+
+const STAGE_WALL_WIDTH_WORLD =
+32;
+
+const COLORS = [
+  ["赤","#ff4d6d"],
+  ["青","#4fc3ff"],
+  ["緑","#5dff87"],
+  ["黄","#ffd84d"],
+  ["紫","#b06cff"],
+  ["橙","#ff8d3b"],
+  ["桃","#ff5ce1"],
+  ["水","#4de1d2"]
+];
+
+const PLAYER_MARKERS = [
+  "",
+  "🔵",
+  "🔴",
+  "🟢",
+  "🟣"
+];
+
+let W =
+innerWidth;
+
+let H =
+innerHeight;
+
+let DPR =
+1;
+
+let playerCount =
+1;
+
+let playing =
+false;
+
+let started =
+false;
+
+let gameOverShown =
+false;
+
+let finalDeathTime =
+null;
+
+let difficulty =
+"normal";
+
+let cpuCount =
+26;
+
+let cpuMinMeters =
+20;
+
+let cpuMaxMeters =
+80;
+
+let lastTime =
+performance.now();
+
+let audioContext =
+null;
+
+let bgmTimer =
+null;
+
+let bgmStep =
+0;
+
+let lastLeader =
+null;
+
+const lastPointSoundTimes = [
+  0,
+  0,
+  0,
+  0
+];
+
+const firstPlaceTimers = [
+  null,
+  null,
+  null,
+  null
+];
+
+const boostSoundPlaying = [
+  false,
+  false,
+  false,
+  false
+];
+
+const snakes =
+[];
+
+const sparkles =
+[];
+
+const players = [
+  null,
+  null,
+  null,
+  null
+];
+
+const controlModes = [
+  "slide",
+  "slide",
+  "slide",
+  "slide"
+];
+
+const viewModes = [
+  "normal",
+  "normal",
+  "normal",
+  "normal"
+];
+
+const boostTouch = [
+  false,
+  false,
+  false,
+  false
+];
+
+const boostKey = [
+  false,
+  false,
+  false,
+  false
+];
+
+const killTimers = [
+  null,
+  null,
+  null,
+  null
+];
+
+const slideControls =
+Array.from(
+  {length:4},
+  ()=>({
+    active:false,
+    pointerId:null,
+    lastX:0,
+    lastY:0
+  })
+);
+
+const faceData =
+[];
+
+for(
+  let i=0;
+  i<4;
+  i++
+){
+
+  const normal =
+  document.createElement("canvas");
+
+  normal.width =
+  500;
+
+  normal.height =
+  500;
+
+  const angry =
+  document.createElement("canvas");
+
+  angry.width =
+  500;
+
+  angry.height =
+  500;
+
+  faceData.push({
+    normal,
+    angry,
+    normalDrawn:false,
+    angryDrawn:false,
+    current:"normal"
+  });
+
+}
+
+let stageBoundary =
+[];
+
+let stageStrokes =
+[];
+
+let stageEditMode =
+"boundary";
+
+let stageDrawing =
+false;
+
+let stagePointerId =
+null;
+
+let currentStageStroke =
+null;
+
+const stageCanvas =
+document.getElementById(
+  "stageCanvas"
+);
+
+const stageCtx =
+stageCanvas.getContext(
+  "2d"
+);
+
+/* =====================================================
+   AUDIO
+===================================================== */
+
+function initAudio(){
+
+  if(
+    !audioContext
+  ){
+
+    const AudioContextClass =
+    window.AudioContext ||
+    window.webkitAudioContext;
+
+    if(
+      !AudioContextClass
+    ){
+      return false;
+    }
+
+    audioContext =
+    new AudioContextClass();
+
+  }
+
+  if(
+    audioContext.state===
+    "suspended"
+  ){
+
+    audioContext.resume();
+
+  }
+
+  return true;
+
+}
+
+function makeTone(
+  frequency,
+  duration,
+  volume=.05,
+  type="sine",
+  startDelay=0
+){
+
+  if(
+    !initAudio()
+  ){
+    return;
+  }
+
+  const now =
+  audioContext.currentTime+
+  startDelay;
+
+  const oscillator =
+  audioContext.createOscillator();
+
+  const gain =
+  audioContext.createGain();
+
+  oscillator.type =
+  type;
+
+  oscillator.frequency.setValueAtTime(
+    frequency,
+    now
+  );
+
+  gain.gain.setValueAtTime(
+    .0001,
+    now
+  );
+
+  gain.gain.exponentialRampToValueAtTime(
+    Math.max(
+      .0001,
+      volume
+    ),
+    now+.01
+  );
+
+  gain.gain.exponentialRampToValueAtTime(
+    .0001,
+    now+duration
+  );
+
+  oscillator.connect(
+    gain
+  );
+
+  gain.connect(
+    audioContext.destination
+  );
+
+  oscillator.start(
+    now
+  );
+
+  oscillator.stop(
+    now+
+    duration+
+    .03
+  );
+
+}
+
+function playPointSound(
+  playerNumber
+){
+
+  if(
+    !playerNumber
+  ){
+    return;
+  }
+
+  const index =
+  playerNumber-1;
+
+  const now =
+  performance.now();
+
+  if(
+    now-
+    lastPointSoundTimes[index]
+    <
+    32
+  ){
+    return;
+  }
+
+  lastPointSoundTimes[index]=
+  now;
+
+  makeTone(
+    820+
+    Math.random()*90,
+    .055,
+    .035,
+    "square"
+  );
+
+  makeTone(
+    1180+
+    Math.random()*100,
+    .035,
+    .018,
+    "sine",
+    .018
+  );
+
+}
+
+function playKillSound(){
+
+  if(
+    !initAudio()
+  ){
+    return;
+  }
+
+  makeTone(
+    180,
+    .16,
+    .10,
+    "sawtooth"
+  );
+
+  makeTone(
+    105,
+    .22,
+    .08,
+    "square",
+    .03
+  );
+
+  makeTone(
+    75,
+    .27,
+    .07,
+    "sawtooth",
+    .055
+  );
+
+  const length =
+  Math.floor(
+    audioContext.sampleRate*
+    .16
+  );
+
+  const buffer =
+  audioContext.createBuffer(
+    1,
+    length,
+    audioContext.sampleRate
+  );
+
+  const data =
+  buffer.getChannelData(
+    0
+  );
+
+  for(
+    let i=0;
+    i<length;
+    i++
+  ){
+
+    data[i]=
+    (
+      Math.random()*2-1
+    )
+    *
+    (
+      1-
+      i/length
+    );
+
+  }
+
+  const source =
+  audioContext.createBufferSource();
+
+  const gain =
+  audioContext.createGain();
+
+  const filter =
+  audioContext.createBiquadFilter();
+
+  filter.type =
+  "bandpass";
+
+  filter.frequency.value =
+  1500;
+
+  filter.Q.value =
+  .7;
+
+  gain.gain.value =
+  .075;
+
+  source.buffer =
+  buffer;
+
+  source.connect(
+    filter
+  );
+
+  filter.connect(
+    gain
+  );
+
+  gain.connect(
+    audioContext.destination
+  );
+
+  source.start();
+
+}
+
+function playDeathSound(){
+
+  if(
+    !initAudio()
+  ){
+    return;
+  }
+
+  makeTone(
+    95,
+    .30,
+    .12,
+    "sawtooth"
+  );
+
+  makeTone(
+    65,
+    .42,
+    .10,
+    "square",
+    .025
+  );
+
+  makeTone(
+    42,
+    .48,
+    .08,
+    "sine",
+    .06
+  );
+
+}
+
+function playBoostSound(){
+
+  if(
+    !initAudio()
+  ){
+    return;
+  }
+
+  makeTone(
+    160,
+    .10,
+    .035,
+    "sawtooth"
+  );
+
+  makeTone(
+    240,
+    .13,
+    .03,
+    "triangle",
+    .03
+  );
+
+  makeTone(
+    340,
+    .17,
+    .025,
+    "sine",
+    .07
+  );
+
+}
+
+function playFirstPlaceSound(){
+
+  makeTone(
+    523.25,
+    .11,
+    .06,
+    "square"
+  );
+
+  makeTone(
+    659.25,
+    .11,
+    .06,
+    "square",
+    .12
+  );
+
+  makeTone(
+    783.99,
+    .12,
+    .07,
+    "square",
+    .24
+  );
+
+  makeTone(
+    1046.50,
+    .27,
+    .08,
+    "sine",
+    .36
+  );
+
+}
+
+function bgmNote(){
+
+  if(
+    !playing
+  ){
+    return;
+  }
+
+  const melody = [
+    261.63,
+    329.63,
+    392.00,
+    329.63,
+    293.66,
+    349.23,
+    440.00,
+    349.23,
+    261.63,
+    329.63,
+    392.00,
+    523.25,
+    440.00,
+    392.00,
+    329.63,
+    293.66
+  ];
+
+  const bass = [
+    130.81,
+    130.81,
+    146.83,
+    146.83,
+    110.00,
+    110.00,
+    130.81,
+    130.81
+  ];
+
+  const note =
+  melody[
+    bgmStep%
+    melody.length
+  ];
+
+  const bassNote =
+  bass[
+    Math.floor(
+      bgmStep/2
+    )%
+    bass.length
+  ];
+
+  makeTone(
+    note,
+    .17,
+    .018,
+    "triangle"
+  );
+
+  if(
+    bgmStep%2===
+    0
+  ){
+
+    makeTone(
+      bassNote,
+      .28,
+      .018,
+      "sine"
+    );
+
+  }
+
+  bgmStep++;
+
+}
+
+function startBGM(){
+
+  stopBGM();
+
+  if(
+    !initAudio()
+  ){
+    return;
+  }
+
+  bgmStep=
+  0;
+
+  bgmNote();
+
+  bgmTimer=
+  setInterval(
+    bgmNote,
+    220
+  );
+
+}
+
+function stopBGM(){
+
+  if(
+    bgmTimer
+  ){
+
+    clearInterval(
+      bgmTimer
+    );
+
+    bgmTimer=
+    null;
+
+  }
+
+}
+
+function showFirstPlaceMessage(
+  player
+){
+
+  if(
+    !player
+    ||
+    !player.isPlayer
+    ||
+    player.dead
+  ){
+    return;
+  }
+
+  const index=
+  player.playerNumber-1;
+
+  const box=
+  document.getElementById(
+    "firstPlace"+
+    player.playerNumber
+  );
+
+  if(
+    !box
+  ){
+    return;
+  }
+
+  box.textContent=
+  "👑 1位になった！";
+
+  box.style.display=
+  "block";
+
+  requestAnimationFrame(
+    ()=>{
+
+      box.classList.add(
+        "show"
+      );
+
+    }
+  );
+
+  if(
+    firstPlaceTimers[index]
+  ){
+
+    clearTimeout(
+      firstPlaceTimers[index]
+    );
+
+  }
+
+  firstPlaceTimers[index]=
+  setTimeout(
+    ()=>{
+
+      box.classList.remove(
+        "show"
+      );
+
+      setTimeout(
+        ()=>{
+
+          box.style.display=
+          "none";
+
+        },
+        200
+      );
+
+    },
+    1500
+  );
+
+  playFirstPlaceSound();
+
+}
+
+function checkFirstPlaceChange(){
+
+  if(
+    !playing
+  ){
+    return;
+  }
+
+  const ranking=
+  getRanking();
+
+  const leader=
+  ranking[0] ||
+  null;
+
+  if(
+    !leader
+  ){
+    return;
+  }
+
+  if(
+    leader!==
+    lastLeader
+  ){
+
+    if(
+      leader.isPlayer
+    ){
+
+      showFirstPlaceMessage(
+        leader
+      );
+
+    }
+
+    lastLeader=
+    leader;
+
+  }
+
+}
+
+function random(
+  min,
+  max
+){
+  return min+
+  Math.random()*
+  (max-min);
+}
+
+function randomInt(
+  min,
+  max
+){
+  return Math.floor(
+    random(
+      min,
+      max+1
+    )
+  );
+}
+
+function clamp(
+  value,
+  min,
+  max
+){
+  return Math.max(
+    min,
+    Math.min(
+      max,
+      value
+    )
+  );
+}
+
+function lerp(
+  a,
+  b,
+  t
+){
+  return a+
+  (b-a)*t;
+}
+
+function easeInOut(
+  t
+){
+
+  t =
+  clamp(
+    t,
+    0,
+    1
+  );
+
+  return t*t*(3-2*t);
+
+}
+
+function angleDiff(
+  a,
+  b
+){
+  return (
+    (
+      b-a+
+      Math.PI*3
+    )
+    %
+    (Math.PI*2)
+  )
+  -
+  Math.PI;
+}
+
+function distance(
+  a,
+  b
+){
+  return Math.hypot(
+    a.x-b.x,
+    a.y-b.y
+  );
+}
+
+function metersToSegments(
+  meters
+){
+  return Math.max(
+    8,
+    Math.floor(
+      meters/
+      METERS_PER_SEGMENT
+    )
+  );
+}
+
+function resize(){
+
+  W =
+  innerWidth;
+
+  H =
+  innerHeight;
+
+  DPR =
+  Math.min(
+    2,
+    devicePixelRatio || 1
+  );
+
+  canvas.width =
+  Math.floor(
+    W*DPR
+  );
+
+  canvas.height =
+  Math.floor(
+    H*DPR
+  );
+
+  canvas.style.width =
+  W+"px";
+
+  canvas.style.height =
+  H+"px";
+
+  ctx.setTransform(
+    DPR,
+    0,
+    0,
+    DPR,
+    0,
+    0
+  );
+
+}
+
+addEventListener(
+  "resize",
+  resize
+);
+
+resize();
+
+function getPlayerPreviewColor(
+  playerNumber
+){
+
+  const randomInput =
+  document.getElementById(
+    "p"+
+    playerNumber+
+    "Random"
+  );
+
+  if(
+    randomInput
+    &&
+    randomInput.checked
+  ){
+
+    return "#b06cff";
+
+  }
+
+  const checked =
+  document.querySelector(
+    ".p"+
+    playerNumber+
+    "Color:checked"
+  );
+
+  if(
+    checked
+  ){
+
+    return checked.value;
+
+  }
+
+  return [
+    "#4fc3ff",
+    "#ff4d6d",
+    "#5dff87",
+    "#b06cff"
+  ][playerNumber-1];
+
+}
+
+function updateFaceBackground(
+  playerNumber
+){
+
+  const wrap =
+  document.getElementById(
+    "faceCanvasWrap"+
+    playerNumber
+  );
+
+  if(
+    !wrap
+  ){
+    return;
+  }
+
+  wrap.style.background =
+  getPlayerPreviewColor(
+    playerNumber
+  );
+
+}
+
+function createColorOptions(
+  containerId,
+  prefix,
+  playerNumber
+){
+
+  const box =
+  document.getElementById(
+    containerId
+  );
+
+  box.innerHTML =
+  "";
+
+  COLORS.forEach(
+    ([name,color])=>{
+
+      const label =
+      document.createElement(
+        "label"
+      );
+
+      label.className =
+      "colorOption";
+
+      const dark =
+      [
+        "#ffd84d",
+        "#5dff87",
+        "#4fc3ff",
+        "#4de1d2"
+      ].includes(
+        color
+      );
+
+      label.innerHTML = `
+        <input
+          type="checkbox"
+          class="${prefix}Color"
+          value="${color}"
+        >
+
+        <span
+          class="colorChip"
+          style="
+            background:${color};
+            color:${dark ? "#111" : "#fff"};
+          "
+        >
+          ${name}
+        </span>
+      `;
+
+      box.appendChild(
+        label
+      );
+
+    }
+  );
+
+  const randomLabel =
+  document.createElement(
+    "label"
+  );
+
+  randomLabel.className =
+  "colorOption";
+
+  randomLabel.innerHTML = `
+    <input
+      type="checkbox"
+      id="${prefix}Random"
+    >
+
+    <span class="colorChip randomChip">
+      🎲
+    </span>
+  `;
+
+  box.appendChild(
+    randomLabel
+  );
+
+  const randomInput =
+  document.getElementById(
+    prefix+"Random"
+  );
+
+  randomInput.addEventListener(
+    "change",
+    ()=>{
+
+      if(
+        randomInput.checked
+      ){
+
+        document
+        .querySelectorAll(
+          "."+prefix+"Color"
+        )
+        .forEach(
+          input=>{
+            input.checked=false;
+          }
+        );
+
+      }
+
+      updateFaceBackground(
+        playerNumber
+      );
+
+    }
+  );
+
+  document
+  .querySelectorAll(
+    "."+prefix+"Color"
+  )
+  .forEach(
+    input=>{
+
+      input.addEventListener(
+        "change",
+        ()=>{
+
+          if(
+            input.checked
+          ){
+
+            randomInput.checked =
+            false;
+
+          }
+
+          updateFaceBackground(
+            playerNumber
+          );
+
+        }
+      );
+
+    }
+  );
+
+  updateFaceBackground(
+    playerNumber
+  );
+
+}
+
+for(
+  let i=1;
+  i<=4;
+  i++
+){
+
+  createColorOptions(
+    "colors"+i,
+    "p"+i,
+    i
+  );
+
+}
+
+function getColors(
+  prefix
+){
+
+  if(
+    document
+    .getElementById(
+      prefix+"Random"
+    )
+    .checked
+  ){
+
+    const shuffled =
+    COLORS
+    .map(
+      item=>item[1]
+    )
+    .sort(
+      ()=>Math.random()-.5
+    );
+
+    return shuffled.slice(
+      0,
+      randomInt(1,4)
+    );
+
+  }
+
+  const selected =
+  Array.from(
+    document.querySelectorAll(
+      "."+prefix+"Color:checked"
+    )
+  )
+  .map(
+    input=>input.value
+  );
+
+  if(
+    selected.length
+  ){
+
+    return selected;
+
+  }
+
+  return [
+    COLORS[
+      randomInt(
+        0,
+        COLORS.length-1
+      )
+    ][1]
+  ];
+
+}
+
+document
+.querySelectorAll(
+  ".modeButton"
+)
+.forEach(
+  button=>{
+
+    button.addEventListener(
+      "click",
+      ()=>{
+
+        setPlayerCount(
+          Number(
+            button.dataset.count
+          )
+        );
+
+      }
+    );
+
+  }
+);
+
+function setPlayerCount(
+  count
+){
+
+  playerCount =
+  clamp(
+    count,
+    1,
+    4
+  );
+
+  document
+  .querySelectorAll(
+    ".modeButton"
+  )
+  .forEach(
+    button=>{
+
+      button.classList.toggle(
+        "selected",
+        Number(
+          button.dataset.count
+        )===playerCount
+      );
+
+    }
+  );
+
+  for(
+    let i=1;
+    i<=4;
+    i++
+  ){
+
+    document
+    .getElementById(
+      "player"+
+      i+
+      "Settings"
+    )
+    .style.display =
+    i<=playerCount
+    ?
+    "block"
+    :
+    "none";
+
+  }
+
+}
+
+const drawingState =
+Array.from(
+  {length:4},
+  ()=>({
+    drawing:false,
+    pointerId:null,
+    lastX:0,
+    lastY:0
+  })
+);
+
+function getDisplayCanvas(
+  index
+){
+
+  return document
+  .getElementById(
+    "faceCanvas"+
+    (index+1)
+  );
+
+}
+
+function getCurrentFaceCanvas(
+  index
+){
+
+  return faceData[
+    index
+  ][
+    faceData[index].current
+  ];
+
+}
+
+function refreshFaceCanvas(
+  index
+){
+
+  const display =
+  getDisplayCanvas(
+    index
+  );
+
+  const dctx =
+  display.getContext(
+    "2d"
+  );
+
+  dctx.clearRect(
+    0,
+    0,
+    display.width,
+    display.height
+  );
+
+  dctx.drawImage(
+    getCurrentFaceCanvas(
+      index
+    ),
+    0,
+    0,
+    display.width,
+    display.height
+  );
+
+  updateFaceBackground(
+    index+1
+  );
+
+}
+
+function syncFaceCanvas(
+  index
+){
+
+  const display =
+  getDisplayCanvas(
+    index
+  );
+
+  const target =
+  getCurrentFaceCanvas(
+    index
+  );
+
+  const tctx =
+  target.getContext(
+    "2d"
+  );
+
+  tctx.clearRect(
+    0,
+    0,
+    target.width,
+    target.height
+  );
+
+  tctx.drawImage(
+    display,
+    0,
+    0,
+    target.width,
+    target.height
+  );
+
+}
+
+function setCurrentFaceDrawn(
+  index,
+  value
+){
+
+  if(
+    faceData[index].current===
+    "normal"
+  ){
+
+    faceData[index].normalDrawn =
+    value;
+
+  }
+
+  else{
+
+    faceData[index].angryDrawn =
+    value;
+
+  }
+
+}
+
+document
+.querySelectorAll(
+  ".drawOpenButton"
+)
+.forEach(
+  button=>{
+
+    button.addEventListener(
+      "click",
+      ()=>{
+
+        const number =
+        Number(
+          button.dataset.player
+        );
+
+        document
+        .getElementById(
+          "inlineDraw"+
+          number
+        )
+        .classList.add(
+          "open"
+        );
+
+        updateFaceBackground(
+          number
+        );
+
+        refreshFaceCanvas(
+          number-1
+        );
+
+      }
+    );
+
+  }
+);
+
+document
+.querySelectorAll(
+  ".closeInlineDraw"
+)
+.forEach(
+  button=>{
+
+    button.addEventListener(
+      "click",
+      ()=>{
+
+        const number =
+        Number(
+          button.dataset.player
+        );
+
+        syncFaceCanvas(
+          number-1
+        );
+
+        document
+        .getElementById(
+          "inlineDraw"+
+          number
+        )
+        .classList.remove(
+          "open"
+        );
+
+      }
+    );
+
+  }
+);
+
+document
+.querySelectorAll(
+  ".faceTab"
+)
+.forEach(
+  button=>{
+
+    button.addEventListener(
+      "click",
+      ()=>{
+
+        const number =
+        Number(
+          button.dataset.player
+        );
+
+        const index =
+        number-1;
+
+        syncFaceCanvas(
+          index
+        );
+
+        faceData[index].current =
+        button.dataset.face;
+
+        document
+        .querySelectorAll(
+          `.faceTab[data-player="${number}"]`
+        )
+        .forEach(
+          tab=>{
+
+            tab.classList.toggle(
+              "selected",
+              tab.dataset.face===
+              faceData[index].current
+            );
+
+          }
+        );
+
+        refreshFaceCanvas(
+          index
+        );
+
+      }
+    );
+
+  }
+);
+
+function facePointerPosition(
+  faceCanvas,
+  event
+){
+
+  const rect =
+  faceCanvas.getBoundingClientRect();
+
+  return {
+
+    x:
+    (
+      event.clientX-
+      rect.left
+    )
+    *
+    faceCanvas.width/
+    rect.width,
+
+    y:
+    (
+      event.clientY-
+      rect.top
+    )
+    *
+    faceCanvas.height/
+    rect.height
+
+  };
+
+}
+
+function setupFaceDrawing(
+  index
+){
+
+  const number =
+  index+1;
+
+  const faceCanvas =
+  getDisplayCanvas(
+    index
+  );
+
+  const dctx =
+  faceCanvas.getContext(
+    "2d"
+  );
+
+  const state =
+  drawingState[index];
+
+  faceCanvas.addEventListener(
+    "pointerdown",
+    event=>{
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if(
+        state.drawing
+      ){
+        return;
+      }
+
+      state.drawing =
+      true;
+
+      state.pointerId =
+      event.pointerId;
+
+      try{
+        faceCanvas.setPointerCapture(
+          event.pointerId
+        );
+      }
+      catch(error){}
+
+      const p =
+      facePointerPosition(
+        faceCanvas,
+        event
+      );
+
+      state.lastX=p.x;
+      state.lastY=p.y;
+
+      const size =
+      Number(
+        document
+        .getElementById(
+          "drawSize"+
+          number
+        )
+        .value
+      );
+
+      dctx.beginPath();
+
+      dctx.arc(
+        p.x,
+        p.y,
+        size/2,
+        0,
+        Math.PI*2
+      );
+
+      dctx.fillStyle =
+      document
+      .getElementById(
+        "drawColor"+
+        number
+      )
+      .value;
+
+      dctx.fill();
+
+      setCurrentFaceDrawn(
+        index,
+        true
+      );
+
+    },
+    {passive:false}
+  );
+
+  faceCanvas.addEventListener(
+    "pointermove",
+    event=>{
+
+      if(
+        !state.drawing
+        ||
+        event.pointerId!==
+        state.pointerId
+      ){
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const p =
+      facePointerPosition(
+        faceCanvas,
+        event
+      );
+
+      dctx.beginPath();
+
+      dctx.moveTo(
+        state.lastX,
+        state.lastY
+      );
+
+      dctx.lineTo(
+        p.x,
+        p.y
+      );
+
+      dctx.lineCap=
+      "round";
+
+      dctx.lineJoin=
+      "round";
+
+      dctx.lineWidth =
+      Number(
+        document
+        .getElementById(
+          "drawSize"+
+          number
+        )
+        .value
+      );
+
+      dctx.strokeStyle =
+      document
+      .getElementById(
+        "drawColor"+
+        number
+      )
+      .value;
+
+      dctx.stroke();
+
+      state.lastX=
+      p.x;
+
+      state.lastY=
+      p.y;
+
+      setCurrentFaceDrawn(
+        index,
+        true
+      );
+
+    },
+    {passive:false}
+  );
+
+  function end(
+    event
+  ){
+
+    if(
+      !state.drawing
+    ){
+      return;
+    }
+
+    if(
+      event.pointerId!==undefined
+      &&
+      event.pointerId!==
+      state.pointerId
+    ){
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    state.drawing=
+    false;
+
+    state.pointerId=
+    null;
+
+    syncFaceCanvas(
+      index
+    );
+
+  }
+
+  faceCanvas.addEventListener(
+    "pointerup",
+    end,
+    {passive:false}
+  );
+
+  faceCanvas.addEventListener(
+    "pointercancel",
+    end,
+    {passive:false}
+  );
+
+}
+
+for(
+  let i=0;
+  i<4;
+  i++
+){
+
+  setupFaceDrawing(
+    i
+  );
+
+}
+
+document
+.querySelectorAll(
+  ".faceFrameButton"
+)
+.forEach(
+  button=>{
+
+    button.addEventListener(
+      "click",
+      ()=>{
+
+        const number =
+        Number(
+          button.dataset.player
+        );
+
+        const index =
+        number-1;
+
+        const display =
+        getDisplayCanvas(
+          index
+        );
+
+        const dctx =
+        display.getContext(
+          "2d"
+        );
+
+        const color =
+        document
+        .getElementById(
+          "drawColor"+
+          number
+        )
+        .value;
+
+        const size =
+        Number(
+          document
+          .getElementById(
+            "drawSize"+
+            number
+          )
+          .value
+        );
+
+        const padding =
+        Math.max(
+          15,
+          size
+        );
+
+        dctx.save();
+
+        dctx.beginPath();
+
+        dctx.arc(
+          display.width/2,
+          display.height/2,
+          display.width/2-padding,
+          0,
+          Math.PI*2
+        );
+
+        dctx.strokeStyle =
+        color;
+
+        dctx.lineWidth =
+        size;
+
+        dctx.lineCap =
+        "round";
+
+        dctx.stroke();
+
+        dctx.restore();
+
+        setCurrentFaceDrawn(
+          index,
+          true
+        );
+
+        syncFaceCanvas(
+          index
+        );
+
+      }
+    );
+
+  }
+);
+
+document
+.querySelectorAll(
+  ".clearDraw"
+)
+.forEach(
+  button=>{
+
+    button.addEventListener(
+      "click",
+      ()=>{
+
+        const number =
+        Number(
+          button.dataset.player
+        );
+
+        const index =
+        number-1;
+
+        const display =
+        getDisplayCanvas(
+          index
+        );
+
+        display
+        .getContext("2d")
+        .clearRect(
+          0,
+          0,
+          display.width,
+          display.height
+        );
+
+        const target =
+        getCurrentFaceCanvas(
+          index
+        );
+
+        target
+        .getContext("2d")
+        .clearRect(
+          0,
+          0,
+          target.width,
+          target.height
+        );
+
+        setCurrentFaceDrawn(
+          index,
+          false
+        );
+
+      }
+    );
+
+  }
+);
+
+function copyFace(
+  index,
+  type
+){
+
+  const data =
+  faceData[index];
+
+  const drawn =
+  type==="normal"
+  ?
+  data.normalDrawn
+  :
+  data.angryDrawn;
+
+  if(
+    !drawn
+  ){
+    return null;
+  }
+
+  const source =
+  data[type];
+
+  const copy =
+  document.createElement(
+    "canvas"
+  );
+
+  copy.width =
+  source.width;
+
+  copy.height =
+  source.height;
+
+  copy
+  .getContext("2d")
+  .drawImage(
+    source,
+    0,
+    0
+  );
+
+  return copy;
+
+}
+
+/* =====================================================
+   STAGE
+===================================================== */
+
+document
+.getElementById(
+  "stageBoundaryMode"
+)
+.addEventListener(
+  "click",
+  ()=>{
+
+    stageEditMode=
+    "boundary";
+
+    document
+    .getElementById(
+      "stageBoundaryMode"
+    )
+    .classList.add(
+      "selected"
+    );
+
+    document
+    .getElementById(
+      "stageWallMode"
+    )
+    .classList.remove(
+      "selected"
+    );
+
+  }
+);
+
+document
+.getElementById(
+  "stageWallMode"
+)
+.addEventListener(
+  "click",
+  ()=>{
+
+    stageEditMode=
+    "wall";
+
+    document
+    .getElementById(
+      "stageWallMode"
+    )
+    .classList.add(
+      "selected"
+    );
+
+    document
+    .getElementById(
+      "stageBoundaryMode"
+    )
+    .classList.remove(
+      "selected"
+    );
+
+  }
+);
+
+document
+.getElementById(
+  "stageOpenButton"
+)
+.addEventListener(
+  "click",
+  ()=>{
+
+    document
+    .getElementById(
+      "stageEditor"
+    )
+    .classList.add(
+      "open"
+    );
+
+    redrawStageEditor();
+
+  }
+);
+
+document
+.getElementById(
+  "stageClose"
+)
+.addEventListener(
+  "click",
+  ()=>{
+
+    document
+    .getElementById(
+      "stageEditor"
+    )
+    .classList.remove(
+      "open"
+    );
+
+  }
+);
+
+document
+.getElementById(
+  "stageClearWalls"
+)
+.addEventListener(
+  "click",
+  ()=>{
+
+    stageStrokes=
+    [];
+
+    redrawStageEditor();
+
+  }
+);
+
+document
+.getElementById(
+  "stageClearBoundary"
+)
+.addEventListener(
+  "click",
+  ()=>{
+
+    stageBoundary=
+    [];
+
+    redrawStageEditor();
+
+  }
+);
+
+document
+.getElementById(
+  "stageUndo"
+)
+.addEventListener(
+  "click",
+  ()=>{
+
+    if(
+      stageEditMode===
+      "boundary"
+    ){
+
+      stageBoundary=
+      [];
+
+    }
+
+    else{
+
+      stageStrokes.pop();
+
+    }
+
+    redrawStageEditor();
+
+  }
+);
+
+function stagePointerPosition(
+  event
+){
+
+  const rect =
+  stageCanvas
+  .getBoundingClientRect();
+
+  return {
+
+    x:
+    clamp(
+      (
+        event.clientX-
+        rect.left
+      )
+      *
+      STAGE_EDITOR_SIZE/
+      rect.width,
+      0,
+      STAGE_EDITOR_SIZE
+    ),
+
+    y:
+    clamp(
+      (
+        event.clientY-
+        rect.top
+      )
+      *
+      STAGE_EDITOR_SIZE/
+      rect.height,
+      0,
+      STAGE_EDITOR_SIZE
+    )
+
+  };
+
+}
+
+stageCanvas.addEventListener(
+  "pointerdown",
+  event=>{
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    if(
+      stageDrawing
+    ){
+      return;
+    }
+
+    stageDrawing=
+    true;
+
+    stagePointerId=
+    event.pointerId;
+
+    try{
+      stageCanvas.setPointerCapture(
+        event.pointerId
+      );
+    }
+    catch(error){}
+
+    const p =
+    stagePointerPosition(
+      event
+    );
+
+    if(
+      stageEditMode===
+      "boundary"
+    ){
+
+      stageBoundary=
+      [
+        p
+      ];
+
+      currentStageStroke=
+      stageBoundary;
+
+    }
+
+    else{
+
+      currentStageStroke=
+      [
+        p
+      ];
+
+      stageStrokes.push(
+        currentStageStroke
+      );
+
+    }
+
+    redrawStageEditor();
+
+  },
+  {passive:false}
+);
+
+stageCanvas.addEventListener(
+  "pointermove",
+  event=>{
+
+    if(
+      !stageDrawing
+      ||
+      event.pointerId!==
+      stagePointerId
+    ){
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const p =
+    stagePointerPosition(
+      event
+    );
+
+    const previous =
+    currentStageStroke[
+      currentStageStroke.length-1
+    ];
+
+    if(
+      Math.hypot(
+        p.x-previous.x,
+        p.y-previous.y
+      )<3
+    ){
+      return;
+    }
+
+    currentStageStroke.push(
+      p
+    );
+
+    redrawStageEditor();
+
+  },
+  {passive:false}
+);
+
+function endStageDrawing(
+  event
+){
+
+  if(
+    !stageDrawing
+  ){
+    return;
+  }
+
+  if(
+    event.pointerId!==undefined
+    &&
+    event.pointerId!==
+    stagePointerId
+  ){
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  if(
+    stageEditMode===
+    "boundary"
+    &&
+    stageBoundary.length>=3
+  ){
+
+    const first =
+    stageBoundary[0];
+
+    const last =
+    stageBoundary[
+      stageBoundary.length-1
+    ];
+
+    if(
+      Math.hypot(
+        first.x-last.x,
+        first.y-last.y
+      )>2
+    ){
+
+      stageBoundary.push({
+        x:first.x,
+        y:first.y
+      });
+
+    }
+
+  }
+
+  stageDrawing=
+  false;
+
+  stagePointerId=
+  null;
+
+  currentStageStroke=
+  null;
+
+  redrawStageEditor();
+
+}
+
+stageCanvas.addEventListener(
+  "pointerup",
+  endStageDrawing,
+  {passive:false}
+);
+
+stageCanvas.addEventListener(
+  "pointercancel",
+  endStageDrawing,
+  {passive:false}
+);
+
+function redrawStageEditor(){
+
+  stageCtx.clearRect(
+    0,
+    0,
+    STAGE_EDITOR_SIZE,
+    STAGE_EDITOR_SIZE
+  );
+
+  stageCtx.fillStyle=
+  "#ffffff20";
+
+  stageCtx.font=
+  "bold 18px system-ui";
+
+  stageCtx.textAlign=
+  "center";
+
+  stageCtx.fillText(
+    "🌍 ステージ",
+    300,
+    30
+  );
+
+  stageCtx.lineCap=
+  "round";
+
+  stageCtx.lineJoin=
+  "round";
+
+  if(
+    stageBoundary.length>=2
+  ){
+
+    stageCtx.strokeStyle=
+    "#ffd84d";
+
+    stageCtx.lineWidth=
+    10;
+
+    stageCtx.shadowColor=
+    "#ffd84d";
+
+    stageCtx.shadowBlur=
+    8;
+
+    stageCtx.beginPath();
+
+    stageCtx.moveTo(
+      stageBoundary[0].x,
+      stageBoundary[0].y
+    );
+
+    for(
+      let i=1;
+      i<stageBoundary.length;
+      i++
+    ){
+
+      stageCtx.lineTo(
+        stageBoundary[i].x,
+        stageBoundary[i].y
+      );
+
+    }
+
+    stageCtx.stroke();
+
+    stageCtx.shadowBlur=
+    0;
+
+  }
+
+  stageCtx.strokeStyle=
+  "#ff4d6d";
+
+  stageCtx.lineWidth=
+  8;
+
+  for(
+    const stroke
+    of stageStrokes
+  ){
+
+    if(
+      stroke.length<2
+    ){
+      continue;
+    }
+
+    stageCtx.beginPath();
+
+    stageCtx.moveTo(
+      stroke[0].x,
+      stroke[0].y
+    );
+
+    for(
+      let i=1;
+      i<stroke.length;
+      i++
+    ){
+
+      stageCtx.lineTo(
+        stroke[i].x,
+        stroke[i].y
+      );
+
+    }
+
+    stageCtx.stroke();
+
+  }
+
+  document
+  .getElementById(
+    "stageWallCount"
+  )
+  .textContent=
+  "外枠 "+
+  (
+    stageBoundary.length>=3
+    ?
+    "あり"
+    :
+    "なし"
+  )+
+  " / 壁 "+
+  stageStrokes.length+
+  "本";
+
+}
+
+function editorPointToWorld(
+  point
+){
+
+  return {
+
+    x:
+    point.x/
+    STAGE_EDITOR_SIZE*
+    WORLD,
+
+    y:
+    point.y/
+    STAGE_EDITOR_SIZE*
+    WORLD
+
+  };
+
+}
+
+function worldPointToEditor(
+  x,
+  y
+){
+
+  return {
+
+    x:
+    x/
+    WORLD*
+    STAGE_EDITOR_SIZE,
+
+    y:
+    y/
+    WORLD*
+    STAGE_EDITOR_SIZE
+
+  };
+
+}
+
+function distancePointToSegment(
+  px,
+  py,
+  x1,
+  y1,
+  x2,
+  y2
+){
+
+  const vx=
+  x2-x1;
+
+  const vy=
+  y2-y1;
+
+  const wx=
+  px-x1;
+
+  const wy=
+  py-y1;
+
+  const lengthSq=
+  vx*vx+
+  vy*vy;
+
+  if(
+    lengthSq===0
+  ){
+
+    return Math.hypot(
+      px-x1,
+      py-y1
+    );
+
+  }
+
+  let t=
+  (
+    wx*vx+
+    wy*vy
+  )/
+  lengthSq;
+
+  t=
+  clamp(
+    t,
+    0,
+    1
+  );
+
+  const closestX=
+  x1+
+  vx*t;
+
+  const closestY=
+  y1+
+  vy*t;
+
+  return Math.hypot(
+    px-closestX,
+    py-closestY
+  );
+
+}
+
+function pointInPolygon(
+  x,
+  y,
+  polygon
+){
+
+  if(
+    polygon.length<3
+  ){
+
+    return true;
+
+  }
+
+  let inside=
+  false;
+
+  for(
+    let i=0,
+    j=polygon.length-1;
+    i<polygon.length;
+    j=i++
+  ){
+
+    const xi=
+    polygon[i].x;
+
+    const yi=
+    polygon[i].y;
+
+    const xj=
+    polygon[j].x;
+
+    const yj=
+    polygon[j].y;
+
+    const intersect=
+    (
+      (yi>y)!==
+      (yj>y)
+    )
+    &&
+    (
+      x<
+      (
+        (xj-xi)*
+        (y-yi)/
+        (
+          yj-yi || .00001
+        )
+      )
+      +
+      xi
+    );
+
+    if(
+      intersect
+    ){
+
+      inside=
+      !inside;
+
+    }
+
+  }
+
+  return inside;
+
+}
+
+function hasCustomBoundary(){
+
+  return stageBoundary.length>=4;
+
+}
+
+function isInsideCustomBoundaryWorld(
+  x,
+  y
+){
+
+  if(
+    !hasCustomBoundary()
+  ){
+
+    return (
+      x>=0
+      &&
+      y>=0
+      &&
+      x<=WORLD
+      &&
+      y<=WORLD
+    );
+
+  }
+
+  const editorPoint =
+  worldPointToEditor(
+    x,
+    y
+  );
+
+  return pointInPolygon(
+    editorPoint.x,
+    editorPoint.y,
+    stageBoundary
+  );
+
+}
+
+function snakeHitsStageBoundary(
+  snake
+){
+
+  if(
+    !hasCustomBoundary()
+  ){
+
+    return (
+      snake.x<
+      snake.radius
+      ||
+      snake.y<
+      snake.radius
+      ||
+      snake.x>
+      WORLD-
+      snake.radius
+      ||
+      snake.y>
+      WORLD-
+      snake.radius
+    );
+
+  }
+
+  if(
+    !isInsideCustomBoundaryWorld(
+      snake.x,
+      snake.y
+    )
+  ){
+
+    return true;
+
+  }
+
+  const hitDistance =
+  snake.radius+
+  STAGE_WALL_WIDTH_WORLD/2;
+
+  for(
+    let i=1;
+    i<stageBoundary.length;
+    i++
+  ){
+
+    const a =
+    editorPointToWorld(
+      stageBoundary[i-1]
+    );
+
+    const b =
+    editorPointToWorld(
+      stageBoundary[i]
+    );
+
+    if(
+      distancePointToSegment(
+        snake.x,
+        snake.y,
+        a.x,
+        a.y,
+        b.x,
+        b.y
+      )<
+      hitDistance
+    ){
+
+      return true;
+
+    }
+
+  }
+
+  return false;
+
+}
+
+function snakeHitsCustomWall(
+  snake
+){
+
+  if(
+    stageStrokes.length===0
+  ){
+
+    return false;
+
+  }
+
+  const hitDistance =
+  snake.radius+
+  STAGE_WALL_WIDTH_WORLD/2;
+
+  for(
+    const stroke
+    of stageStrokes
+  ){
+
+    if(
+      stroke.length<2
+    ){
+      continue;
+    }
+
+    for(
+      let i=1;
+      i<stroke.length;
+      i+=2
+    ){
+
+      const p1 =
+      editorPointToWorld(
+        stroke[
+          Math.max(
+            0,
+            i-1
+          )
+        ]
+      );
+
+      const p2 =
+      editorPointToWorld(
+        stroke[i]
+      );
+
+      const d =
+      distancePointToSegment(
+        snake.x,
+        snake.y,
+        p1.x,
+        p1.y,
+        p2.x,
+        p2.y
+      );
+
+      if(
+        d<
+        hitDistance
+      ){
+
+        return true;
+
+      }
+
+    }
+
+  }
+
+  return false;
+
+}
+
+function validStagePoint(
+  x,
+  y,
+  radius=20
+){
+
+  const fake={
+    x,
+    y,
+    radius
+  };
+
+  return (
+    isInsideCustomBoundaryWorld(
+      x,
+      y
+    )
+    &&
+    !snakeHitsCustomWall(
+      fake
+    )
+    &&
+    !snakeHitsStageBoundary(
+      fake
+    )
+  );
+
+}
+
+function randomStagePoint(
+  radius=25
+){
+
+  for(
+    let tries=0;
+    tries<500;
+    tries++
+  ){
+
+    const x=
+    random(
+      100,
+      WORLD-100
+    );
+
+    const y=
+    random(
+      100,
+      WORLD-100
+    );
+
+    if(
+      validStagePoint(
+        x,
+        y,
+        radius
+      )
+    ){
+
+      return {
+        x,
+        y
+      };
+
+    }
+
+  }
+
+  return {
+    x:WORLD/2,
+    y:WORLD/2
+  };
+
+}
+
+function addSparkle(
+  x=null,
+  y=null,
+  size=random(3,7),
+  value=1,
+  color="#fff"
+){
+
+  if(
+    x===null
+    ||
+    y===null
+  ){
+
+    const p =
+    randomStagePoint(
+      4
+    );
+
+    x=p.x;
+    y=p.y;
+
+  }
+
+  if(
+    !isInsideCustomBoundaryWorld(
+      x,
+      y
+    )
+  ){
+
+    return;
+
+  }
+
+  sparkles.push({
+    x,
+    y,
+    size,
+    value,
+    color
+  });
+
+}
+
+function refillSparkles(){
+
+  let safety=0;
+
+  while(
+    sparkles.length<
+    1200
+    &&
+    safety<5000
+  ){
+
+    addSparkle();
+
+    safety++;
+
+  }
+
+}
+
+class Snake{
+
+  constructor({
+    name,
+    playerNumber=0,
+    colors=null,
+    lengthMeters=12,
+    normalFace=null,
+    angryFace=null
+  }){
+
+    this.name=
+    name;
+
+    this.playerNumber=
+    playerNumber;
+
+    this.isPlayer=
+    playerNumber>0;
+
+    this.colors=
+    colors ||
+    [
+      COLORS[
+        randomInt(
+          0,
+          COLORS.length-1
+        )
+      ][1]
+    ];
+
+    this.normalFace=
+    normalFace;
+
+    this.angryFace=
+    angryFace;
+
+    this.dead=
+    false;
+
+    this.deathTime=
+    null;
+
+    this.deathX=
+    0;
+
+    this.deathY=
+    0;
+
+    const spawn =
+    randomStagePoint(
+      30
+    );
+
+    this.x=
+    spawn.x;
+
+    this.y=
+    spawn.y;
+
+    this.angle=
+    random(
+      0,
+      Math.PI*2
+    );
+
+    this.targetAngle=
+    this.angle;
+
+    this.mass=
+    0;
+
+    this.points=
+    this.isPlayer
+    ?
+    25
+    :
+    randomInt(
+      20,
+      100
+    );
+
+    this.kills=
+    0;
+
+    this.playerKills=
+    0;
+
+    this.defeatedSnakes=
+    [];
+
+    this.killedBy=
+    null;
+
+    this.boosting=
+    false;
+
+    this.aiTimer=
+    random(
+      .2,
+      .6
+    );
+
+    this.aiBoostTimer=
+    0;
+
+    this.spawnProtection=
+    0;
+
+    this.spawnMeters=
+    Math.max(
+      2,
+      Number(
+        lengthMeters
+      ) || 12
+    );
+
+    this.startLength=
+    metersToSegments(
+      this.spawnMeters
+    );
+
+    if(
+      this.isPlayer
+    ){
+
+      this.baseRadius=
+      clamp(
+        16+
+        Math.sqrt(
+          this.spawnMeters
+        )*.5,
+        17,
+        34
+      );
+
+    }
+
+    else{
+
+      this.baseRadius=
+      clamp(
+        14+
+        Math.sqrt(
+          this.spawnMeters
+        )*1.15,
+        15,
+        52
+      );
+
+    }
+
+    this.radius=
+    this.baseRadius;
+
+    this.body=
+    [];
+
+    this.buildBody();
+
+  }
+
+  buildBody(){
+
+    this.body=
+    [];
+
+    for(
+      let i=0;
+      i<this.startLength;
+      i++
+    ){
+
+      this.body.push({
+
+        x:
+        this.x-
+        Math.cos(
+          this.angle
+        )*
+        i*
+        SEGMENT_DISTANCE,
+
+        y:
+        this.y-
+        Math.sin(
+          this.angle
+        )*
+        i*
+        SEGMENT_DISTANCE
+
+      });
+
+    }
+
+  }
+
+  getTargetLength(){
+
+    return (
+      this.startLength+
+      Math.floor(
+        this.mass*.28
+      )
+    );
+
+  }
+
+  getMeters(){
+
+    return (
+      this.body.length*
+      METERS_PER_SEGMENT
+    );
+
+  }
+
+  getWidthMeters(){
+
+    return (
+      this.radius*
+      2*
+      .025
+    );
+
+  }
+
+  eat(
+    orb
+  ){
+
+    this.mass+=
+    orb.value;
+
+    this.points+=
+    orb.value;
+
+    this.radius=
+    this.baseRadius+
+    Math.sqrt(
+      this.mass
+    )*.43;
+
+    if(
+      this.isPlayer
+    ){
+
+      playPointSound(
+        this.playerNumber
+      );
+
+    }
+
+  }
+
+  die(){
+
+    if(
+      this.dead
+    ){
+      return;
+    }
+
+    this.dead=
+    true;
+
+    if(
+      this.isPlayer
+    ){
+
+      playDeathSound();
+
+    }
+
+    this.boosting=
+    false;
+
+    this.deathTime=
+    performance.now();
+
+    this.deathX=
+    this.x;
+
+    this.deathY=
+    this.y;
+
+    if(
+      this.isPlayer
+    ){
+
+      const index=
+      this.playerNumber-1;
+
+      boostTouch[index]=false;
+      boostKey[index]=false;
+      boostSoundPlaying[index]=false;
+
+      viewModes[index]=
+      "overview";
+
+      document
+      .getElementById(
+        "death"+
+        this.playerNumber
+      )
+      .style.display=
+      "block";
+
+      updateViewToggle(
+        index
+      );
+
+    }
+
+    const step=
+    this.body.length>500
+    ?
+    3
+    :
+    2;
+
+    for(
+      let i=0;
+      i<this.body.length;
+      i+=step
+    ){
+
+      const point=
+      this.body[i];
+
+      const color=
+      this.colors[
+        Math.floor(i/3)%
+        this.colors.length
+      ];
+
+      if(
+        isInsideCustomBoundaryWorld(
+          point.x,
+          point.y
+        )
+      ){
+
+        addSparkle(
+          point.x+
+          random(-4,4),
+          point.y+
+          random(-4,4),
+          clamp(
+            this.radius*
+            random(.35,.55),
+            5,
+            32
+          ),
+          Math.max(
+            2,
+            Math.round(
+              this.radius/5
+            )
+          ),
+          color
+        );
+
+      }
+
+    }
+
+  }
+
+  getBoostPressed(){
+
+    if(
+      !this.isPlayer
+    ){
+      return false;
+    }
+
+    const index=
+    this.playerNumber-1;
+
+    return (
+      boostTouch[index]
+      ||
+      boostKey[index]
+    );
+
+  }
+
+  cpuAI(
+    dt
+  ){
+
+    this.aiTimer-=
+    dt;
+
+    if(
+      this.aiTimer>0
+    ){
+      return;
+    }
+
+    let delay;
+    let searchRadius;
+    let boostChance;
+
+    if(
+      difficulty===
+      "beginner"
+    ){
+
+      delay=
+      random(.55,1.05);
+
+      searchRadius=
+      550;
+
+      boostChance=
+      .035;
+
+    }
+
+    else{
+
+      delay=
+      random(.30,.60);
+
+      searchRadius=
+      850;
+
+      boostChance=
+      .09;
+
+    }
+
+    this.aiTimer=
+    delay;
+
+    let target=
+    null;
+
+    let best=
+    searchRadius*
+    searchRadius;
+
+    let step=
+    6;
+
+    if(
+      snakes.length>60
+    ){
+      step=10;
+    }
+
+    if(
+      snakes.length>120
+    ){
+      step=16;
+    }
+
+    for(
+      let i=0;
+      i<sparkles.length;
+      i+=step
+    ){
+
+      const orb=
+      sparkles[i];
+
+      const dx=
+      orb.x-this.x;
+
+      const dy=
+      orb.y-this.y;
+
+      const d=
+      dx*dx+
+      dy*dy;
+
+      if(
+        d<best
+      ){
+
+        best=
+        d;
+
+        target=
+        orb;
+
+      }
+
+    }
+
+    if(
+      target
+    ){
+
+      this.targetAngle=
+      Math.atan2(
+        target.y-this.y,
+        target.x-this.x
+      );
+
+    }
+
+    else{
+
+      this.targetAngle+=
+      random(-.7,.7);
+
+    }
+
+    const lookAhead=
+    250;
+
+    const testX=
+    this.x+
+    Math.cos(
+      this.targetAngle
+    )*
+    lookAhead;
+
+    const testY=
+    this.y+
+    Math.sin(
+      this.targetAngle
+    )*
+    lookAhead;
+
+    if(
+      !isInsideCustomBoundaryWorld(
+        testX,
+        testY
+      )
+    ){
+
+      this.targetAngle+=
+      Math.PI+
+      random(-.7,.7);
+
+    }
+
+    if(
+      Math.random()<
+      boostChance
+      &&
+      this.points>8
+    ){
+
+      this.aiBoostTimer=
+      random(.25,.7);
+
+    }
+
+  }
+
+  update(
+    dt
+  ){
+
+    if(
+      this.dead
+    ){
+      return;
+    }
+
+    this.spawnProtection=
+    Math.max(
+      0,
+      this.spawnProtection-dt
+    );
+
+    let boosting=
+    false;
+
+    if(
+      this.isPlayer
+    ){
+
+      boosting=
+      this.getBoostPressed()
+      &&
+      this.points>0;
+
+    }
+
+    else{
+
+      this.cpuAI(
+        dt
+      );
+
+      this.aiBoostTimer-=
+      dt;
+
+      boosting=
+      this.aiBoostTimer>0
+      &&
+      this.points>0;
+
+    }
+
+    if(
+      this.isPlayer
+    ){
+
+      const index=
+      this.playerNumber-1;
+
+      if(
+        boosting
+        &&
+        !boostSoundPlaying[index]
+      ){
+
+        playBoostSound();
+
+        boostSoundPlaying[index]=
+        true;
+
+      }
+
+      if(
+        !boosting
+      ){
+
+        boostSoundPlaying[index]=
+        false;
+
+      }
+
+    }
+
+    this.boosting=
+    boosting;
+
+    let turnSpeed;
+    let speed;
+    let boostSpeed;
+
+    if(
+      this.isPlayer
+    ){
+
+      turnSpeed=
+      2.1;
+
+      speed=
+      180;
+
+      boostSpeed=
+      300;
+
+    }
+
+    else if(
+      difficulty===
+      "beginner"
+    ){
+
+      turnSpeed=
+      1.85;
+
+      speed=
+      160;
+
+      boostSpeed=
+      215;
+
+    }
+
+    else{
+
+      turnSpeed=
+      2.35;
+
+      speed=
+      170;
+
+      boostSpeed=
+      235;
+
+    }
+
+    this.angle+=
+    clamp(
+      angleDiff(
+        this.angle,
+        this.targetAngle
+      ),
+      -turnSpeed*dt,
+      turnSpeed*dt
+    );
+
+    if(
+      boosting
+    ){
+
+      speed=
+      boostSpeed;
+
+      this.points=
+      Math.max(
+        0,
+        this.points-
+        9*dt
+      );
+
+    }
+
+    this.x+=
+    Math.cos(
+      this.angle
+    )*
+    speed*
+    dt;
+
+    this.y+=
+    Math.sin(
+      this.angle
+    )*
+    speed*
+    dt;
+
+    this.body.unshift({
+      x:this.x,
+      y:this.y
+    });
+
+    while(
+      this.body.length>
+      this.getTargetLength()
+    ){
+
+      this.body.pop();
+
+    }
+
+    if(
+      this.spawnProtection<=0
+      &&
+      snakeHitsStageBoundary(
+        this
+      )
+    ){
+
+      this.killedBy=
+      "boundary";
+
+      this.die();
+      return;
+
+    }
+
+    if(
+      this.spawnProtection<=0
+      &&
+      snakeHitsCustomWall(
+        this
+      )
+    ){
+
+      this.killedBy=
+      "wall";
+
+      this.die();
+      return;
+
+    }
+
+    for(
+      let i=
+      sparkles.length-1;
+      i>=0;
+      i--
+    ){
+
+      const orb=
+      sparkles[i];
+
+      const dx=
+      orb.x-this.x;
+
+      const dy=
+      orb.y-this.y;
+
+      const r=
+      this.radius+
+      orb.size;
+
+      if(
+        dx*dx+
+        dy*dy
+        <
+        r*r
+      ){
+
+        this.eat(
+          orb
+        );
+
+        sparkles.splice(
+          i,
+          1
+        );
+
+      }
+
+    }
+
+  }
+
+}
+
+function placeCPUFarAway(
+  cpu
+){
+
+  let tries=
+  0;
+
+  do{
+
+    const p =
+    randomStagePoint(
+      cpu.radius+20
+    );
+
+    cpu.x=
+    p.x;
+
+    cpu.y=
+    p.y;
+
+    tries++;
+
+  }
+  while(
+    tries<180
+    &&
+    players.some(
+      player=>
+      player
+      &&
+      !player.dead
+      &&
+      distance(
+        cpu,
+        player
+      )<1200
+    )
+  );
+
+  cpu.angle=
+  random(
+    0,
+    Math.PI*2
+  );
+
+  cpu.targetAngle=
+  cpu.angle;
+
+  cpu.buildBody();
+
+}
+
+function showKill(
+  killer,
+  victim
+){
+
+  if(
+    !killer
+    ||
+    !killer.isPlayer
+    ||
+    !victim
+  ){
+    return;
+  }
+
+  if(
+    victim.isPlayer
+  ){
+
+    killer.playerKills++;
+
+  }
+
+  else{
+
+    killer.kills++;
+
+  }
+
+  killer.defeatedSnakes.push({
+
+    name:
+    victim.name,
+
+    playerNumber:
+    victim.playerNumber,
+
+    isPlayer:
+    victim.isPlayer
+
+  });
+
+  playKillSound();
+
+  const index=
+  killer.playerNumber-1;
+
+  const box=
+  document.getElementById(
+    "kill"+
+    killer.playerNumber
+  );
+
+  let victimName;
+
+  if(
+    victim.isPlayer
+  ){
+
+    victimName=
+    victim.playerNumber+
+    "P "+
+    victim.name;
+
+  }
+
+  else{
+
+    victimName=
+    victim.name;
+
+  }
+
+  box.textContent=
+  "💥 "+
+  victimName+
+  "を倒した！";
+
+  box.style.display=
+  "block";
+
+  requestAnimationFrame(
+    ()=>{
+
+      box.classList.add(
+        "show"
+      );
+
+    }
+  );
+
+  if(
+    killTimers[index]
+  ){
+
+    clearTimeout(
+      killTimers[index]
+    );
+
+  }
+
+  killTimers[index]=
+  setTimeout(
+    ()=>{
+
+      box.classList.remove(
+        "show"
+      );
+
+      setTimeout(
+        ()=>{
+
+          box.style.display=
+          "none";
+
+        },
+        170
+      );
+
+    },
+    1400
+  );
+
+}
+
+function collisions(){
+
+  const bodyStep=
+  snakes.length>120
+  ?
+  12
+  :
+  snakes.length>60
+  ?
+  8
+  :
+  5;
+
+  for(
+    const attacker
+    of snakes
+  ){
+
+    if(
+      attacker.dead
+      ||
+      attacker.spawnProtection>0
+    ){
+      continue;
+    }
+
+    for(
+      const target
+      of snakes
+    ){
+
+      if(
+        attacker===target
+        ||
+        target.dead
+        ||
+        target.spawnProtection>0
+      ){
+        continue;
+      }
+
+      for(
+        let i=10;
+        i<target.body.length;
+        i+=bodyStep
+      ){
+
+        const point=
+        target.body[i];
+
+        const dx=
+        attacker.x-
+        point.x;
+
+        const dy=
+        attacker.y-
+        point.y;
+
+        const hitRadius=
+        attacker.radius+
+        target.radius*.57;
+
+        if(
+          dx*dx+
+          dy*dy
+          <
+          hitRadius*
+          hitRadius
+        ){
+
+          if(
+            target.isPlayer
+          ){
+
+            showKill(
+              target,
+              attacker
+            );
+
+          }
+
+          attacker.killedBy=
+          target;
+
+          attacker.die();
+
+          break;
+
+        }
+
+      }
+
+      if(
+        attacker.dead
+      ){
+        break;
+      }
+
+    }
+
+  }
+
+}
+
+function respawnCPUs(){
+
+  for(
+    let i=0;
+    i<snakes.length;
+    i++
+  ){
+
+    const old=
+    snakes[i];
+
+    if(
+      old.isPlayer
+      ||
+      !old.dead
+    ){
+      continue;
+    }
+
+    if(
+      Math.random()<.0015
+    ){
+
+      const cpu=
+      new Snake({
+
+        name:
+        old.name,
+
+        lengthMeters:
+        random(
+          cpuMinMeters,
+          cpuMaxMeters
+        )
+
+      });
+
+      placeCPUFarAway(
+        cpu
+      );
+
+      cpu.spawnProtection=
+      1.3;
+
+      snakes[i]=
+      cpu;
+
+    }
+
+  }
+
+}
+
+function getRanking(){
+
+  return snakes
+  .filter(
+    snake=>!snake.dead
+  )
+  .slice()
+  .sort(
+    (a,b)=>
+    b.getMeters()-
+    a.getMeters()
+  );
+
+}
+
+function rankedName(
+  snake,
+  rank
+){
+
+  let prefix=
+  "";
+
+  if(
+    rank===1
+  ){
+
+    prefix=
+    "👑 ";
+
+  }
+
+  else if(
+    rank===2
+  ){
+
+    prefix=
+    "🥈 ";
+
+  }
+
+  if(
+    snake.isPlayer
+  ){
+
+    return (
+      prefix+
+      PLAYER_MARKERS[
+        snake.playerNumber
+      ]+
+      " "+
+      snake.playerNumber+
+      "P "+
+      snake.name
+    );
+
+  }
+
+  return (
+    prefix+
+    snake.name
+  );
+
+}
+
+function getNormalCamera(
+  target,
+  viewW,
+  viewH
+){
+
+  return {
+
+    centerX:
+    clamp(
+      target.x,
+      viewW/2,
+      WORLD-viewW/2
+    ),
+
+    centerY:
+    clamp(
+      target.y,
+      viewH/2,
+      WORLD-viewH/2
+    ),
+
+    scale:1,
+
+    overview:false
+
+  };
+
+}
+
+function getOverviewCamera(
+  viewW,
+  viewH
+){
+
+  return {
+
+    centerX:
+    WORLD/2,
+
+    centerY:
+    WORLD/2,
+
+    scale:
+    Math.min(
+      viewW/WORLD,
+      viewH/WORLD
+    )*.94,
+
+    overview:true
+
+  };
+
+}
+
+function getDeathCamera(
+  target,
+  viewW,
+  viewH
+){
+
+  const elapsed=
+  performance.now()-
+  target.deathTime;
+
+  const progress=
+  easeInOut(
+    elapsed/
+    DEATH_ZOOM_TIME
+  );
+
+  const overview=
+  getOverviewCamera(
+    viewW,
+    viewH
+  );
+
+  return {
+
+    centerX:
+    lerp(
+      target.deathX,
+      WORLD/2,
+      progress
+    ),
+
+    centerY:
+    lerp(
+      target.deathY,
+      WORLD/2,
+      progress
+    ),
+
+    scale:
+    lerp(
+      1,
+      overview.scale,
+      progress
+    ),
+
+    overview:
+    progress>=.96
+
+  };
+
+}
+
+function getCameraForPlayer(
+  index,
+  viewW,
+  viewH
+){
+
+  const player=
+  players[index];
+
+  if(
+    !player
+  ){
+
+    return getOverviewCamera(
+      viewW,
+      viewH
+    );
+
+  }
+
+  if(
+    player.dead
+  ){
+
+    return getDeathCamera(
+      player,
+      viewW,
+      viewH
+    );
+
+  }
+
+  if(
+    viewModes[index]===
+    "overview"
+  ){
+
+    return getOverviewCamera(
+      viewW,
+      viewH
+    );
+
+  }
+
+  return getNormalCamera(
+    player,
+    viewW,
+    viewH
+  );
+
+}
+
+function worldToScreen(
+  x,
+  y,
+  camera,
+  viewX,
+  viewY,
+  viewW,
+  viewH
+){
+
+  return {
+
+    x:
+    viewX+
+    viewW/2+
+    (
+      x-camera.centerX
+    )*
+    camera.scale,
+
+    y:
+    viewY+
+    viewH/2+
+    (
+      y-camera.centerY
+    )*
+    camera.scale
+
+  };
+
+}
+
+function drawStageBoundary(
+  camera,
+  viewX,
+  viewY,
+  viewW,
+  viewH
+){
+
+  if(
+    !hasCustomBoundary()
+  ){
+
+    const topLeft=
+    worldToScreen(
+      0,
+      0,
+      camera,
+      viewX,
+      viewY,
+      viewW,
+      viewH
+    );
+
+    const bottomRight=
+    worldToScreen(
+      WORLD,
+      WORLD,
+      camera,
+      viewX,
+      viewY,
+      viewW,
+      viewH
+    );
+
+    ctx.save();
+
+    ctx.strokeStyle=
+    "#ff4d6d";
+
+    ctx.lineWidth=
+    Math.max(
+      2,
+      7*
+      camera.scale
+    );
+
+    ctx.shadowBlur=
+    10;
+
+    ctx.shadowColor=
+    "#ff4d6d";
+
+    ctx.strokeRect(
+      topLeft.x,
+      topLeft.y,
+      bottomRight.x-
+      topLeft.x,
+      bottomRight.y-
+      topLeft.y
+    );
+
+    ctx.restore();
+
+    return;
+
+  }
+
+  ctx.save();
+
+  ctx.beginPath();
+
+  ctx.rect(
+    viewX,
+    viewY,
+    viewW,
+    viewH
+  );
+
+  ctx.clip();
+
+  ctx.lineCap=
+  "round";
+
+  ctx.lineJoin=
+  "round";
+
+  ctx.strokeStyle=
+  "#ffd84d";
+
+  ctx.shadowColor=
+  "#ffd84d";
+
+  ctx.shadowBlur=
+  Math.max(
+    2,
+    12*
+    camera.scale
+  );
+
+  ctx.lineWidth=
+  Math.max(
+    2,
+    STAGE_WALL_WIDTH_WORLD*
+    camera.scale
+  );
+
+  const firstWorld=
+  editorPointToWorld(
+    stageBoundary[0]
+  );
+
+  const firstScreen=
+  worldToScreen(
+    firstWorld.x,
+    firstWorld.y,
+    camera,
+    viewX,
+    viewY,
+    viewW,
+    viewH
+  );
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    firstScreen.x,
+    firstScreen.y
+  );
+
+  for(
+    let i=1;
+    i<stageBoundary.length;
+    i++
+  ){
+
+    const world=
+    editorPointToWorld(
+      stageBoundary[i]
+    );
+
+    const screen=
+    worldToScreen(
+      world.x,
+      world.y,
+      camera,
+      viewX,
+      viewY,
+      viewW,
+      viewH
+    );
+
+    ctx.lineTo(
+      screen.x,
+      screen.y
+    );
+
+  }
+
+  ctx.stroke();
+
+  ctx.restore();
+
+}
+
+function drawStageWalls(
+  camera,
+  viewX,
+  viewY,
+  viewW,
+  viewH
+){
+
+  if(
+    stageStrokes.length===0
+  ){
+    return;
+  }
+
+  ctx.save();
+
+  ctx.beginPath();
+
+  ctx.rect(
+    viewX,
+    viewY,
+    viewW,
+    viewH
+  );
+
+  ctx.clip();
+
+  ctx.lineCap=
+  "round";
+
+  ctx.lineJoin=
+  "round";
+
+  ctx.strokeStyle=
+  "#ff3b51";
+
+  ctx.shadowColor=
+  "#ff334f";
+
+  ctx.shadowBlur=
+  Math.max(
+    2,
+    10*
+    camera.scale
+  );
+
+  ctx.lineWidth=
+  Math.max(
+    2,
+    STAGE_WALL_WIDTH_WORLD*
+    camera.scale
+  );
+
+  for(
+    const stroke
+    of stageStrokes
+  ){
+
+    if(
+      stroke.length<2
+    ){
+      continue;
+    }
+
+    const firstWorld=
+    editorPointToWorld(
+      stroke[0]
+    );
+
+    const firstScreen=
+    worldToScreen(
+      firstWorld.x,
+      firstWorld.y,
+      camera,
+      viewX,
+      viewY,
+      viewW,
+      viewH
+    );
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      firstScreen.x,
+      firstScreen.y
+    );
+
+    for(
+      let i=1;
+      i<stroke.length;
+      i++
+    ){
+
+      const world=
+      editorPointToWorld(
+        stroke[i]
+      );
+
+      const screen=
+      worldToScreen(
+        world.x,
+        world.y,
+        camera,
+        viewX,
+        viewY,
+        viewW,
+        viewH
+      );
+
+      ctx.lineTo(
+        screen.x,
+        screen.y
+      );
+
+    }
+
+    ctx.stroke();
+
+  }
+
+  ctx.restore();
+
+}
+
+function drawFaceImage(
+  image,
+  snake,
+  head,
+  radius
+){
+
+  if(
+    !image
+  ){
+    return false;
+  }
+
+  ctx.save();
+
+  ctx.translate(
+    head.x,
+    head.y
+  );
+
+  ctx.rotate(
+    snake.angle+
+    Math.PI/2
+  );
+
+  ctx.beginPath();
+
+  ctx.arc(
+    0,
+    0,
+    radius*.95,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fillStyle=
+  snake.colors[0];
+
+  ctx.fill();
+
+  ctx.beginPath();
+
+  ctx.arc(
+    0,
+    0,
+    radius*.95,
+    0,
+    Math.PI*2
+  );
+
+  ctx.clip();
+
+  const size=
+  radius*1.9;
+
+  ctx.drawImage(
+    image,
+    -size/2,
+    -size/2,
+    size,
+    size
+  );
+
+  ctx.restore();
+
+  return true;
+
+}
+
+function drawAngryEyebrows(
+  snake,
+  head,
+  radius
+){
+
+  const fx=
+  Math.cos(
+    snake.angle
+  );
+
+  const fy=
+  Math.sin(
+    snake.angle
+  );
+
+  const sx=
+  Math.cos(
+    snake.angle+
+    Math.PI/2
+  );
+
+  const sy=
+  Math.sin(
+    snake.angle+
+    Math.PI/2
+  );
+
+  for(
+    const dir
+    of [-1,1]
+  ){
+
+    const cx=
+    head.x+
+    fx*radius*.18+
+    sx*radius*.34*dir;
+
+    const cy=
+    head.y+
+    fy*radius*.18+
+    sy*radius*.34*dir;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      cx-
+      fx*radius*.22+
+      sx*dir*radius*.15,
+
+      cy-
+      fy*radius*.22+
+      sy*dir*radius*.15
+    );
+
+    ctx.lineTo(
+      cx+
+      fx*radius*.06-
+      sx*dir*radius*.13,
+
+      cy+
+      fy*radius*.06-
+      sy*dir*radius*.13
+    );
+
+    ctx.strokeStyle=
+    "#111";
+
+    ctx.lineWidth=
+    Math.max(
+      3,
+      radius*.1
+    );
+
+    ctx.lineCap=
+    "round";
+
+    ctx.stroke();
+
+  }
+
+}
+
+function drawDefaultFace(
+  snake,
+  head,
+  radius
+){
+
+  const fx=
+  Math.cos(
+    snake.angle
+  );
+
+  const fy=
+  Math.sin(
+    snake.angle
+  );
+
+  const sx=
+  Math.cos(
+    snake.angle+
+    Math.PI/2
+  );
+
+  const sy=
+  Math.sin(
+    snake.angle+
+    Math.PI/2
+  );
+
+  for(
+    const dir
+    of [-1,1]
+  ){
+
+    const eyeX=
+    head.x+
+    fx*radius*.28+
+    sx*radius*.42*dir;
+
+    const eyeY=
+    head.y+
+    fy*radius*.28+
+    sy*radius*.42*dir;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      eyeX,
+      eyeY,
+      Math.max(
+        2,
+        radius*.18
+      ),
+      0,
+      Math.PI*2
+    );
+
+    ctx.fillStyle=
+    "#fff";
+
+    ctx.fill();
+
+    ctx.beginPath();
+
+    ctx.arc(
+      eyeX+
+      fx*radius*.09,
+
+      eyeY+
+      fy*radius*.09,
+
+      Math.max(
+        1.3,
+        radius*.09
+      ),
+
+      0,
+      Math.PI*2
+    );
+
+    ctx.fillStyle=
+    "#111";
+
+    ctx.fill();
+
+  }
+
+  if(
+    snake.boosting
+  ){
+
+    drawAngryEyebrows(
+      snake,
+      head,
+      radius
+    );
+
+  }
+
+}
+
+function drawSnake(
+  snake,
+  camera,
+  viewX,
+  viewY,
+  viewW,
+  viewH,
+  viewerPlayerIndex,
+  rankIcon
+){
+
+  if(
+    snake.dead
+  ){
+    return;
+  }
+
+  ctx.save();
+
+  ctx.beginPath();
+
+  ctx.rect(
+    viewX,
+    viewY,
+    viewW,
+    viewH
+  );
+
+  ctx.clip();
+
+  ctx.globalAlpha=
+  snake.spawnProtection>0
+  ?
+  .5
+  :
+  1;
+
+  for(
+    let i=
+    snake.body.length-1;
+    i>=0;
+    i--
+  ){
+
+    const point=
+    snake.body[i];
+
+    const screen=
+    worldToScreen(
+      point.x,
+      point.y,
+      camera,
+      viewX,
+      viewY,
+      viewW,
+      viewH
+    );
+
+    if(
+      screen.x<viewX-70
+      ||
+      screen.x>viewX+viewW+70
+      ||
+      screen.y<viewY-70
+      ||
+      screen.y>viewY+viewH+70
+    ){
+      continue;
+    }
+
+    const progress=
+    1-
+    i/
+    Math.max(
+      1,
+      snake.body.length
+    );
+
+    const radius=
+    snake.radius*
+    (
+      .6+
+      progress*.4
+    )*
+    camera.scale;
+
+    const color=
+    snake.colors[
+      Math.floor(i/3)%
+      snake.colors.length
+    ];
+
+    ctx.beginPath();
+
+    ctx.arc(
+      screen.x,
+      screen.y,
+      Math.max(
+        1,
+        radius
+      ),
+      0,
+      Math.PI*2
+    );
+
+    ctx.fillStyle=
+    color;
+
+    ctx.shadowBlur=
+    camera.scale>.3
+    ?
+    6
+    :
+    0;
+
+    ctx.shadowColor=
+    color;
+
+    ctx.fill();
+
+    if(
+      snake.isPlayer
+      &&
+      snake.playerNumber===
+      viewerPlayerIndex+1
+      &&
+      camera.scale>.25
+    ){
+
+      ctx.shadowBlur=
+      0;
+
+      ctx.strokeStyle=
+      "#fff";
+
+      ctx.lineWidth=
+      1.2;
+
+      ctx.stroke();
+
+    }
+
+  }
+
+  ctx.shadowBlur=
+  0;
+
+  if(
+    camera.scale>.22
+  ){
+
+    const head=
+    worldToScreen(
+      snake.x,
+      snake.y,
+      camera,
+      viewX,
+      viewY,
+      viewW,
+      viewH
+    );
+
+    const radius=
+    snake.radius*
+    camera.scale;
+
+    let used=
+    false;
+
+    if(
+      snake.boosting
+      &&
+      snake.angryFace
+    ){
+
+      used=
+      drawFaceImage(
+        snake.angryFace,
+        snake,
+        head,
+        radius
+      );
+
+    }
+
+    else if(
+      snake.normalFace
+    ){
+
+      used=
+      drawFaceImage(
+        snake.normalFace,
+        snake,
+        head,
+        radius
+      );
+
+    }
+
+    if(
+      !used
+    ){
+
+      drawDefaultFace(
+        snake,
+        head,
+        radius
+      );
+
+    }
+
+    else if(
+      snake.boosting
+      &&
+      snake.normalFace
+      &&
+      !snake.angryFace
+    ){
+
+      drawAngryEyebrows(
+        snake,
+        head,
+        radius
+      );
+
+    }
+
+    if(
+      camera.scale>.4
+    ){
+
+      ctx.font=
+      snake.isPlayer
+      ?
+      "bold 13px system-ui"
+      :
+      "9px system-ui";
+
+      ctx.textAlign=
+      "center";
+
+      ctx.lineWidth=
+      4;
+
+      ctx.strokeStyle=
+      "#000";
+
+      const headName=
+      (
+        rankIcon
+        ?
+        rankIcon+" "
+        :
+        ""
+      )
+      +
+      (
+        snake.isPlayer
+        ?
+        snake.playerNumber+
+        "P "+
+        snake.name
+        :
+        snake.name
+      );
+
+      ctx.strokeText(
+        headName,
+        head.x,
+        head.y-
+        radius-
+        8
+      );
+
+      ctx.fillStyle=
+      "#fff";
+
+      ctx.fillText(
+        headName,
+        head.x,
+        head.y-
+        radius-
+        8
+      );
+
+    }
+
+  }
+
+  ctx.restore();
+
+}
+
+function drawOverviewMarkers(
+  camera,
+  viewX,
+  viewY,
+  viewW,
+  viewH
+){
+
+  if(
+    !camera.overview
+  ){
+    return;
+  }
+
+  const ranking=
+  getRanking();
+
+  const first=
+  ranking[0];
+
+  const second=
+  ranking[1];
+
+  for(
+    let i=0;
+    i<playerCount;
+    i++
+  ){
+
+    const player=
+    players[i];
+
+    if(
+      !player
+    ){
+      continue;
+    }
+
+    const x=
+    player.dead
+    ?
+    player.deathX
+    :
+    player.x;
+
+    const y=
+    player.dead
+    ?
+    player.deathY
+    :
+    player.y;
+
+    const p=
+    worldToScreen(
+      x,
+      y,
+      camera,
+      viewX,
+      viewY,
+      viewW,
+      viewH
+    );
+
+    let text;
+
+    if(
+      player.dead
+    ){
+
+      text=
+      "💥 "+
+      (i+1)+
+      "P "+
+      player.name;
+
+    }
+
+    else if(
+      player===first
+    ){
+
+      text=
+      "👑 "+
+      (i+1)+
+      "P "+
+      player.name;
+
+    }
+
+    else if(
+      player===second
+    ){
+
+      text=
+      "🥈 "+
+      (i+1)+
+      "P "+
+      player.name;
+
+    }
+
+    else{
+
+      text=
+      PLAYER_MARKERS[i+1]+
+      " "+
+      (i+1)+
+      "P "+
+      player.name;
+
+    }
+
+    ctx.save();
+
+    ctx.textAlign=
+    "center";
+
+    ctx.font=
+    "bold 12px system-ui";
+
+    ctx.lineWidth=
+    4;
+
+    ctx.strokeStyle=
+    "#000";
+
+    ctx.strokeText(
+      text,
+      p.x,
+      p.y-10
+    );
+
+    ctx.fillStyle=
+    "#fff";
+
+    ctx.fillText(
+      text,
+      p.x,
+      p.y-10
+    );
+
+    ctx.restore();
+
+  }
+
+  [
+    {
+      snake:first,
+      icon:"👑"
+    },
+    {
+      snake:second,
+      icon:"🥈"
+    }
+  ]
+  .forEach(
+    item=>{
+
+      if(
+        !item.snake
+        ||
+        item.snake.isPlayer
+      ){
+        return;
+      }
+
+      const p=
+      worldToScreen(
+        item.snake.x,
+        item.snake.y,
+        camera,
+        viewX,
+        viewY,
+        viewW,
+        viewH
+      );
+
+      ctx.save();
+
+      ctx.textAlign=
+      "center";
+
+      ctx.font=
+      "bold 12px system-ui";
+
+      ctx.lineWidth=
+      4;
+
+      ctx.strokeStyle=
+      "#000";
+
+      ctx.strokeText(
+        item.icon+
+        " "+
+        item.snake.name,
+        p.x,
+        p.y-10
+      );
+
+      ctx.fillStyle=
+      "#fff";
+
+      ctx.fillText(
+        item.icon+
+        " "+
+        item.snake.name,
+        p.x,
+        p.y-10
+      );
+
+      ctx.restore();
+
+    }
+  );
+
+}
+
+function drawView(
+  playerIndex,
+  viewX,
+  viewY,
+  viewW,
+  viewH,
+  forcedOverview=false
+){
+
+  const camera=
+  forcedOverview
+  ?
+  getOverviewCamera(
+    viewW,
+    viewH
+  )
+  :
+  getCameraForPlayer(
+    playerIndex,
+    viewW,
+    viewH
+  );
+
+  ctx.save();
+
+  ctx.beginPath();
+
+  ctx.rect(
+    viewX,
+    viewY,
+    viewW,
+    viewH
+  );
+
+  ctx.clip();
+
+  ctx.fillStyle=
+  "#0d1424";
+
+  ctx.fillRect(
+    viewX,
+    viewY,
+    viewW,
+    viewH
+  );
+
+  if(
+    camera.scale>.18
+  ){
+
+    const grid=
+    120;
+
+    const left=
+    camera.centerX-
+    viewW/
+    (
+      camera.scale*2
+    );
+
+    const right=
+    camera.centerX+
+    viewW/
+    (
+      camera.scale*2
+    );
+
+    const top=
+    camera.centerY-
+    viewH/
+    (
+      camera.scale*2
+    );
+
+    const bottom=
+    camera.centerY+
+    viewH/
+    (
+      camera.scale*2
+    );
+
+    ctx.strokeStyle=
+    "#ffffff08";
+
+    ctx.lineWidth=
+    1;
+
+    for(
+      let x=
+      Math.floor(
+        left/grid
+      )*grid;
+      x<=right;
+      x+=grid
+    ){
+
+      const a=
+      worldToScreen(
+        x,
+        top,
+        camera,
+        viewX,
+        viewY,
+        viewW,
+        viewH
+      );
+
+      const b=
+      worldToScreen(
+        x,
+        bottom,
+        camera,
+        viewX,
+        viewY,
+        viewW,
+        viewH
+      );
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        a.x,
+        a.y
+      );
+
+      ctx.lineTo(
+        b.x,
+        b.y
+      );
+
+      ctx.stroke();
+
+    }
+
+    for(
+      let y=
+      Math.floor(
+        top/grid
+      )*grid;
+      y<=bottom;
+      y+=grid
+    ){
+
+      const a=
+      worldToScreen(
+        left,
+        y,
+        camera,
+        viewX,
+        viewY,
+        viewW,
+        viewH
+      );
+
+      const b=
+      worldToScreen(
+        right,
+        y,
+        camera,
+        viewX,
+        viewY,
+        viewW,
+        viewH
+      );
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        a.x,
+        a.y
+      );
+
+      ctx.lineTo(
+        b.x,
+        b.y
+      );
+
+      ctx.stroke();
+
+    }
+
+  }
+
+  for(
+    const orb
+    of sparkles
+  ){
+
+    const p=
+    worldToScreen(
+      orb.x,
+      orb.y,
+      camera,
+      viewX,
+      viewY,
+      viewW,
+      viewH
+    );
+
+    if(
+      p.x<viewX-15
+      ||
+      p.x>viewX+viewW+15
+      ||
+      p.y<viewY-15
+      ||
+      p.y>viewY+viewH+15
+    ){
+      continue;
+    }
+
+    ctx.beginPath();
+
+    ctx.arc(
+      p.x,
+      p.y,
+      Math.max(
+        .7,
+        orb.size*
+        camera.scale
+      ),
+      0,
+      Math.PI*2
+    );
+
+    ctx.fillStyle=
+    orb.color;
+
+    ctx.fill();
+
+  }
+
+  ctx.restore();
+
+  drawStageBoundary(
+    camera,
+    viewX,
+    viewY,
+    viewW,
+    viewH
+  );
+
+  drawStageWalls(
+    camera,
+    viewX,
+    viewY,
+    viewW,
+    viewH
+  );
+
+  let firstSnake=
+  null;
+
+  let secondSnake=
+  null;
+
+  for(
+    const candidate
+    of snakes
+  ){
+
+    if(
+      candidate.dead
+    ){
+      continue;
+    }
+
+    if(
+      !firstSnake
+      ||
+      candidate.getMeters()>
+      firstSnake.getMeters()
+    ){
+
+      secondSnake=
+      firstSnake;
+
+      firstSnake=
+      candidate;
+
+    }
+
+    else if(
+      !secondSnake
+      ||
+      candidate.getMeters()>
+      secondSnake.getMeters()
+    ){
+
+      secondSnake=
+      candidate;
+
+    }
+
+  }
+
+  for(
+    const snake
+    of snakes
+  ){
+
+    let rankIcon=
+    "";
+
+    if(
+      snake===
+      firstSnake
+    ){
+
+      rankIcon=
+      "👑";
+
+    }
+
+    else if(
+      snake===
+      secondSnake
+    ){
+
+      rankIcon=
+      "🥈";
+
+    }
+
+    drawSnake(
+      snake,
+      camera,
+      viewX,
+      viewY,
+      viewW,
+      viewH,
+      playerIndex,
+      rankIcon
+    );
+
+  }
+
+  drawOverviewMarkers(
+    camera,
+    viewX,
+    viewY,
+    viewW,
+    viewH
+  );
+
+}
+
+function drawGame(){
+
+  ctx.clearRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+  if(
+    playerCount===1
+  ){
+
+    drawView(
+      0,
+      0,
+      0,
+      W,
+      H
+    );
+
+  }
+
+  else if(
+    playerCount===2
+  ){
+
+    drawView(
+      0,
+      0,
+      0,
+      W/2,
+      H
+    );
+
+    drawView(
+      1,
+      W/2,
+      0,
+      W/2,
+      H
+    );
+
+  }
+
+  else if(
+    playerCount===3
+  ){
+
+    drawView(
+      0,
+      0,
+      0,
+      W/2,
+      H/2
+    );
+
+    drawView(
+      1,
+      W/2,
+      0,
+      W/2,
+      H/2
+    );
+
+    drawView(
+      2,
+      0,
+      H/2,
+      W/2,
+      H/2
+    );
+
+    drawView(
+      0,
+      W/2,
+      H/2,
+      W/2,
+      H/2,
+      true
+    );
+
+  }
+
+  else{
+
+    drawView(
+      0,
+      0,
+      0,
+      W/2,
+      H/2
+    );
+
+    drawView(
+      1,
+      W/2,
+      0,
+      W/2,
+      H/2
+    );
+
+    drawView(
+      2,
+      0,
+      H/2,
+      W/2,
+      H/2
+    );
+
+    drawView(
+      3,
+      W/2,
+      H/2,
+      W/2,
+      H/2
+    );
+
+  }
+
+  updateUI();
+
+}
+
+function updateHUD(
+  player,
+  number
+){
+
+  document
+  .getElementById(
+    "nameHud"+
+    number
+  )
+  .textContent=
+  player.name;
+
+  document
+  .getElementById(
+    "length"+
+    number
+  )
+  .textContent=
+  player
+  .getMeters()
+  .toFixed(1);
+
+  document
+  .getElementById(
+    "width"+
+    number
+  )
+  .textContent=
+  player
+  .getWidthMeters()
+  .toFixed(2);
+
+  document
+  .getElementById(
+    "points"+
+    number
+  )
+  .textContent=
+  Math.floor(
+    player.points
+  );
+
+  document
+  .getElementById(
+    "kills"+
+    number
+  )
+  .textContent=
+  player.kills;
+
+  document
+  .getElementById(
+    "playerKills"+
+    number
+  )
+  .textContent=
+  player.playerKills;
+
+}
+
+function updateRanking(
+  playerIndex
+){
+
+  const element=
+  document.getElementById(
+    "ranking"+
+    (playerIndex+1)
+  );
+
+  const ranking=
+  getRanking();
+
+  const viewer=
+  players[playerIndex];
+
+  let html=
+  "<b>🏆 TOP10</b><br>";
+
+  ranking
+  .slice(
+    0,
+    10
+  )
+  .forEach(
+    (snake,index)=>{
+
+      const rank=
+      index+1;
+
+      const rankText=
+      rank===1
+      ?
+      "👑 1位"
+      :
+      rank===2
+      ?
+      "🥈 2位"
+      :
+      rank+
+      "位";
+
+      html+=`
+        <div class="${
+          snake.isPlayer
+          ?
+          "playerHighlight"
+          :
+          ""
+        }">
+          <b>${rankText}</b>
+          ${
+            snake.isPlayer
+            ?
+            PLAYER_MARKERS[
+              snake.playerNumber
+            ]+
+            " "+
+            snake.playerNumber+
+            "P "
+            :
+            ""
+          }
+          ${snake.name}
+          📏${snake.getMeters().toFixed(1)}m
+          ✨${Math.floor(snake.points)}pt
+        </div>
+      `;
+
+    }
+  );
+
+  if(
+    viewer
+    &&
+    !viewer.dead
+  ){
+
+    const ownRank=
+    ranking.indexOf(
+      viewer
+    )+1;
+
+    if(
+      ownRank>10
+    ){
+
+      html+=
+      '<div class="rankingDivider"></div>';
+
+      html+=`
+        <div class="playerHighlight">
+          <b>${ownRank}位</b>
+          ${PLAYER_MARKERS[
+            viewer.playerNumber
+          ]}
+          ${viewer.playerNumber}P
+          ${viewer.name}
+          📏${viewer.getMeters().toFixed(1)}m
+          ✨${Math.floor(viewer.points)}pt
+        </div>
+      `;
+
+    }
+
+  }
+
+  if(
+    viewer
+    &&
+    viewer.dead
+  ){
+
+    html+=
+    '<div class="rankingDivider"></div>';
+
+    html+=`
+      <div class="playerHighlight">
+        ${PLAYER_MARKERS[
+          viewer.playerNumber
+        ]}
+        ${viewer.playerNumber}P
+        ${viewer.name}
+        💥 脱落
+      </div>
+    `;
+
+  }
+
+  element.innerHTML=
+  html;
+
+}
+
+function updateDirection(
+  playerIndex,
+  target,
+  slot
+){
+
+  const player=
+  players[playerIndex];
+
+  const arrow=
+  document.getElementById(
+    "arrow"+
+    (playerIndex+1)+
+    slot
+  );
+
+  const dist=
+  document.getElementById(
+    "distance"+
+    (playerIndex+1)+
+    slot
+  );
+
+  if(
+    !player
+    ||
+    player.dead
+    ||
+    !target
+  ){
+
+    arrow.textContent=
+    "➜";
+
+    arrow.style.transform=
+    "rotate(0rad)";
+
+    dist.textContent=
+    "--";
+
+    return;
+
+  }
+
+  if(
+    player===
+    target
+  ){
+
+    arrow.textContent=
+    "★";
+
+    arrow.style.transform=
+    "rotate(0rad)";
+
+    dist.textContent=
+    "自分！";
+
+    return;
+
+  }
+
+  const dx=
+  target.x-
+  player.x;
+
+  const dy=
+  target.y-
+  player.y;
+
+  arrow.textContent=
+  "➜";
+
+  arrow.style.transform=
+  `rotate(${Math.atan2(dy,dx)}rad)`;
+
+  dist.textContent=
+  Math.round(
+    Math.hypot(
+      dx,
+      dy
+    )/10
+  )+
+  "m";
+
+}
+
+function drawMap(
+  playerIndex
+){
+
+  const map=
+  document.getElementById(
+    "map"+
+    (playerIndex+1)
+  );
+
+  const m=
+  map.getContext(
+    "2d"
+  );
+
+  const w=
+  map.width;
+
+  const h=
+  map.height;
+
+  m.clearRect(
+    0,
+    0,
+    w,
+    h
+  );
+
+  m.fillStyle=
+  "#07101f";
+
+  m.fillRect(
+    0,
+    0,
+    w,
+    h
+  );
+
+  if(
+    hasCustomBoundary()
+  ){
+
+    m.strokeStyle=
+    "#ffd84d";
+
+    m.lineWidth=
+    4;
+
+    m.lineCap=
+    "round";
+
+    m.lineJoin=
+    "round";
+
+    m.beginPath();
+
+    m.moveTo(
+      stageBoundary[0].x/
+      STAGE_EDITOR_SIZE*
+      w,
+
+      stageBoundary[0].y/
+      STAGE_EDITOR_SIZE*
+      h
+    );
+
+    for(
+      let i=1;
+      i<stageBoundary.length;
+      i++
+    ){
+
+      m.lineTo(
+        stageBoundary[i].x/
+        STAGE_EDITOR_SIZE*
+        w,
+
+        stageBoundary[i].y/
+        STAGE_EDITOR_SIZE*
+        h
+      );
+
+    }
+
+    m.stroke();
+
+  }
+
+  else{
+
+    m.strokeStyle=
+    "#ff4d6d";
+
+    m.lineWidth=
+    5;
+
+    m.strokeRect(
+      2,
+      2,
+      w-4,
+      h-4
+    );
+
+  }
+
+  m.strokeStyle=
+  "#ff4058";
+
+  m.lineWidth=
+  3;
+
+  m.lineCap=
+  "round";
+
+  m.lineJoin=
+  "round";
+
+  for(
+    const stroke
+    of stageStrokes
+  ){
+
+    if(
+      stroke.length<2
+    ){
+      continue;
+    }
+
+    m.beginPath();
+
+    m.moveTo(
+      stroke[0].x/
+      STAGE_EDITOR_SIZE*
+      w,
+
+      stroke[0].y/
+      STAGE_EDITOR_SIZE*
+      h
+    );
+
+    for(
+      let i=1;
+      i<stroke.length;
+      i++
+    ){
+
+      m.lineTo(
+        stroke[i].x/
+        STAGE_EDITOR_SIZE*
+        w,
+
+        stroke[i].y/
+        STAGE_EDITOR_SIZE*
+        h
+      );
+
+    }
+
+    m.stroke();
+
+  }
+
+  const ranking=
+  getRanking();
+
+  const first=
+  ranking[0];
+
+  const second=
+  ranking[1];
+
+  for(
+    const snake
+    of snakes
+  ){
+
+    if(
+      snake.dead
+      ||
+      snake===first
+      ||
+      snake===second
+    ){
+      continue;
+    }
+
+    const x=
+    snake.x/
+    WORLD*
+    w;
+
+    const y=
+    snake.y/
+    WORLD*
+    h;
+
+    m.beginPath();
+
+    m.arc(
+      x,
+      y,
+      snake.isPlayer
+      ?
+      5
+      :
+      2.5,
+      0,
+      Math.PI*2
+    );
+
+    m.fillStyle=
+    snake.colors[0];
+
+    m.fill();
+
+    if(
+      snake.isPlayer
+    ){
+
+      m.font=
+      "bold 9px system-ui";
+
+      m.textAlign=
+      "center";
+
+      m.lineWidth=
+      3;
+
+      m.strokeStyle=
+      "#000";
+
+      m.strokeText(
+        snake.playerNumber+
+        "P "+
+        snake.name,
+        x,
+        y-8
+      );
+
+      m.fillStyle=
+      "#fff";
+
+      m.fillText(
+        snake.playerNumber+
+        "P "+
+        snake.name,
+        x,
+        y-8
+      );
+
+    }
+
+  }
+
+  function drawRankMarker(
+    snake,
+    icon
+  ){
+
+    if(
+      !snake
+    ){
+      return;
+    }
+
+    const x=
+    snake.x/
+    WORLD*
+    w;
+
+    const y=
+    snake.y/
+    WORLD*
+    h;
+
+    m.textAlign=
+    "center";
+
+    m.textBaseline=
+    "middle";
+
+    m.font=
+    "bold 22px system-ui";
+
+    m.fillText(
+      icon,
+      x,
+      y
+    );
+
+    const name=
+    snake.isPlayer
+    ?
+    snake.playerNumber+
+    "P "+
+    snake.name
+    :
+    snake.name;
+
+    m.font=
+    "bold 9px system-ui";
+
+    m.lineWidth=
+    3;
+
+    m.strokeStyle=
+    "#000";
+
+    m.strokeText(
+      name,
+      x,
+      y-15
+    );
+
+    m.fillStyle=
+    "#fff";
+
+    m.fillText(
+      name,
+      x,
+      y-15
+    );
+
+  }
+
+  drawRankMarker(
+    first,
+    "👑"
+  );
+
+  drawRankMarker(
+    second,
+    "🥈"
+  );
+
+}
+
+function updateViewToggle(
+  index
+){
+
+  const button=
+  document.getElementById(
+    "viewToggle"+
+    (index+1)
+  );
+
+  const player=
+  players[index];
+
+  if(
+    player
+    &&
+    player.dead
+  ){
+
+    button.textContent=
+    "🌍 脱落・全体表示";
+
+    button.disabled=
+    true;
+
+    return;
+
+  }
+
+  button.disabled=
+  false;
+
+  button.textContent=
+  viewModes[index]===
+  "overview"
+  ?
+  "🐍 普通の画面に戻す"
+  :
+  "🌍 全体表示にする";
+
+}
+
+for(
+  let i=0;
+  i<4;
+  i++
+){
+
+  document
+  .getElementById(
+    "viewToggle"+
+    (i+1)
+  )
+  .addEventListener(
+    "click",
+    ()=>{
+
+      const player=
+      players[i];
+
+      if(
+        !player
+        ||
+        player.dead
+      ){
+        return;
+      }
+
+      viewModes[i]=
+      viewModes[i]===
+      "overview"
+      ?
+      "normal"
+      :
+      "overview";
+
+      updateViewToggle(
+        i
+      );
+
+    }
+  );
+
+}
+
+function updateUI(){
+
+  const ranking=
+  getRanking();
+
+  for(
+    let i=0;
+    i<playerCount;
+    i++
+  ){
+
+    const player=
+    players[i];
+
+    if(
+      !player
+    ){
+      continue;
+    }
+
+    updateHUD(
+      player,
+      i+1
+    );
+
+    updateRanking(
+      i
+    );
+
+    updateDirection(
+      i,
+      ranking[0],
+      1
+    );
+
+    updateDirection(
+      i,
+      ranking[1],
+      2
+    );
+
+    drawMap(
+      i
+    );
+
+  }
+
+}
+
+function playerFromScreen(
+  x,
+  y
+){
+
+  if(
+    playerCount===1
+  ){
+
+    return 0;
+
+  }
+
+  if(
+    playerCount===2
+  ){
+
+    return x<W/2
+    ?
+    0
+    :
+    1;
+
+  }
+
+  if(
+    y<H/2
+  ){
+
+    return x<W/2
+    ?
+    0
+    :
+    1;
+
+  }
+
+  if(
+    x<W/2
+  ){
+
+    return 2;
+
+  }
+
+  if(
+    playerCount===3
+  ){
+
+    return -1;
+
+  }
+
+  return 3;
+
+}
+
+canvas.addEventListener(
+  "pointerdown",
+  event=>{
+
+    if(
+      !playing
+    ){
+      return;
+    }
+
+    const index=
+    playerFromScreen(
+      event.clientX,
+      event.clientY
+    );
+
+    if(
+      index<0
+      ||
+      index>=playerCount
+      ||
+      controlModes[index]!==
+      "slide"
+    ){
+      return;
+    }
+
+    const player=
+    players[index];
+
+    if(
+      !player
+      ||
+      player.dead
+    ){
+      return;
+    }
+
+    const control=
+    slideControls[index];
+
+    if(
+      control.active
+    ){
+      return;
+    }
+
+    control.active=
+    true;
+
+    control.pointerId=
+    event.pointerId;
+
+    control.lastX=
+    event.clientX;
+
+    control.lastY=
+    event.clientY;
+
+    try{
+      canvas.setPointerCapture(
+        event.pointerId
+      );
+    }
+    catch(error){}
+
+  }
+);
+
+canvas.addEventListener(
+  "pointermove",
+  event=>{
+
+    for(
+      let index=0;
+      index<4;
+      index++
+    ){
+
+      const control=
+      slideControls[index];
+
+      if(
+        !control.active
+        ||
+        control.pointerId!==
+        event.pointerId
+      ){
+        continue;
+      }
+
+      const player=
+      players[index];
+
+      if(
+        !player
+        ||
+        player.dead
+      ){
+        continue;
+      }
+
+      const dx=
+      event.clientX-
+      control.lastX;
+
+      const dy=
+      event.clientY-
+      control.lastY;
+
+      const movement=
+      Math.hypot(
+        dx,
+        dy
+      );
+
+      if(
+        movement<
+        SWIPE_THRESHOLD
+      ){
+        continue;
+      }
+
+      const wanted=
+      Math.atan2(
+        dy,
+        dx
+      );
+
+      player.targetAngle+=
+      angleDiff(
+        player.targetAngle,
+        wanted
+      )*
+      SWIPE_SENSITIVITY;
+
+      control.lastX=
+      event.clientX;
+
+      control.lastY=
+      event.clientY;
+
+    }
+
+  }
+);
+
+function releaseSlide(
+  event
+){
+
+  for(
+    const control
+    of slideControls
+  ){
+
+    if(
+      control.pointerId===
+      event.pointerId
+    ){
+
+      control.active=
+      false;
+
+      control.pointerId=
+      null;
+
+    }
+
+  }
+
+}
+
+canvas.addEventListener(
+  "pointerup",
+  releaseSlide
+);
+
+canvas.addEventListener(
+  "pointercancel",
+  releaseSlide
+);
+
+function setupStick(
+  index
+){
+
+  const stick=
+  document.getElementById(
+    "stick"+
+    (index+1)
+  );
+
+  const knob=
+  document.getElementById(
+    "knob"+
+    (index+1)
+  );
+
+  let pointerId=
+  null;
+
+  function reset(){
+
+    pointerId=
+    null;
+
+    knob.style.left=
+    (
+      stick.clientWidth-
+      knob.clientWidth
+    )/2+
+    "px";
+
+    knob.style.top=
+    (
+      stick.clientHeight-
+      knob.clientHeight
+    )/2+
+    "px";
+
+  }
+
+  function move(
+    event
+  ){
+
+    const player=
+    players[index];
+
+    if(
+      !player
+      ||
+      player.dead
+    ){
+      return;
+    }
+
+    const rect=
+    stick.getBoundingClientRect();
+
+    const centerX=
+    rect.left+
+    rect.width/2;
+
+    const centerY=
+    rect.top+
+    rect.height/2;
+
+    let dx=
+    event.clientX-
+    centerX;
+
+    let dy=
+    event.clientY-
+    centerY;
+
+    const dist=
+    Math.hypot(
+      dx,
+      dy
+    );
+
+    if(
+      dist<
+      rect.width*.1
+    ){
+      return;
+    }
+
+    const max=
+    rect.width*.3;
+
+    const ratio=
+    Math.min(
+      max,
+      dist
+    )/
+    Math.max(
+      1,
+      dist
+    );
+
+    dx*=
+    ratio;
+
+    dy*=
+    ratio;
+
+    knob.style.left=
+    rect.width/2-
+    knob.offsetWidth/2+
+    dx+
+    "px";
+
+    knob.style.top=
+    rect.height/2-
+    knob.offsetHeight/2+
+    dy+
+    "px";
+
+    const wanted=
+    Math.atan2(
+      dy,
+      dx
+    );
+
+    player.targetAngle+=
+    angleDiff(
+      player.targetAngle,
+      wanted
+    )*.5;
+
+  }
+
+  stick.addEventListener(
+    "pointerdown",
+    event=>{
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if(
+        pointerId!==null
+      ){
+        return;
+      }
+
+      pointerId=
+      event.pointerId;
+
+      try{
+        stick.setPointerCapture(
+          event.pointerId
+        );
+      }
+      catch(error){}
+
+      move(
+        event
+      );
+
+    }
+  );
+
+  stick.addEventListener(
+    "pointermove",
+    event=>{
+
+      if(
+        event.pointerId!==
+        pointerId
+      ){
+        return;
+      }
+
+      event.preventDefault();
+
+      move(
+        event
+      );
+
+    }
+  );
+
+  function end(
+    event
+  ){
+
+    if(
+      pointerId!==null
+      &&
+      event.pointerId!==undefined
+      &&
+      event.pointerId!==
+      pointerId
+    ){
+      return;
+    }
+
+    reset();
+
+  }
+
+  stick.addEventListener(
+    "pointerup",
+    end
+  );
+
+  stick.addEventListener(
+    "pointercancel",
+    end
+  );
+
+  reset();
+
+}
+
+for(
+  let i=0;
+  i<4;
+  i++
+){
+
+  setupStick(
+    i
+  );
+
+}
+
+function setupBoost(
+  index
+){
+
+  const button=
+  document.getElementById(
+    "boost"+
+    (index+1)
+  );
+
+  function on(
+    event
+  ){
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    boostTouch[index]=
+    true;
+
+    button.classList.add(
+      "active"
+    );
+
+  }
+
+  function off(
+    event
+  ){
+
+    if(
+      event
+    ){
+
+      event.preventDefault();
+      event.stopPropagation();
+
+    }
+
+    boostTouch[index]=
+    false;
+
+    button.classList.remove(
+      "active"
+    );
+
+  }
+
+  button.addEventListener(
+    "pointerdown",
+    event=>{
+
+      try{
+        button.setPointerCapture(
+          event.pointerId
+        );
+      }
+      catch(error){}
+
+      on(
+        event
+      );
+
+    }
+  );
+
+  button.addEventListener(
+    "pointerup",
+    off
+  );
+
+  button.addEventListener(
+    "pointercancel",
+    off
+  );
+
+}
+
+for(
+  let i=0;
+  i<4;
+  i++
+){
+
+  setupBoost(
+    i
+  );
+
+}
+
+const keys=
+{};
+
+addEventListener(
+  "keydown",
+  event=>{
+
+    keys[
+      event.key.toLowerCase()
+    ]=
+    true;
+
+    if(
+      event.code===
+      "Space"
+    ){
+
+      event.preventDefault();
+
+      boostKey[0]=
+      true;
+
+    }
+
+    if(
+      event.key===
+      "Enter"
+    ){
+
+      boostKey[1]=
+      true;
+
+    }
+
+  }
+);
+
+addEventListener(
+  "keyup",
+  event=>{
+
+    keys[
+      event.key.toLowerCase()
+    ]=
+    false;
+
+    if(
+      event.code===
+      "Space"
+    ){
+
+      boostKey[0]=
+      false;
+
+    }
+
+    if(
+      event.key===
+      "Enter"
+    ){
+
+      boostKey[1]=
+      false;
+
+    }
+
+  }
+);
+
+function keyboardControls(){
+
+  requestAnimationFrame(
+    keyboardControls
+  );
+
+  if(
+    !playing
+  ){
+    return;
+  }
+
+  if(
+    players[0]
+    &&
+    !players[0].dead
+  ){
+
+    let dx=0;
+    let dy=0;
+
+    if(keys["a"])dx--;
+    if(keys["d"])dx++;
+    if(keys["w"])dy--;
+    if(keys["s"])dy++;
+
+    if(
+      dx||
+      dy
+    ){
+
+      players[0].targetAngle=
+      Math.atan2(
+        dy,
+        dx
+      );
+
+    }
+
+  }
+
+  if(
+    players[1]
+    &&
+    !players[1].dead
+  ){
+
+    let dx=0;
+    let dy=0;
+
+    if(keys["arrowleft"])dx--;
+    if(keys["arrowright"])dx++;
+    if(keys["arrowup"])dy--;
+    if(keys["arrowdown"])dy++;
+
+    if(
+      dx||
+      dy
+    ){
+
+      players[1].targetAngle=
+      Math.atan2(
+        dy,
+        dx
+      );
+
+    }
+
+  }
+
+}
+
+requestAnimationFrame(
+  keyboardControls
+);
+
+/* =====================================================
+   PRESETS
+===================================================== */
+
+const presetModal=
+document.getElementById(
+  "presetModal"
+);
+
+const confirmModal=
+document.getElementById(
+  "confirmModal"
+);
+
+let confirmAction=
+null;
+
+function getPresets(){
+
+  try{
+
+    const keys=[
+      STORAGE_KEY,
+      "snakeBattlePresetsV6",
+      "snakeBattlePresetsV5",
+      "snakeBattlePresetsV4",
+      "snakeBattlePresetsV3",
+      "snakeBattlePresetsV1"
+    ];
+
+    for(
+      const key
+      of keys
+    ){
+
+      const raw=
+      localStorage.getItem(
+        key
+      );
+
+      if(
+        !raw
+      ){
+        continue;
+      }
+
+      const parsed=
+      JSON.parse(
+        raw
+      );
+
+      if(
+        Array.isArray(
+          parsed
+        )
+      ){
+
+        return parsed;
+
+      }
+
+    }
+
+    return [];
+
+  }
+
+  catch(error){
+
+    return [];
+
+  }
+
+}
+
+function savePresets(
+  presets
+){
+
+  try{
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(
+        presets
+      )
+    );
+
+    return true;
+
+  }
+
+  catch(error){
+
+    showConfirm(
+      "保存できません",
+      "保存容量がいっぱいの可能性があります。",
+      "OK",
+      ()=>{}
+    );
+
+    return false;
+
+  }
+
+}
+
+function getSelectedColors(
+  prefix
+){
+
+  return Array.from(
+    document.querySelectorAll(
+      "."+
+      prefix+
+      "Color:checked"
+    )
+  )
+  .map(
+    input=>
+    input.value
+  );
+
+}
+
+function faceDataUrl(
+  index,
+  type
+){
+
+  const data=
+  faceData[index];
+
+  const drawn=
+  type==="normal"
+  ?
+  data.normalDrawn
+  :
+  data.angryDrawn;
+
+  if(
+    !drawn
+  ){
+
+    return null;
+
+  }
+
+  return data[type]
+  .toDataURL(
+    "image/png"
+  );
+
+}
+
+function collectCurrentSettings(){
+
+  for(
+    let i=0;
+    i<4;
+    i++
+  ){
+
+    syncFaceCanvas(
+      i
+    );
+
+  }
+
+  const settings={
+
+    playerCount,
+
+    players:[],
+
+    stageBoundary:
+    JSON.parse(
+      JSON.stringify(
+        stageBoundary
+      )
+    ),
+
+    stageStrokes:
+    JSON.parse(
+      JSON.stringify(
+        stageStrokes
+      )
+    ),
+
+    cpu:{
+
+      count:
+      document
+      .getElementById(
+        "cpuCount"
+      )
+      .value,
+
+      difficulty:
+      document
+      .getElementById(
+        "difficulty"
+      )
+      .value,
+
+      min:
+      document
+      .getElementById(
+        "cpuMin"
+      )
+      .value,
+
+      max:
+      document
+      .getElementById(
+        "cpuMax"
+      )
+      .value
+
+    }
+
+  };
+
+  for(
+    let i=0;
+    i<4;
+    i++
+  ){
+
+    const number=
+    i+1;
+
+    settings.players.push({
+
+      name:
+      document
+      .getElementById(
+        "nameInput"+
+        number
+      )
+      .value,
+
+      startLength:
+      document
+      .getElementById(
+        "startLength"+
+        number
+      )
+      .value,
+
+      control:
+      document
+      .querySelector(
+        `input[name="control${number}"]:checked`
+      )?.value
+      ||
+      "slide",
+
+      view:
+      document
+      .querySelector(
+        `input[name="view${number}"]:checked`
+      )?.value
+      ||
+      "normal",
+
+      colors:
+      getSelectedColors(
+        "p"+
+        number
+      ),
+
+      random:
+      document
+      .getElementById(
+        "p"+
+        number+
+        "Random"
+      )
+      .checked,
+
+      normalFace:
+      faceDataUrl(
+        i,
+        "normal"
+      ),
+
+      angryFace:
+      faceDataUrl(
+        i,
+        "angry"
+      ),
+
+      drawColor:
+      document
+      .getElementById(
+        "drawColor"+
+        number
+      )
+      .value,
+
+      drawSize:
+      document
+      .getElementById(
+        "drawSize"+
+        number
+      )
+      .value
+
+    });
+
+  }
+
+  return settings;
+
+}
+
+function loadImageToFace(
+  index,
+  type,
+  dataUrl
+){
+
+  return new Promise(
+    resolve=>{
+
+      const store=
+      faceData[index];
+
+      const target=
+      store[type];
+
+      const tctx=
+      target.getContext(
+        "2d"
+      );
+
+      tctx.clearRect(
+        0,
+        0,
+        target.width,
+        target.height
+      );
+
+      if(
+        !dataUrl
+      ){
+
+        if(
+          type===
+          "normal"
+        ){
+
+          store.normalDrawn=
+          false;
+
+        }
+
+        else{
+
+          store.angryDrawn=
+          false;
+
+        }
+
+        refreshFaceCanvas(
+          index
+        );
+
+        resolve();
+
+        return;
+
+      }
+
+      const img=
+      new Image();
+
+      img.onload=
+      ()=>{
+
+        tctx.drawImage(
+          img,
+          0,
+          0,
+          target.width,
+          target.height
+        );
+
+        if(
+          type===
+          "normal"
+        ){
+
+          store.normalDrawn=
+          true;
+
+        }
+
+        else{
+
+          store.angryDrawn=
+          true;
+
+        }
+
+        refreshFaceCanvas(
+          index
+        );
+
+        resolve();
+
+      };
+
+      img.onerror=
+      ()=>{
+
+        resolve();
+
+      };
+
+      img.src=
+      dataUrl;
+
+    }
+  );
+
+}
+
+async function applyPreset(
+  preset
+){
+
+  const settings=
+  preset.settings ||
+  {};
+
+  setPlayerCount(
+    settings.playerCount ||
+    1
+  );
+
+  stageBoundary=
+  Array.isArray(
+    settings.stageBoundary
+  )
+  ?
+  JSON.parse(
+    JSON.stringify(
+      settings.stageBoundary
+    )
+  )
+  :
+  [];
+
+  stageStrokes=
+  Array.isArray(
+    settings.stageStrokes
+  )
+  ?
+  JSON.parse(
+    JSON.stringify(
+      settings.stageStrokes
+    )
+  )
+  :
+  [];
+
+  redrawStageEditor();
+
+  const loading=
+  [];
+
+  for(
+    let i=0;
+    i<4;
+    i++
+  ){
+
+    const number=
+    i+1;
+
+    const p=
+    settings.players?.[i]
+    ||
+    {};
+
+    document
+    .getElementById(
+      "nameInput"+
+      number
+    )
+    .value=
+    p.name ||
+    "";
+
+    document
+    .getElementById(
+      "startLength"+
+      number
+    )
+    .value=
+    p.startLength ||
+    12;
+
+    const control=
+    document.querySelector(
+      `input[name="control${number}"][value="${
+        p.control==="stick"
+        ?
+        "stick"
+        :
+        "slide"
+      }"]`
+    );
+
+    if(
+      control
+    ){
+
+      control.checked=
+      true;
+
+    }
+
+    const view=
+    document.querySelector(
+      `input[name="view${number}"][value="${
+        p.view==="overview"
+        ?
+        "overview"
+        :
+        "normal"
+      }"]`
+    );
+
+    if(
+      view
+    ){
+
+      view.checked=
+      true;
+
+    }
+
+    document
+    .querySelectorAll(
+      ".p"+
+      number+
+      "Color"
+    )
+    .forEach(
+      input=>{
+
+        input.checked=
+        !p.random
+        &&
+        (
+          p.colors ||
+          []
+        )
+        .includes(
+          input.value
+        );
+
+      }
+    );
+
+    document
+    .getElementById(
+      "p"+
+      number+
+      "Random"
+    )
+    .checked=
+    !!p.random;
+
+    document
+    .getElementById(
+      "drawColor"+
+      number
+    )
+    .value=
+    p.drawColor ||
+    "#111111";
+
+    document
+    .getElementById(
+      "drawSize"+
+      number
+    )
+    .value=
+    p.drawSize ||
+    15;
+
+    updateFaceBackground(
+      number
+    );
+
+    loading.push(
+      loadImageToFace(
+        i,
+        "normal",
+        p.normalFace
+      )
+    );
+
+    loading.push(
+      loadImageToFace(
+        i,
+        "angry",
+        p.angryFace
+      )
+    );
+
+  }
+
+  document
+  .getElementById(
+    "cpuCount"
+  )
+  .value=
+  settings.cpu?.count ??
+  26;
+
+  document
+  .getElementById(
+    "difficulty"
+  )
+  .value=
+  settings.cpu?.difficulty ||
+  "normal";
+
+  document
+  .getElementById(
+    "cpuMin"
+  )
+  .value=
+  settings.cpu?.min ??
+  20;
+
+  document
+  .getElementById(
+    "cpuMax"
+  )
+  .value=
+  settings.cpu?.max ??
+  80;
+
+  await Promise.all(
+    loading
+  );
+
+}
+
+function showConfirm(
+  title,
+  text,
+  yesText,
+  action
+){
+
+  document
+  .getElementById(
+    "confirmTitle"
+  )
+  .textContent=
+  title;
+
+  document
+  .getElementById(
+    "confirmText"
+  )
+  .textContent=
+  text;
+
+  document
+  .getElementById(
+    "confirmYes"
+  )
+  .textContent=
+  yesText;
+
+  confirmAction=
+  action;
+
+  confirmModal.style.display=
+  "flex";
+
+}
+
+document
+.getElementById(
+  "confirmYes"
+)
+.addEventListener(
+  "click",
+  async ()=>{
+
+    const button=
+    document.getElementById(
+      "confirmYes"
+    );
+
+    button.disabled=
+    true;
+
+    const action=
+    confirmAction;
+
+    confirmAction=
+    null;
+
+    try{
+
+      if(
+        action
+      ){
+
+        await action();
+
+      }
+
+    }
+
+    finally{
+
+      confirmModal.style.display=
+      "none";
+
+      button.disabled=
+      false;
+
+    }
+
+  }
+);
+
+document
+.getElementById(
+  "confirmNo"
+)
+.addEventListener(
+  "click",
+  ()=>{
+
+    confirmModal.style.display=
+    "none";
+
+    confirmAction=
+    null;
+
+  }
+);
+
+function renderPresetList(){
+
+  const list=
+  document.getElementById(
+    "presetList"
+  );
+
+  const presets=
+  getPresets();
+
+  list.innerHTML=
+  "";
+
+  if(
+    presets.length===0
+  ){
+
+    list.innerHTML=
+    '<div class="small">まだ保存されていません。</div>';
+
+    return;
+
+  }
+
+  presets.forEach(
+    preset=>{
+
+      const row=
+      document.createElement(
+        "div"
+      );
+
+      row.className=
+      "presetRow";
+
+      const use=
+      document.createElement(
+        "button"
+      );
+
+      use.className=
+      "presetUse";
+
+      use.textContent=
+      "📂 "+
+      preset.name;
+
+      use.addEventListener(
+        "click",
+        ()=>{
+
+          showConfirm(
+            "📂 設定を使う",
+            "「"+
+            preset.name+
+            "」の設定を使いますか？",
+            "使います",
+            async ()=>{
+
+              const startButton=
+              document.getElementById(
+                "startButton"
+              );
+
+              startButton.disabled=
+              true;
+
+              try{
+
+                await applyPreset(
+                  preset
+                );
+
+                presetModal.style.display=
+                "none";
+
+              }
+
+              finally{
+
+                startButton.disabled=
+                false;
+
+              }
+
+            }
+          );
+
+        }
+      );
+
+      const del=
+      document.createElement(
+        "button"
+      );
+
+      del.className=
+      "presetDelete";
+
+      del.textContent=
+      "🗑️ 削除";
+
+      del.addEventListener(
+        "click",
+        ()=>{
+
+          showConfirm(
+            "🗑️ 設定を削除",
+            "「"+
+            preset.name+
+            "」という設定保存名を削除しますか？",
+            "削除する",
+            ()=>{
+
+              const latest=
+              getPresets()
+              .filter(
+                item=>
+                item.name!==
+                preset.name
+              );
+
+              savePresets(
+                latest
+              );
+
+              renderPresetList();
+
+            }
+          );
+
+        }
+      );
+
+      row.appendChild(
+        use
+      );
+
+      row.appendChild(
+        del
+      );
+
+      list.appendChild(
+        row
+      );
+
+    }
+  );
+
+}
+
+document
+.getElementById(
+  "openPresetButton"
+)
+.addEventListener(
+  "click",
+  ()=>{
+
+    renderPresetList();
+
+    presetModal.style.display=
+    "flex";
+
+  }
+);
+
+document
+.getElementById(
+  "closePresetButton"
+)
+.addEventListener(
+  "click",
+  ()=>{
+
+    presetModal.style.display=
+    "none";
+
+  }
+);
+
+document
+.getElementById(
+  "savePresetButton"
+)
+.addEventListener(
+  "click",
+  ()=>{
+
+    const input=
+    document.getElementById(
+      "presetNameInput"
+    );
+
+    const name=
+    input.value.trim();
+
+    if(
+      !name
+    ){
+
+      showConfirm(
+        "名前がありません",
+        "保存名を入力してください。",
+        "OK",
+        ()=>{}
+      );
+
+      return;
+
+    }
+
+    const presets=
+    getPresets();
+
+    const existing=
+    presets.findIndex(
+      item=>
+      item.name===
+      name
+    );
+
+    const saveNow=
+    ()=>{
+
+      const latest=
+      getPresets();
+
+      const index=
+      latest.findIndex(
+        item=>
+        item.name===
+        name
+      );
+
+      const data={
+
+        name,
+
+        savedAt:
+        Date.now(),
+
+        settings:
+        collectCurrentSettings()
+
+      };
+
+      if(
+        index>=0
+      ){
+
+        latest[index]=
+        data;
+
+      }
+
+      else{
+
+        latest.push(
+          data
+        );
+
+      }
+
+      if(
+        savePresets(
+          latest
+        )
+      ){
+
+        input.value=
+        "";
+
+        renderPresetList();
+
+      }
+
+    };
+
+    if(
+      existing>=0
+    ){
+
+      showConfirm(
+        "💾 上書き",
+        "「"+
+        name+
+        "」はあります。上書きしますか？",
+        "上書きする",
+        saveNow
+      );
+
+    }
+
+    else{
+
+      saveNow();
+
+    }
+
+  }
+);
+
+function findSafePlayerSpawn(
+  preferredX,
+  preferredY,
+  radius
+){
+
+  if(
+    validStagePoint(
+      preferredX,
+      preferredY,
+      radius+25
+    )
+  ){
+
+    return {
+      x:preferredX,
+      y:preferredY
+    };
+
+  }
+
+  return randomStagePoint(
+    radius+25
+  );
+
+}
+
+function createGame(){
+
+  snakes.length=
+  0;
+
+  sparkles.length=
+  0;
+
+  finalDeathTime=
+  null;
+
+  gameOverShown=
+  false;
+
+  lastLeader=
+  null;
+
+  for(
+    let i=0;
+    i<4;
+    i++
+  ){
+
+    players[i]=
+    null;
+
+    boostTouch[i]=
+    false;
+
+    boostKey[i]=
+    false;
+
+    boostSoundPlaying[i]=
+    false;
+
+    lastPointSoundTimes[i]=
+    0;
+
+    slideControls[i].active=
+    false;
+
+    slideControls[i].pointerId=
+    null;
+
+    syncFaceCanvas(
+      i
+    );
+
+    if(
+      killTimers[i]
+    ){
+
+      clearTimeout(
+        killTimers[i]
+      );
+
+      killTimers[i]=
+      null;
+
+    }
+
+    if(
+      firstPlaceTimers[i]
+    ){
+
+      clearTimeout(
+        firstPlaceTimers[i]
+      );
+
+      firstPlaceTimers[i]=
+      null;
+
+    }
+
+    const kill=
+    document.getElementById(
+      "kill"+
+      (i+1)
+    );
+
+    kill.classList.remove(
+      "show"
+    );
+
+    kill.style.display=
+    "none";
+
+    const firstPlace=
+    document.getElementById(
+      "firstPlace"+
+      (i+1)
+    );
+
+    firstPlace.classList.remove(
+      "show"
+    );
+
+    firstPlace.style.display=
+    "none";
+
+  }
+
+  refillSparkles();
+
+  const spawnPositions=[
+
+    {
+      x:WORLD/2-900,
+      y:WORLD/2-650,
+      angle:-Math.PI/2
+    },
+
+    {
+      x:WORLD/2+900,
+      y:WORLD/2-650,
+      angle:-Math.PI/2
+    },
+
+    {
+      x:WORLD/2-900,
+      y:WORLD/2+650,
+      angle:Math.PI/2
+    },
+
+    {
+      x:WORLD/2+900,
+      y:WORLD/2+650,
+      angle:Math.PI/2
+    }
+
+  ];
+
+  for(
+    let i=0;
+    i<playerCount;
+    i++
+  ){
+
+    const number=
+    i+1;
+
+    const name=
+    document
+    .getElementById(
+      "nameInput"+
+      number
+    )
+    .value
+    .trim()
+    ||
+    "PLAYER "+
+    number;
+
+    let startMeters=
+    parseFloat(
+      document
+      .getElementById(
+        "startLength"+
+        number
+      )
+      .value
+    );
+
+    if(
+      !Number.isFinite(
+        startMeters
+      )
+    ){
+
+      startMeters=
+      12;
+
+    }
+
+    startMeters=
+    Math.max(
+      2,
+      startMeters
+    );
+
+    controlModes[i]=
+    document
+    .querySelector(
+      `input[name="control${number}"]:checked`
+    )?.value
+    ||
+    "slide";
+
+    viewModes[i]=
+    document
+    .querySelector(
+      `input[name="view${number}"]:checked`
+    )?.value
+    ||
+    "normal";
+
+    const player=
+    new Snake({
+
+      name:
+      name.slice(
+        0,
+        12
+      ),
+
+      playerNumber:
+      number,
+
+      colors:
+      getColors(
+        "p"+
+        number
+      ),
+
+      lengthMeters:
+      startMeters,
+
+      normalFace:
+      copyFace(
+        i,
+        "normal"
+      ),
+
+      angryFace:
+      copyFace(
+        i,
+        "angry"
+      )
+
+    });
+
+    const safe=
+    findSafePlayerSpawn(
+      spawnPositions[i].x,
+      spawnPositions[i].y,
+      player.radius
+    );
+
+    player.x=
+    safe.x;
+
+    player.y=
+    safe.y;
+
+    player.angle=
+    spawnPositions[i].angle;
+
+    player.targetAngle=
+    player.angle;
+
+    player.buildBody();
+
+    player.spawnProtection=
+    1.5;
+
+    players[i]=
+    player;
+
+    snakes.push(
+      player
+    );
+
+  }
+
+  for(
+    let i=1;
+    i<=cpuCount;
+    i++
+  ){
+
+    const cpu=
+    new Snake({
+
+      name:
+      "CPU "+
+      i,
+
+      lengthMeters:
+      random(
+        cpuMinMeters,
+        cpuMaxMeters
+      )
+
+    });
+
+    placeCPUFarAway(
+      cpu
+    );
+
+    cpu.spawnProtection=
+    1.2;
+
+    snakes.push(
+      cpu
+    );
+
+  }
+
+  const startingRanking=
+  getRanking();
+
+  lastLeader=
+  startingRanking[0] ||
+  null;
+
+}
+
+function setGameUI(){
+
+  document.body.classList.remove(
+    "onePlayer",
+    "twoPlayer",
+    "threePlayer",
+    "fourPlayer"
+  );
+
+  if(
+    playerCount===1
+  ){
+
+    document.body.classList.add(
+      "onePlayer"
+    );
+
+  }
+
+  if(
+    playerCount===2
+  ){
+
+    document.body.classList.add(
+      "twoPlayer"
+    );
+
+  }
+
+  if(
+    playerCount===3
+  ){
+
+    document.body.classList.add(
+      "threePlayer"
+    );
+
+  }
+
+  if(
+    playerCount===4
+  ){
+
+    document.body.classList.add(
+      "fourPlayer"
+    );
+
+  }
+
+  document
+  .getElementById(
+    "splitV"
+  )
+  .style.display=
+  playerCount>=2
+  ?
+  "block"
+  :
+  "none";
+
+  document
+  .getElementById(
+    "splitH"
+  )
+  .style.display=
+  playerCount>=3
+  ?
+  "block"
+  :
+  "none";
+
+  document
+  .getElementById(
+    "overviewLabel"
+  )
+  .style.display=
+  playerCount===3
+  ?
+  "block"
+  :
+  "none";
+
+  for(
+    let i=0;
+    i<4;
+    i++
+  ){
+
+    const visible=
+    i<
+    playerCount;
+
+    document
+    .getElementById(
+      "hud"+
+      (i+1)
+    )
+    .style.display=
+    visible
+    ?
+    "block"
+    :
+    "none";
+
+    document
+    .getElementById(
+      "ranking"+
+      (i+1)
+    )
+    .style.display=
+    visible
+    ?
+    "block"
+    :
+    "none";
+
+    document
+    .getElementById(
+      "directions"+
+      (i+1)
+    )
+    .style.display=
+    visible
+    ?
+    "flex"
+    :
+    "none";
+
+    document
+    .getElementById(
+      "mapBox"+
+      (i+1)
+    )
+    .style.display=
+    visible
+    ?
+    "block"
+    :
+    "none";
+
+    document
+    .getElementById(
+      "boost"+
+      (i+1)
+    )
+    .style.display=
+    visible
+    ?
+    "block"
+    :
+    "none";
+
+    document
+    .getElementById(
+      "stick"+
+      (i+1)
+    )
+    .style.display=
+    (
+      visible
+      &&
+      controlModes[i]===
+      "stick"
+    )
+    ?
+    "block"
+    :
+    "none";
+
+    document
+    .getElementById(
+      "death"+
+      (i+1)
+    )
+    .style.display=
+    "none";
+
+    if(
+      visible
+    ){
+
+      updateViewToggle(
+        i
+      );
+
+    }
+
+  }
+
+}
+
+function updateDeathState(){
+
+  const living=
+  players
+  .slice(
+    0,
+    playerCount
+  )
+  .filter(
+    player=>
+    player
+    &&
+    !player.dead
+  );
+
+  if(
+    living.length>0
+  ){
+
+    finalDeathTime=
+    null;
+
+    return;
+
+  }
+
+  if(
+    finalDeathTime===
+    null
+  ){
+
+    finalDeathTime=
+    Math.max(
+      ...players
+      .slice(
+        0,
+        playerCount
+      )
+      .filter(Boolean)
+      .map(
+        player=>
+        player.deathTime ||
+        0
+      )
+    );
+
+  }
+
+  if(
+    performance.now()-
+    finalDeathTime
+    >
+    DEATH_ZOOM_TIME+
+    AFTER_DEATH_WAIT
+  ){
+
+    showGameOver();
+
+  }
+
+}
+
+function showGameOver(){
+
+  if(
+    gameOverShown
+  ){
+    return;
+  }
+
+  gameOverShown=
+  true;
+
+  playing=
+  false;
+
+  stopBGM();
+
+  let html=
+  "";
+
+  for(
+    let i=0;
+    i<playerCount;
+    i++
+  ){
+
+    const player=
+    players[i];
+
+    if(
+      !player
+    ){
+      continue;
+    }
+
+    let killedByText=
+    "不明";
+
+    if(
+      player.killedBy===
+      "boundary"
+    ){
+
+      killedByText=
+      "🌍 ステージ外枠";
+
+    }
+
+    else if(
+      player.killedBy===
+      "wall"
+    ){
+
+      killedByText=
+      "🧱 ステージの壁";
+
+    }
+
+    else if(
+      player.killedBy
+    ){
+
+      if(
+        player.killedBy.isPlayer
+      ){
+
+        killedByText=
+        PLAYER_MARKERS[
+          player.killedBy.playerNumber
+        ]+
+        " "+
+        player.killedBy.playerNumber+
+        "P "+
+        player.killedBy.name;
+
+      }
+
+      else{
+
+        killedByText=
+        "🤖 "+
+        player.killedBy.name;
+
+      }
+
+    }
+
+    html+=`
+      <div style="
+        margin:10px;
+        padding:10px;
+        border-radius:10px;
+        background:#ffffff0b
+      ">
+        ${PLAYER_MARKERS[i+1]}
+        <b>${i+1}P ${player.name}</b><br>
+        📏 ${player.getMeters().toFixed(1)}m<br>
+        ↔️ ${player.getWidthMeters().toFixed(2)}m<br>
+        ✨ ${Math.floor(player.points)}pt<br>
+        💀 CPU撃破 ${player.kills}<br>
+        ⚔️ プレイヤー撃破 ${player.playerKills}
+
+        <div style="
+          margin-top:10px;
+          padding:8px;
+          border-radius:9px;
+          background:#ff405522;
+        ">
+          💥 <b>自分を倒した相手</b><br>
+          ${killedByText}
+        </div>
+
+        <div style="
+          margin-top:10px;
+          padding:8px;
+          border-radius:9px;
+          background:#4fc3ff18;
+        ">
+
+          🏆 <b>自分が倒した相手 ${player.defeatedSnakes.length}体</b>
+
+          <br>
+
+          <button
+            class="defeatedToggleButton"
+            data-player-index="${i}"
+            style="
+              margin-top:8px;
+              padding:9px 14px;
+              border:0;
+              border-radius:9px;
+              background:#ffd84d;
+              color:#191919;
+              font-weight:1000;
+            "
+          >
+            📋 倒した相手を表示
+          </button>
+
+          <div
+            id="defeatedList${i+1}"
+            style="
+              display:none;
+              margin-top:8px;
+            "
+          ></div>
+
+        </div>
+
+      </div>
+    `;
+
+  }
+
+  const result=
+  document.getElementById(
+    "gameOverResult"
+  );
+
+  result.innerHTML=
+  html;
+
+  document
+  .querySelectorAll(
+    ".defeatedToggleButton"
+  )
+  .forEach(
+    button=>{
+
+      button.addEventListener(
+        "click",
+        ()=>{
+
+          const index=
+          Number(
+            button.dataset.playerIndex
+          );
+
+          const player=
+          players[index];
+
+          if(
+            !player
+          ){
+            return;
+          }
+
+          const list=
+          document.getElementById(
+            "defeatedList"+
+            (index+1)
+          );
+
+          const isOpen=
+          list.style.display===
+          "block";
+
+          if(
+            isOpen
+          ){
+
+            list.style.display=
+            "none";
+
+            list.innerHTML=
+            "";
+
+            button.textContent=
+            "📋 倒した相手を表示";
+
+            return;
+
+          }
+
+          let listHtml=
+          "";
+
+          if(
+            player.defeatedSnakes.length===
+            0
+          ){
+
+            listHtml=`
+              <div style="
+                color:#ffffff88;
+                padding:6px;
+              ">
+                まだ誰も倒していない
+              </div>
+            `;
+
+          }
+
+          else{
+
+            player.defeatedSnakes.forEach(
+              (victim,defeatedIndex)=>{
+
+                let victimText;
+
+                if(
+                  victim.isPlayer
+                ){
+
+                  victimText=
+                  PLAYER_MARKERS[
+                    victim.playerNumber
+                  ]+
+                  " "+
+                  victim.playerNumber+
+                  "P "+
+                  victim.name;
+
+                }
+
+                else{
+
+                  victimText=
+                  "🤖 "+
+                  victim.name;
+
+                }
+
+                listHtml+=`
+                  <div style="
+                    margin-top:4px;
+                    padding:6px 8px;
+                    border-radius:8px;
+                    background:#ffffff0d;
+                    text-align:left;
+                  ">
+                    ${defeatedIndex+1}. ${victimText}
+                  </div>
+                `;
+
+              }
+            );
+
+          }
+
+          list.innerHTML=
+          listHtml;
+
+          list.style.display=
+          "block";
+
+          button.textContent=
+          "🔼 倒した相手を閉じる";
+
+        }
+      );
+
+    }
+  );
+
+  document
+  .getElementById(
+    "gameOver"
+  )
+  .style.display=
+  "flex";
+
+}
+
+function loop(
+  time
+){
+
+  requestAnimationFrame(
+    loop
+  );
+
+  if(
+    !playing
+  ){
+
+    if(
+      players[0]
+    ){
+
+      drawGame();
+
+    }
+
+    return;
+
+  }
+
+  const dt=
+  Math.min(
+    .033,
+    (
+      time-
+      lastTime
+    )/
+    1000
+  );
+
+  lastTime=
+  time;
+
+  for(
+    const snake
+    of snakes
+  ){
+
+    snake.update(
+      dt
+    );
+
+  }
+
+  collisions();
+
+  respawnCPUs();
+
+  checkFirstPlaceChange();
+
+  if(
+    sparkles.length<
+    700
+  ){
+
+    for(
+      let i=0;
+      i<180;
+      i++
+    ){
+
+      addSparkle();
+
+    }
+
+  }
+
+  updateDeathState();
+
+  drawGame();
+
+}
+
+requestAnimationFrame(
+  loop
+);
+
+document
+.getElementById(
+  "startButton"
+)
+.addEventListener(
+  "click",
+  ()=>{
+
+    if(
+      started
+    ){
+      return;
+    }
+
+    try{
+
+      initAudio();
+
+      let count=
+      parseInt(
+        document
+        .getElementById(
+          "cpuCount"
+        )
+        .value
+      );
+
+      if(
+        !Number.isFinite(
+          count
+        )
+      ){
+
+        count=
+        26;
+
+      }
+
+      cpuCount=
+      Math.max(
+        0,
+        count
+      );
+
+      cpuMinMeters=
+      parseFloat(
+        document
+        .getElementById(
+          "cpuMin"
+        )
+        .value
+      );
+
+      cpuMaxMeters=
+      parseFloat(
+        document
+        .getElementById(
+          "cpuMax"
+        )
+        .value
+      );
+
+      if(
+        !Number.isFinite(
+          cpuMinMeters
+        )
+      ){
+
+        cpuMinMeters=
+        20;
+
+      }
+
+      if(
+        !Number.isFinite(
+          cpuMaxMeters
+        )
+      ){
+
+        cpuMaxMeters=
+        80;
+
+      }
+
+      cpuMinMeters=
+      Math.max(
+        2,
+        cpuMinMeters
+      );
+
+      cpuMaxMeters=
+      Math.max(
+        2,
+        cpuMaxMeters
+      );
+
+      if(
+        cpuMinMeters>
+        cpuMaxMeters
+      ){
+
+        const temp=
+        cpuMinMeters;
+
+        cpuMinMeters=
+        cpuMaxMeters;
+
+        cpuMaxMeters=
+        temp;
+
+      }
+
+      difficulty=
+      document
+      .getElementById(
+        "difficulty"
+      )
+      .value;
+
+      createGame();
+
+      setGameUI();
+
+      document
+      .getElementById(
+        "start"
+      )
+      .style.display=
+      "none";
+
+      started=
+      true;
+
+      playing=
+      true;
+
+      lastTime=
+      performance.now();
+
+      startBGM();
+
+    }
+
+    catch(error){
+
+      console.error(
+        error
+      );
+
+      alert(
+        "ゲーム開始中にエラーが発生しました。\n"+
+        error.message
+      );
+
+    }
+
+  }
+);
+
+/* =====================================================
+   もう一回
+===================================================== */
+
+document
+.getElementById(
+  "retryButton"
+)
+.addEventListener(
+  "click",
+  ()=>{
+
+    playing=
+    false;
+
+    started=
+    false;
+
+    gameOverShown=
+    false;
+
+    finalDeathTime=
+    null;
+
+    lastLeader=
+    null;
+
+    stopBGM();
+
+    for(
+      let i=0;
+      i<4;
+      i++
+    ){
+
+      boostSoundPlaying[i]=
+      false;
+
+    }
+
+    document
+    .getElementById(
+      "gameOver"
+    )
+    .style.display=
+    "none";
+
+    document
+    .getElementById(
+      "start"
+    )
+    .style.display=
+    "flex";
+
+    for(
+      let i=1;
+      i<=4;
+      i++
+    ){
+
+      document
+      .getElementById(
+        "hud"+i
+      )
+      .style.display=
+      "none";
+
+      document
+      .getElementById(
+        "ranking"+i
+      )
+      .style.display=
+      "none";
+
+      document
+      .getElementById(
+        "directions"+i
+      )
+      .style.display=
+      "none";
+
+      document
+      .getElementById(
+        "mapBox"+i
+      )
+      .style.display=
+      "none";
+
+      document
+      .getElementById(
+        "boost"+i
+      )
+      .style.display=
+      "none";
+
+      document
+      .getElementById(
+        "stick"+i
+      )
+      .style.display=
+      "none";
+
+      document
+      .getElementById(
+        "death"+i
+      )
+      .style.display=
+      "none";
+
+      document
+      .getElementById(
+        "firstPlace"+i
+      )
+      .style.display=
+      "none";
+
+      document
+      .getElementById(
+        "firstPlace"+i
+      )
+      .classList.remove(
+        "show"
+      );
+
+    }
+
+    document
+    .getElementById(
+      "splitV"
+    )
+    .style.display=
+    "none";
+
+    document
+    .getElementById(
+      "splitH"
+    )
+    .style.display=
+    "none";
+
+    document
+    .getElementById(
+      "overviewLabel"
+    )
+    .style.display=
+    "none";
+
+  }
+);
+
+for(
+  let i=1;
+  i<=4;
+  i++
+){
+
+  updateFaceBackground(
+    i
+  );
+
+}
+
+redrawStageEditor();
+
+</script>
+</body>
+</html>
