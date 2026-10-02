@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>とみよこゲームランド 🎮</title>
+<link rel="icon" type="image/png" href="assets/icon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <style>
 *{box-sizing:border-box}
 body{
@@ -14,6 +16,11 @@ background:linear-gradient(160deg,#1b1b3a,#3a1b5a 50%,#5a1b3a);
 overflow-x:hidden;
 }
 header{padding:40px 16px 10px}
+.logo{
+width:clamp(96px,20vw,168px);height:auto;display:block;margin:0 auto 6px;
+filter:drop-shadow(0 6px 16px rgba(0,0,0,.45));
+animation:bob 2.5s ease-in-out infinite;
+}
 h1{
 font-size:clamp(28px,6vw,52px);margin:0;
 text-shadow:0 0 18px #ff4cf0,3px 3px 0 #000;
@@ -58,6 +65,7 @@ footer{padding:20px;font-size:13px;opacity:.6}
 </head>
 <body>
 <header>
+<img class="logo" src="assets/icon.png" alt="ゲームパッドのイラスト" width="512" height="512">
 <h1>🎮 とみよこゲームランド 🎮</h1>
 <div class="sub">ようちゃん・こうちゃん・としくんが作ったゲームであそぼう！</div>
 <a class="manual-link" href="wiki/index.html">📖 せつめいしょ（あそびかた）</a>
