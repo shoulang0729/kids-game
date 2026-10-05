@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>🌐 オンラインちびデモ</title>
+<link rel="icon" type="image/png" href="../../assets/icon.png">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{
+font-family:"Hiragino Maru Gothic Pro","Yu Gothic",sans-serif;
+color:#fff;background:linear-gradient(160deg,#1b1b3a,#3a1b5a 50%,#5a1b3a);
+-webkit-user-select:none;user-select:none;
+}
+button,input{font-family:inherit}
+.panel{
+position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;
+}
+.card{
+width:min(420px,100%);background:rgba(255,255,255,.08);
+border:3px solid rgba(255,255,255,.25);border-radius:22px;padding:24px;text-align:center;
+}
+.card h1{margin:0 0 6px;font-size:clamp(24px,6vw,32px)}
+.card p{margin:4px 0 16px;opacity:.85;font-size:14px;line-height:1.6}
+label{display:block;text-align:left;font-weight:bold;margin:12px 0 6px;font-size:14px}
+input{
+width:100%;padding:12px;border-radius:12px;border:2px solid rgba(255,255,255,.3);
+background:rgba(0,0,0,.3);color:#fff;font-size:18px;text-align:center;
+-webkit-user-select:text;user-select:text;
+}
+.big{
+margin-top:18px;width:100%;padding:14px;border:0;border-radius:14px;
+background:#ffd84d;color:#111;font-size:20px;font-weight:bold;cursor:pointer;
+}
+.big:disabled{opacity:.5}
+.error{color:#ff9aa8;font-weight:bold;min-height:1.4em;margin-top:10px;font-size:14px}
+.back{display:inline-block;margin-top:14px;color:#ffd1fb;font-size:14px}
+#game{display:none}
+#bar{
+position:fixed;top:0;left:0;right:0;z-index:2;
+display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+padding:calc(8px + env(safe-area-inset-top)) 12px 8px;
+background:rgba(0,0,0,.35);font-size:14px;font-weight:bold;
+}
+#bar .grow{flex:1}
+#dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#888;margin-right:4px}
+#leave{
+padding:8px 14px;border:0;border-radius:999px;background:#ff4cf0;color:#111;
+font-weight:bold;font-size:14px;cursor:pointer;
+}
+canvas{position:fixed;inset:0;touch-action:none;display:block}
+#hint{
+position:fixed;bottom:calc(14px + env(safe-area-inset-bottom));left:0;right:0;z-index:2;
+text-align:center;font-size:14px;opacity:.8;pointer-events:none;
+}
+</style>
+</head>
+<body>
+
+<div id="join" class="panel">
+  <div class="card">
+    <h1>🌐 オンラインちびデモ</h1>
+    <p>同じ「合言葉」を入れた人どうしで、<br>四角をいっしょに動かせるよ！（4人まで）</p>
+    <label for="name">なまえ</label>
+    <input id="name" maxlength="12" placeholder="例：こうちゃん" autocomplete="off">
+    <label for="code">合言葉</label>
+    <input id="code" maxlength="20" placeholder="例：ねこ123" autocomplete="off">
+    <button id="enter" class="big">▶ 部屋に入る</button>
+    <div id="error" class="error"></div>
+    <a class="back" href="../../index.html">← トップにもどる</a>
+  </div>
+</div>
+
+<div id="game">
+  <div id="bar">
+    <span><span id="dot"></span><span id="status">つないでいます…</span></span>
+    <span>🔑 <span id="roomName"></span></span>
+    <span>👥 <span id="count">1</span>/4</span>
+    <span class="grow"></span>
+    <button id="leave">🚪 出る</button>
+  </div>
+  <canvas id="canvas"></canvas>
+  <div id="hint">👆 指でなぞると、自分の四角が動くよ</div>
+</div>
+
+<script>
+// ▼ サーバーの場所（?server=127.0.0.1:8787 でテスト用サーバーに切りかえ）
+const SERVER = new URLSearchParams(location.search).get("server")
+  || "tomiyoko-online.shoulang.workers.dev";
+const ROOM_CODE = /^[0-9A-Za-z_\-぀-ゟ゠-ヿ一-鿿]{1,20}$/;
+const SEND_INTERVAL = 50; // 1秒に20回まで送る
+
+const $ = (id) => document.getElementById(id);
+const canvas = $("canvas");
+const ctx = canvas.getContext("2d");
+
+let ws = null;
+let me = null;              // 自分 {id,name,color,x,y}
+let others = new Map();     // id -> {name,color,x,y, drawX,drawY}
+let lastSent = 0;
+let pendingSend = false;
+let leaving = false;
+
+// 前回のなまえ・合言葉を思い出す
+try {
+  $("name").value = localStorage.getItem("onlineDemo.name") || "";
+  $("code").value = localStorage.getItem("onlineDemo.code") || "";
+} catch {}
+
+$("enter").onclick = join;
+$("code").addEventListener("keydown", (e) => { if (e.key === "Enter") join(); });
+$("leave").onclick = () => { leaving = true; ws?.close(); showJoin(""); };
+
+function join() {
+  const name = $("name").value.trim();
+  const code = $("code").value.trim();
+  if (!ROOM_CODE.test(code)) {
+    $("error").textContent = "合言葉は20文字まで。ひらがな・カタカナ・漢字・英数字だけ使えるよ";
+    return;
+  }
+  try {
+    localStorage.setItem("onlineDemo.name", name);
+    localStorage.setItem("onlineDemo.code", code);
+  } catch {}
+
+  $("error").textContent = "";
+  $("enter").disabled = true;
+  connect(name, code);
+}
+
+function connect(name, code) {
+  const local = /^(localhost|127\.0\.0\.1)(:\d+)?$/.test(SERVER);
+  const url = `${local ? "ws" : "wss"}://${SERVER}/room/${encodeURIComponent(code)}?name=${encodeURIComponent(name)}`;
+
+  leaving = false;
+  me = null;
+  others = new Map();
+  let full = false;
+
+  ws = new WebSocket(url);
+  setStatus("つないでいます…", "#ffd84d");
+
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === "welcome") {
+      me = msg.you;
+      for (const p of msg.players) addOther(p);
+      $("roomName").textContent = code;
+      showGame();
+      setStatus("つながった！", "#5dff87");
+    } else if (msg.type === "join") {
+      addOther(msg.player);
+    } else if (msg.type === "move") {
+      const p = others.get(msg.id);
+      if (p) { p.x = msg.x; p.y = msg.y; }
+    } else if (msg.type === "leave") {
+      others.delete(msg.id);
+    } else if (msg.type === "full") {
+      full = true;
+    }
+    updateCount();
+  };
+
+  ws.onclose = () => {
+    if (leaving) return;
+    if (full) showJoin("この部屋は満員です（4人まで）。ちがう合言葉にしてね");
+    else if (!me) showJoin("つながりませんでした。少し待ってもう一度ためしてね");
+    else showJoin("つながりが切れました。もう一度入ってね");
+  };
+}
+
+function addOther(p) {
+  others.set(p.id, { ...p, drawX: p.x, drawY: p.y });
+}
+
+function showGame() {
+  $("join").style.display = "none";
+  $("game").style.display = "block";
+  resize();
+}
+
+function showJoin(message) {
+  $("game").style.display = "none";
+  $("join").style.display = "flex";
+  $("enter").disabled = false;
+  $("error").textContent = message;
+  me = null;
+}
+
+function setStatus(text, color) {
+  $("status").textContent = text;
+  $("dot").style.background = color;
+}
+
+function updateCount() {
+  $("count").textContent = (me ? 1 : 0) + others.size;
+}
+
+// ===== 画面（どの端末でも同じ形になるよう、正方形のステージに描く） =====
+let W = 0, H = 0, arena = { x: 0, y: 0, size: 100 };
+
+function resize() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  W = window.innerWidth; H = window.innerHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + "px"; canvas.style.height = H + "px";
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const top = $("bar").offsetHeight + 8;
+  const size = Math.min(W - 24, H - top - 50);
+  arena = { x: (W - size) / 2, y: top + (H - top - 50 - size) / 2, size: Math.max(100, size) };
+}
+window.addEventListener("resize", resize);
+
+function toScreen(x, y) {
+  return { x: arena.x + x * arena.size, y: arena.y + y * arena.size };
+}
+
+function toWorld(sx, sy) {
+  return {
+    x: Math.min(1, Math.max(0, (sx - arena.x) / arena.size)),
+    y: Math.min(1, Math.max(0, (sy - arena.y) / arena.size)),
+  };
+}
+
+// ===== 操作（指・マウスでなぞる / やじるしキー） =====
+let dragging = false;
+
+canvas.addEventListener("pointerdown", (e) => {
+  dragging = true;
+  canvas.setPointerCapture(e.pointerId);
+  moveTo(e.clientX, e.clientY);
+});
+canvas.addEventListener("pointermove", (e) => { if (dragging) moveTo(e.clientX, e.clientY); });
+canvas.addEventListener("pointerup", () => { dragging = false; });
+canvas.addEventListener("pointercancel", () => { dragging = false; });
+
+const keys = {};
+window.addEventListener("keydown", (e) => { keys[e.key] = true; });
+window.addEventListener("keyup", (e) => { keys[e.key] = false; });
+
+function moveTo(sx, sy) {
+  if (!me) return;
+  const p = toWorld(sx, sy);
+  me.x = p.x; me.y = p.y;
+  pendingSend = true;
+}
+
+function sendPosition(now) {
+  if (!pendingSend || !me || ws?.readyState !== WebSocket.OPEN) return;
+  if (now - lastSent < SEND_INTERVAL) return;
+  ws.send(JSON.stringify({ type: "move", x: me.x, y: me.y }));
+  lastSent = now;
+  pendingSend = false;
+}
+
+// ===== 描画 =====
+function drawBox(p, x, y, isMe) {
+  const s = toScreen(x, y);
+  const size = arena.size * 0.09;
+  ctx.fillStyle = p.color;
+  ctx.shadowColor = p.color;
+  ctx.shadowBlur = isMe ? 18 : 8;
+  ctx.fillRect(s.x - size / 2, s.y - size / 2, size, size);
+  ctx.shadowBlur = 0;
+  if (isMe) {
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(s.x - size / 2, s.y - size / 2, size, size);
+  }
+  ctx.font = "bold 14px sans-serif";
+  ctx.textAlign = "center";
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = "#000";
+  const label = isMe ? `${p.name}（じぶん）` : p.name;
+  ctx.strokeText(label, s.x, s.y - size / 2 - 8);
+  ctx.fillStyle = "#fff";
+  ctx.fillText(label, s.x, s.y - size / 2 - 8);
+}
+
+function frame(now) {
+  requestAnimationFrame(frame);
+  if (!me) return;
+
+  // キーボード操作
+  const step = 0.012;
+  let dx = 0, dy = 0;
+  if (keys.ArrowLeft) dx -= step;
+  if (keys.ArrowRight) dx += step;
+  if (keys.ArrowUp) dy -= step;
+  if (keys.ArrowDown) dy += step;
+  if (dx || dy) {
+    me.x = Math.min(1, Math.max(0, me.x + dx));
+    me.y = Math.min(1, Math.max(0, me.y + dy));
+    pendingSend = true;
+  }
+  sendPosition(now);
+
+  ctx.clearRect(0, 0, W, H);
+
+  // ステージ
+  ctx.fillStyle = "rgba(0,0,0,.3)";
+  ctx.fillRect(arena.x, arena.y, arena.size, arena.size);
+  ctx.strokeStyle = "rgba(255,255,255,.08)";
+  ctx.lineWidth = 1;
+  for (let i = 1; i < 10; i++) {
+    const v = (arena.size / 10) * i;
+    ctx.beginPath(); ctx.moveTo(arena.x + v, arena.y); ctx.lineTo(arena.x + v, arena.y + arena.size); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(arena.x, arena.y + v); ctx.lineTo(arena.x + arena.size, arena.y + v); ctx.stroke();
+  }
+  ctx.strokeStyle = "#ff4cf0";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(arena.x, arena.y, arena.size, arena.size);
+
+  // 相手（なめらかに追いかける）
+  for (const p of others.values()) {
+    p.drawX += (p.x - p.drawX) * 0.25;
+    p.drawY += (p.y - p.drawY) * 0.25;
+    drawBox(p, p.drawX, p.drawY, false);
+  }
+  // 自分はいちばん上に
+  drawBox(me, me.x, me.y, true);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
