@@ -1,0 +1,12 @@
+{
+  "name": "tomiyoko-online",
+  "private": true,
+  "description": "とみよこゲームランドのオンラインサーバー（Cloudflare Workers + Durable Objects）",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.147.0"
+  }
+}

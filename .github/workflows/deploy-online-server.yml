@@ -1,0 +1,48 @@
+# オンラインサーバー（online-server/）を Cloudflare に自動公開する
+# main にマージされて online-server/ が変わったときに動く。
+# 手動で動かすときは Actions タブ → このワークフロー → Run workflow
+name: Deploy online server
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "online-server/**"
+      - ".github/workflows/deploy-online-server.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-online-server
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: online-server/package-lock.json
+
+      - name: Install
+        working-directory: online-server
+        run: npm ci
+
+      - name: Deploy to Cloudflare
+        working-directory: online-server
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Check server is up
+        run: |
+          for i in 1 2 3 4 5 6; do
+            if curl -fsS https://tomiyoko-online.shoulang.workers.dev/; then echo; echo "OK"; exit 0; fi
+            sleep 10
+          done
+          echo "server did not respond"; exit 1
