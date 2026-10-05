@@ -376,6 +376,18 @@ const sfx = {
   go() { tone(990, 0.3, 0.07, "square"); },
   win() { [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.18, 0.06, "square", i * 0.13)); },
 };
+// ===== BGM（こうちゃんの「スネークバトル」と同じ曲） =====
+const BGM_MELODY = [261.63, 329.63, 392.00, 329.63, 293.66, 349.23, 440.00, 349.23, 261.63, 329.63, 392.00, 523.25, 440.00, 392.00, 329.63, 293.66];
+const BGM_BASS = [130.81, 130.81, 146.83, 146.83, 110.00, 110.00, 130.81, 130.81];
+let bgmTimer = null, bgmStep = 0;
+function bgmNote() {
+  tone(BGM_MELODY[bgmStep % BGM_MELODY.length], 0.17, 0.018, "triangle");
+  if (bgmStep % 2 === 0) tone(BGM_BASS[Math.floor(bgmStep / 2) % BGM_BASS.length], 0.28, 0.018, "sine");
+  bgmStep++;
+}
+function startBGM() { stopBGM(); bgmStep = 0; bgmNote(); bgmTimer = setInterval(bgmNote, 220); }
+function stopBGM() { if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; } }
+
 function updateMuteButtons() { for (const id of ["muteBtn1", "muteBtn2"]) $(id).textContent = muted ? "🔇" : "🔊"; }
 for (const id of ["muteBtn1", "muteBtn2"]) $(id).onclick = () => { muted = !muted; store.set("mute", muted ? "1" : "0"); updateMuteButtons(); };
 updateMuteButtons();
@@ -421,6 +433,7 @@ function connect(name, code) {
     else if (m.t === "full") full = true;
   };
   ws.onclose = () => {
+    stopBGM();
     game = null;
     if (leaving) return;
     $("enterBtn").disabled = false;
@@ -431,7 +444,7 @@ function connect(name, code) {
   };
 }
 function send(o) { if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify(o)); }
-function leave() { leaving = true; ws?.close(); game = null; $("enterBtn").disabled = false; $("joinErr").textContent = ""; show("join"); }
+function leave() { stopBGM(); leaving = true; ws?.close(); game = null; $("enterBtn").disabled = false; $("joinErr").textContent = ""; show("join"); }
 for (const id of ["leaveBtn1", "leaveBtn2", "leaveBtn3"]) $(id).onclick = leave;
 setInterval(() => send({ t: "p" }), 5000);
 
@@ -573,6 +586,7 @@ function onStart(m) {
   lastLeft = m.duration - m.tm;
   // 途中から観戦する人には 3,2,1 を出さない
   countdownEnd = m.cd > 0 ? performance.now() + m.cd * 1000 : performance.now() - 1000;
+  if (m.cd <= 0) startBGM();
   const head = game.spectator ? { x: 0, y: 0 } : { x: m.snakes[game.myIdx].state[0], y: m.snakes[game.myIdx].state[1] };
   cam.x = head.x; cam.y = head.y; cam.scale = baseScale(14);
   input.angle = game.spectator ? 0 : m.snakes[game.myIdx].state[2];
@@ -1189,7 +1203,7 @@ function updateOverlay(now, mine) {
     if (n !== lastCount) {
       lastCount = n;
       if (n > 0) { ov.innerHTML = `<div><div class="big glow">${n}</div><div class="sub">${game.spectator ? "👀 観戦中" : "じゅんびして!"}</div></div>`; sfx.beep(); }
-      else { ov.innerHTML = `<div class="big glow" style="color:var(--yellow)">スタート!</div>`; sfx.go(); }
+      else { ov.innerHTML = `<div class="big glow" style="color:var(--yellow)">スタート!</div>`; sfx.go(); startBGM(); }
     }
     return;
   }
@@ -1215,6 +1229,7 @@ requestAnimationFrame(frame);
 
 // ================= 結果 =================
 function onEnd(m) {
+  stopBGM();
   const res = m.results;
   game = null;
   $("resMode").textContent = res.mode === "time" ? "⏱ 時間制バトル" : "💀 サバイバル";
