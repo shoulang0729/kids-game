@@ -27,6 +27,8 @@ export const TOTAL_SNAKES = 10;
 const SURVIVAL_LIMIT_SEC = 5 * 60;
 
 const BASE_LEN = 260;
+// 元のスネークバトルと同じく、最初からダッシュできるように少しエサを持って出てくる（元は25ポイント）
+const START_MASS = 25;
 const LEN_PER_MASS = 2.6;
 const MAX_LEN = 5000;
 export const METERS_PER_UNIT = 1 / 32;
@@ -149,9 +151,9 @@ export class Game {
     // だいたい中心のほうを向いて出てくる
     s.angle = Math.atan2(-p.y, -p.x) + rand(-0.8, 0.8);
     s.target = s.angle;
-    s.mass = 0;
-    s.r = 14;
-    s.len = BASE_LEN;
+    s.mass = START_MASS;
+    s.r = 14 + Math.sqrt(s.mass) * 0.55;
+    s.len = BASE_LEN + s.mass * LEN_PER_MASS;
     s.body = [];
     for (let d = 0; d <= s.len; d += 8) {
       s.body.push({ x: s.x - Math.cos(s.angle) * d, y: s.y - Math.sin(s.angle) * d });
