@@ -1,10 +1,13 @@
 // とみよこゲームランド オンラインサーバー
 //
 // しくみ:
-//   ゲーム画面 --WebSocket--> /room/<合言葉> --> その合言葉の Room（Durable Object）
-//   Room がみんなの位置を持っていて、動きを全員に配る。
+//   ゲーム画面 --WebSocket--> /room/<合言葉>  --> Room（オンラインちびデモ）
+//                           /snake/<合言葉> --> SnakeRoom（スネークバトルオンライン）
+//   部屋（Durable Object）は合言葉ごとに1つずつ作られる。
 
 import { DurableObject } from "cloudflare:workers";
+
+export { SnakeRoom } from "./snake-room.js";
 
 const MAX_PLAYERS = 4;
 const MAX_MESSAGE_BYTES = 512;
@@ -16,7 +19,7 @@ const ROOM_CODE = /^[0-9A-Za-z_\-぀-ゟ゠-ヿ一-鿿]{1,20}$/;
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    const match = url.pathname.match(/^\/room\/([^/]+)$/);
+    const match = url.pathname.match(/^\/(room|snake)\/([^/]+)$/);
 
     if (!match) {
       return new Response("tomiyoko-online: ok", {
@@ -26,7 +29,7 @@ export default {
 
     let code;
     try {
-      code = decodeURIComponent(match[1]);
+      code = decodeURIComponent(match[2]);
     } catch {
       return new Response("bad room code", { status: 400 });
     }
@@ -37,7 +40,8 @@ export default {
       return new Response("websocket only", { status: 426 });
     }
 
-    const stub = env.ROOMS.get(env.ROOMS.idFromName(code));
+    const rooms = match[1] === "snake" ? env.SNAKE_ROOMS : env.ROOMS;
+    const stub = rooms.get(rooms.idFromName(code));
     return stub.fetch(request);
   },
 };
