@@ -362,15 +362,44 @@ function tone(freq, dur, vol = 0.05, type = "sine", delay = 0) {
     g.gain.exponentialRampToValueAtTime(vol, t + 0.01);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     o.connect(g).connect(audio.destination);
-    o.start(t); o.stop(t + dur + 0.02);
+    o.start(t); o.stop(t + dur + 0.03);
   } catch {}
 }
 let lastEatSound = 0;
+// ザーッという音（倒したときの「ドカーン」に使う）
+function noise(dur, vol, freq) {
+  if (muted) return;
+  try {
+    if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+    const length = Math.floor(audio.sampleRate * dur);
+    const buffer = audio.createBuffer(1, length, audio.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / length);
+    const src = audio.createBufferSource(), filter = audio.createBiquadFilter(), g = audio.createGain();
+    filter.type = "bandpass"; filter.frequency.value = freq; filter.Q.value = 0.7;
+    g.gain.value = vol;
+    src.buffer = buffer;
+    src.connect(filter).connect(g).connect(audio.destination);
+    src.start();
+  } catch {}
+}
+
+// ▼ eat / kill / death / boost / firstPlace は、こうちゃんの「スネークバトル」と同じ音
 const sfx = {
-  eat() { const n = performance.now(); if (n - lastEatSound < 70) return; lastEatSound = n; tone(880 + Math.random() * 120, 0.05, 0.025, "square"); },
+  eat() {
+    const n = performance.now(); if (n - lastEatSound < 32) return; lastEatSound = n;
+    tone(820 + Math.random() * 90, 0.055, 0.035, "square");
+    tone(1180 + Math.random() * 100, 0.035, 0.018, "sine", 0.018);
+  },
+  kill() {
+    tone(180, 0.16, 0.10, "sawtooth"); tone(105, 0.22, 0.08, "square", 0.03); tone(75, 0.27, 0.07, "sawtooth", 0.055);
+    noise(0.16, 0.075, 1500);
+  },
+  death() { tone(95, 0.30, 0.12, "sawtooth"); tone(65, 0.42, 0.10, "square", 0.025); tone(42, 0.48, 0.08, "sine", 0.06); },
+  boost() { tone(160, 0.10, 0.035, "sawtooth"); tone(240, 0.13, 0.03, "triangle", 0.03); tone(340, 0.17, 0.025, "sine", 0.07); },
+  firstPlace() { tone(523.25, 0.11, 0.06, "square"); tone(659.25, 0.11, 0.06, "square", 0.12); tone(783.99, 0.12, 0.07, "square", 0.24); tone(1046.50, 0.27, 0.08, "sine", 0.36); },
+  // ▼ ここから下は元のゲームにない場面の音
   item() { tone(660, 0.08, 0.06, "square"); tone(990, 0.12, 0.06, "square", 0.08); tone(1320, 0.16, 0.05, "sine", 0.16); },
-  kill() { tone(220, 0.12, 0.09, "sawtooth"); tone(440, 0.15, 0.07, "square", 0.06); tone(880, 0.2, 0.06, "sine", 0.14); },
-  death() { tone(160, 0.3, 0.1, "sawtooth"); tone(90, 0.45, 0.09, "square", 0.08); },
   shield() { tone(1200, 0.08, 0.05, "triangle"); tone(700, 0.15, 0.05, "triangle", 0.06); },
   beep() { tone(660, 0.12, 0.06, "square"); },
   go() { tone(990, 0.3, 0.07, "square"); },
@@ -583,6 +612,7 @@ function onStart(m) {
   items.clear();
   for (const it of m.items) items.set(it[0], { x: it[1], y: it[2], type: it[3] });
   flying = []; feedItems = []; myEffects = {}; myKills = 0; deathInfo = null; lastCount = -1;
+  wasBoosting = false; lastLeader = -1;
   lastLeft = m.duration - m.tm;
   // 途中から観戦する人には 3,2,1 を出さない
   countdownEnd = m.cd > 0 ? performance.now() + m.cd * 1000 : performance.now() - 1000;
@@ -904,6 +934,7 @@ function frame() {
 
   drawWorld(states, now);
   drawLabels(states);
+  if (now > countdownEnd) soundCues(states);
   if (now - lastHud > 100) { lastHud = now; updateHud(states, now); }
   updateOverlay(now, mine);
 }
@@ -1120,6 +1151,28 @@ function rankOrder(states) {
     if (!!da !== !!db) return da ? 1 : -1;
     return states[b][3] - states[a][3];
   });
+}
+
+let wasBoosting = false;
+let lastLeader = -1;
+let lastFirstPlaceCue = 0;
+function soundCues(states) {
+  if (game.spectator) return;
+  const me = states[game.myIdx];
+  const alive = !(me[5] & F.DEAD);
+  const boosting = alive && !!(me[5] & F.BOOST);
+  if (boosting && !wasBoosting) sfx.boost();
+  wasBoosting = boosting;
+  const leader = leaderIdx(states);
+  if (leader !== lastLeader) {
+    // 長さがほぼ同じだと1位が何度も入れかわるので、3秒は続けて鳴らさない
+    if (leader === game.myIdx && lastLeader !== -1 && alive && performance.now() - lastFirstPlaceCue > 3000) {
+      lastFirstPlaceCue = performance.now();
+      toast("👑 1位になった!");
+      sfx.firstPlace();
+    }
+    lastLeader = leader;
+  }
 }
 
 function updateHud(states, now) {
