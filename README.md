@@ -15,6 +15,7 @@ GitHub Pages で公開しています：
 
 | ゲーム | せつめい | 作った人 | フォルダ |
 |--------|----------|----------|----------|
+| 🏎️ くねくねターボラリー | カーブと障害物をよけ、ターボとシールドで6.5 kmのゴールへ | — | `games/turbo-rally/` |
 | ☠️ 地獄基地防衛 | 基地をつくって、せめてくるてきからコアをまもる | こうちゃん | `games/base-defense/` |
 | 🐍 へびゲーム | りんごを食べてへびをのばす。かべと自分に注意 | としくん | `games/snake/` |
 | ⚔️ ようちゃんバトル | ストーリー・無限・防衛モードのRPGバトル | ようちゃん | `games/youchan-battle/` |
@@ -27,6 +28,8 @@ GitHub Pages で公開しています：
 kids-game/
 ├── index.html              ← 入り口ページ（ゲーム一覧）
 ├── games/
+│   ├── turbo-rally/
+│   │   └── index.html      ← くねくねターボラリー
 │   ├── base-defense/
 │   │   └── index.html      ← 地獄基地防衛（こうちゃん）
 │   ├── snake/
@@ -70,3 +73,4 @@ kids-game/
 3. **Build and deployment** の **Source** を **Deploy from a branch** にする
 4. **Branch** を `main`（公開したいブランチ）、フォルダを `/ (root)` にして **Save**
 5. 少し待つと `https://shoulang0729.github.io/kids-game/` で公開されます
+

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#142d36">
+<title>くねくねターボラリー 🏎️ | とみよこゲームランド</title>
+<style>
+*{box-sizing:border-box}html{background:#10262f}body{margin:0;color:#f5faf3;font-family:"Hiragino Maru Gothic Pro","Yu Gothic",sans-serif;background:radial-gradient(ellipse at top,#284c51,#10262f 75%);min-height:100dvh}button,a,select{-webkit-tap-highlight-color:transparent}button,select{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #ffdb6e;outline-offset:4px}button:disabled{cursor:default;opacity:.45}[hidden]{display:none!important}.shell{max-width:1060px;margin:auto;padding:20px 24px 22px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.back{color:#c6dfd9;text-decoration:none;font-size:13px}.eyebrow{color:#b4d1c7;font-size:11px;letter-spacing:.18em;margin:0 0 5px}h1{font-size:clamp(21px,4vw,33px);margin:0;letter-spacing:.02em}.tag{background:#c8ee8a;color:#183b34;border-radius:30px;padding:7px 12px;font-size:12px;font-weight:bold;white-space:nowrap}.dashboard{display:flex;gap:12px;align-items:center;padding:12px 16px;background:#203c43;border:1px solid #416064;border-radius:16px 16px 0 0}.stat{min-width:92px}.stat small{display:block;color:#aecac4;font-size:10px;letter-spacing:.09em;margin-bottom:3px}.stat strong{font-size:23px;font-variant-numeric:tabular-nums}.stat strong span{font-size:11px;font-weight:normal;margin-left:4px}.route{flex:1;padding:0 14px}.route-label{display:flex;justify-content:space-between;font-size:11px;color:#c7ddd3;margin-bottom:7px}.track{height:6px;background:#112c32;border-radius:10px;overflow:hidden}.fill{height:100%;width:0;background:#c8ee8a;border-radius:10px}.pause{border:1px solid #668280;border-radius:10px;background:transparent;color:white;padding:10px 14px}.stage{position:relative;overflow:hidden;border:1px solid #416064;border-top:0;border-radius:0 0 18px 18px;background:#6ca977}canvas{display:block;width:100%;height:clamp(380px,65dvh,650px);touch-action:none}.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#0d252a70;padding:18px;backdrop-filter:blur(3px)}.panel{text-align:center;background:#f7f7eaf5;color:#203e40;border-radius:24px;padding:28px 36px;width:min(450px,100%);box-shadow:0 20px 70px #102c3040}.panel .flag{font-size:40px;display:block;margin-bottom:4px}.panel h2{font-size:clamp(24px,5vw,34px);margin:6px 0 10px}.panel p{font-size:14px;line-height:1.8;margin:8px 0 16px}.legend{display:flex;justify-content:center;gap:16px;font-size:13px;margin:18px 0}.legend b{font-size:23px;display:block;margin-bottom:4px}.settings{margin:16px 0;font-size:13px}.settings select{padding:8px;border:1px solid #b9c9bd;background:#fffef5;border-radius:8px;color:#203e40;margin-left:8px}.primary{background:#ef674b;color:#fff;border:0;border-bottom:4px solid #c74d38;border-radius:13px;font-weight:bold;font-size:18px;padding:14px 30px;width:100%}.primary:active{transform:translateY(2px);border-bottom-width:2px}.record{font-size:12px!important;color:#5b7470;margin-bottom:0!important}.notice{position:absolute;top:18px;left:50%;transform:translateX(-50%);max-width:90%;width:max-content;border-radius:30px;padding:9px 19px;background:#15373bea;color:white;font-size:15px;font-weight:bold;text-align:center;pointer-events:none}.countdown{position:absolute;inset:0;display:grid;place-items:center;font-size:86px;font-weight:900;color:white;text-shadow:0 5px 0 #18453f;pointer-events:none}.controls{display:flex;align-items:center;gap:12px;margin-top:14px}.steer{display:flex;gap:10px}.drive-btn{width:88px;height:60px;border-radius:15px;background:#29484e;color:#eff6e9;border:1px solid #55716e;border-bottom:4px solid #0b2027;font-size:27px;touch-action:none;user-select:none}.drive-btn.active{background:#55796b;transform:translateY(2px)}.brake{margin-left:auto;font-size:14px;width:112px;background:#694b3d;border-color:#926957}.hint{color:#bed1c8;font-size:12px;line-height:1.7;margin:0 15px}.foot{display:flex;justify-content:space-between;gap:10px;color:#a8c6bb;font-size:11px;margin-top:14px}.help{color:#d7e9d8}.effect{color:#ffdc6b;font-size:11px;min-height:16px;margin-top:3px}.lives{color:#ffad92;font-size:18px;letter-spacing:2px}.result-detail{white-space:pre-line}.panel .secondary{background:none;color:#315d56;border:0;text-decoration:underline;margin-top:14px;padding:8px}
+@media(max-width:600px){.shell{padding:12px 10px 18px}.top{margin-bottom:12px}.tag{display:none}.back{font-size:11px}.eyebrow{font-size:9px}.dashboard{padding:10px;gap:8px}.stat{min-width:64px}.stat strong{font-size:20px}.route{padding:0 2px}.pause{padding:10px;font-size:12px}.lives{font-size:13px;letter-spacing:0}.panel{padding:22px}.hint{display:none}.controls{gap:8px}.drive-btn{width:80px;height:58px}.brake{width:104px}.foot{font-size:10px}canvas{height:clamp(370px,61dvh,650px)}.legend{margin:12px 0}.panel p{margin-bottom:10px;font-size:13px}}
+@media(max-height:540px) and (orientation:landscape){.shell{padding-top:8px}.top{margin-bottom:8px}.eyebrow,.foot{display:none}h1{font-size:20px}canvas{height:360px}.panel{padding:15px 24px}.panel .flag{display:none}.panel h2{font-size:24px}.legend{margin:8px}.panel p{margin:5px}.settings{margin:8px}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="top"><div><p class="eyebrow">TOMIYOKO GAME LAND / RACING</p><h1>くねくねターボラリー 🏎️</h1></div><a class="back" href="../../index.html">← ゲームランド</a><span class="tag">森のコース・6.5 km</span></header>
+<div class="dashboard">
+  <div class="stat"><small>スピード</small><strong id="speed">0<span>km/h</span></strong><div id="effect" class="effect">READY TO RACE</div></div>
+  <div class="route"><div class="route-label"><span id="distance">START</span><span>GOAL 🏁</span></div><div class="track" role="progressbar" aria-label="ゴールまでの進み具合" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="progress" class="fill"></div></div></div>
+  <div class="stat"><small>のこりライフ</small><div id="lives" class="lives">♥♥♥♥♥</div></div>
+  <button id="pause" class="pause" disabled aria-label="一時停止">Ⅱ</button>
+</div>
+<div class="stage">
+  <canvas id="road" width="900" height="650" aria-label="くねくねした森のコース。左右キーか下のボタンで車を動かそう。">このゲームには Canvas に対応したブラウザが必要です。</canvas>
+  <div id="notice" class="notice" style="top:68px" role="status" aria-live="polite" hidden></div>
+  <div id="countdown" class="countdown" hidden></div>
+  <div id="overlay" class="overlay"><div class="panel">
+    <span class="flag" id="panel-icon">🏁</span><p class="eyebrow" style="color:#55796b">FOREST RUN · TURBO RALLY</p>
+    <h2 id="panel-title">カーブの先へ、走りだそう。</h2>
+    <p id="panel-text" class="result-detail">くねくね道で 障害物をよけて ゴールへ！<br>アクセルは自動。左右に動かすだけ。</p>
+    <div id="legend" class="legend"><span><b>⚡</b>ターボで加速</span><span><b>🛡️</b>1回ガード</span><span><b>🪨</b>よけよう！</span></div>
+    <div id="settings" class="settings"><label for="difficulty">むずかしさ</label><select id="difficulty"><option value="easy">やさしい（ライフ5）</option><option value="normal">ふつう（ライフ3）</option></select></div>
+    <button id="start" class="primary">レース スタート！ →</button>
+    <button id="menu" class="secondary" hidden>コースえらびにもどる</button>
+    <p id="record" class="record">自己ベストに チャレンジしよう！</p>
+  </div></div>
+</div>
+<div class="controls"><div class="steer"><button id="left" class="drive-btn" aria-label="左にハンドル">◀</button><button id="right" class="drive-btn" aria-label="右にハンドル">▶</button></div><p class="hint">← → / A D：ハンドル　↓ / S：ブレーキ<br>画面を指でなぞっても操作できます。P：おやすみ</p><button id="brake" class="drive-btn brake" aria-label="ブレーキ">ブレーキ</button></div>
+<div class="foot"><span>⚡ アイテムをとると 自動でターボ！</span><a class="help" href="../../wiki/index.html#turbo-rally">あそびかた ↗</a></div>
+</main>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const canvas = $('road'), ctx = canvas.getContext('2d');
+const FINISH = 6500, SCALE = .68;
+let W = 900, H = 650, CAR_Y = 500, halfRoad = 210;
+const keys = new Set(), pointers = new Map();
+let dragTarget = null, dragPointer = null, lastTime = 0, hudTime = 0;
+const game = {mode:'menu',distance:0,x:450,speed:0,time:0,lives:5,turbo:0,shield:false,invincible:0,skid:0,notice:0,count:3,items:0,hits:0,objects:[],particles:[],difficulty:'easy'};
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+const center = s => W/2 + Math.sin(s/490)*W*.12 + Math.sin(s/227)*W*.047;
+const objectX = o => center(o.s) + o.lane*halfRoad;
+const screenY = s => CAR_Y - (s-game.distance)*SCALE;
+function bestTime(){try{const n=Number(localStorage.getItem('turbo-rally-best-'+game.difficulty));return Number.isFinite(n)&&n>0?n:0;}catch{return 0;}}
+function timeText(s){return Math.floor(s/60)+':'+(s%60).toFixed(1).padStart(4,'0');}
+function showRecord(){const best=bestTime();$('record').textContent=best?'🏆 このコースの自己ベスト '+timeText(best):'自己ベストに チャレンジしよう！';}
+function announce(text,duration=2){$('notice').textContent=text;$('notice').hidden=false;game.notice=duration;}
+function resetInput(){keys.clear();pointers.clear();dragTarget=null;dragPointer=null;document.querySelectorAll('.drive-btn').forEach(b=>b.classList.remove('active'));}
+function generateCourse(){
+  const objects=[];
+  // Rows are widely separated, with only one obstacle per row and an open escape lane.
+  for(let i=0,s=400;s<FINISH-200;i++,s+=game.difficulty==='easy'?230:190){
+    const lane=[-.64,.64,0,.64,-.64,0][i%6];
+    objects.push({s,lane,type:i%5===3?'oil':i%3===0?'rock':'cone',used:false});
+    if(i%2===0)objects.push({s:s+85,lane:-lane||.64,type:i%4===0?'turbo':'shield',used:false});
+  }
+  objects.unshift({s:230,lane:0,type:'turbo',used:false});
+  return objects.sort((a,b)=>a.s-b.s);
+}
+function startRace(){
+  resetInput();Object.assign(game,{mode:'countdown',difficulty:$('difficulty').value,distance:0,x:center(0),speed:0,time:0,lives:$('difficulty').value==='easy'?5:3,turbo:0,shield:false,invincible:0,skid:0,notice:0,count:3,items:0,hits:0,particles:[]});
+  game.objects=generateCourse();$('overlay').hidden=true;$('notice').hidden=true;$('countdown').hidden=false;$('pause').disabled=true;updateHud();
+}
+function setMenu(){game.mode='menu';resetInput();$('panel-icon').textContent='🏁';$('panel-title').textContent='カーブの先へ、走りだそう。';$('panel-text').innerHTML='くねくね道で 障害物をよけて ゴールへ！<br>アクセルは自動。左右に動かすだけ。';$('start').textContent='レース スタート！ →';$('legend').hidden=false;$('settings').hidden=false;$('menu').hidden=true;$('overlay').hidden=false;$('pause').disabled=true;showRecord();}
+function pauseRace(){
+  if(game.mode==='running'){
+    game.mode='paused';resetInput();$('panel-icon').textContent='☕';$('panel-title').textContent='ちょっと、おやすみ。';$('panel-text').textContent='じゅんびができたら つづきから走ろう。';$('legend').hidden=true;$('settings').hidden=true;$('menu').hidden=false;$('menu').textContent='スタート画面にもどる';$('start').textContent='つづきから走る →';$('overlay').hidden=false;$('pause').setAttribute('aria-label','レースを再開');$('start').focus();
+  }else if(game.mode==='paused'){game.mode='running';$('overlay').hidden=true;$('pause').setAttribute('aria-label','一時停止');resetInput();}
+}
+function endRace(won){
+  game.mode=won?'finished':'gameover';resetInput();$('pause').disabled=true;$('notice').hidden=true;
+  $('panel-icon').textContent=won?'🏆':'🏎️';$('panel-title').textContent=won?'ゴール！やったね！':'もう一度、チャレンジ！';
+  let record=false;if(won){const best=bestTime();if(!best||game.time<best){try{localStorage.setItem('turbo-rally-best-'+game.difficulty,String(game.time));record=true;}catch{}}}
+  $('panel-text').textContent=won?timeText(game.time)+' で 6.5 km を走りきった！\nアイテム '+game.items+' 個 ／ ぶつかった回数 '+game.hits+(record?'\n✨ 自己ベスト更新！':''):(game.distance/1000).toFixed(2)+' km まで走ったよ！\nブレーキをつかうと よけやすくなるよ。';
+  $('legend').hidden=true;$('settings').hidden=false;$('menu').hidden=true;$('start').textContent='もういちど走る →';$('overlay').hidden=false;showRecord();updateHud();$('start').focus();
+}
+function burst(x,y,color){for(let i=0;i<18;i++){const a=Math.random()*Math.PI*2;game.particles.push({x,y,vx:Math.cos(a)*100,vy:Math.sin(a)*100,life:.65,color});}}
+function collect(o){
+  o.used=true;
+  if(o.type==='turbo'){game.turbo=4.5;game.items++;announce('⚡ ターボ！ぐーんと加速！');burst(game.x,CAR_Y,'#ffdc62');}
+  else if(o.type==='shield'){game.shield=true;game.items++;announce('🛡️ シールド！1回まもるよ');burst(game.x,CAR_Y,'#9ff4ef');}
+  else if(game.invincible<=0){
+    if(game.shield){game.shield=false;game.invincible=1;announce('🛡️ ガードできた！');burst(game.x,CAR_Y,'#9ff4ef');}
+    else{game.hits++;game.lives--;game.speed*=.4;game.turbo=0;game.invincible=1.7;game.skid=o.type==='oil'?1.3:0;announce(o.type==='oil'?'わっ！オイルですべった！':'あっ！ぶつかった！');burst(game.x,CAR_Y,'#ffad79');if(game.lives<=0)endRace(false);}
+  }
+}
+function update(dt){
+  if(game.mode==='countdown'){game.count-=dt;$('countdown').textContent=game.count>.5?Math.ceil(game.count-.5):'GO!';if(game.count<=0){game.mode='running';$('countdown').hidden=true;$('pause').disabled=false;announce('⚡ をとって ターボで走ろう！',3);}return;}
+  if(game.mode!=='running')return;
+  game.time+=dt;game.turbo=Math.max(0,game.turbo-dt);game.invincible=Math.max(0,game.invincible-dt);game.skid=Math.max(0,game.skid-dt);
+  const actions=new Set([...keys,...pointers.values()]);
+  const braking=actions.has('brake');
+  const offroad=Math.abs(game.x-center(game.distance))>halfRoad-15;
+  const target=braking?42:offroad?55:game.turbo>0?168:100;
+  game.speed+=(target-game.speed)*Math.min(1,dt*2.8);
+  let steering=(actions.has('right')?1:0)-(actions.has('left')?1:0);
+  if(dragTarget!==null&&!steering)steering=clamp((dragTarget-game.x)/55,-1,1);
+  game.x=clamp(game.x+steering*(braking?280:330)*dt+ (game.skid>0?Math.sin(game.time*17)*140*dt:0),24,W-24);
+  const previous=game.distance;game.distance=Math.min(FINISH,game.distance+game.speed*dt);
+  for(const o of game.objects){if(o.used||o.s+32<previous||o.s-32>game.distance)continue;const width=o.type==='oil'?49:o.type==='rock'?41:34;if(Math.abs(game.x-objectX(o))<width)collect(o);if(game.mode!=='running')break;}
+  if(game.mode==='running'&&game.distance>=FINISH)endRace(true);
+  game.notice-=dt;if(game.notice<=0)$('notice').hidden=true;
+  for(const p of game.particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;}game.particles=game.particles.filter(p=>p.life>0);
+  hudTime+=dt;if(hudTime>.08){updateHud();hudTime=0;}
+}
+function updateHud(){
+  $('speed').innerHTML=Math.round(game.speed*1.6)+'<span>km/h</span>';
+  $('distance').textContent=(game.distance/1000).toFixed(1)+' / 6.5 km';
+  const percent=100*game.distance/FINISH;$('progress').style.width=percent+'%';document.querySelector('[role="progressbar"]').setAttribute('aria-valuenow',Math.round(percent));
+  $('lives').textContent='♥'.repeat(Math.max(0,game.lives));$('lives').setAttribute('aria-label','のこりライフ '+game.lives);
+  $('effect').textContent=[game.turbo>0?'⚡ TURBO '+game.turbo.toFixed(1)+'s':'',game.shield?'🛡️ ガード中':''].filter(Boolean).join(' / ')|| (Math.abs(game.x-center(game.distance))>halfRoad-15?'草の上は ゆっくり！':'FOREST RUN');
+}
+function rounded(x,y,w,h,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();}
+function poly(points,color){ctx.fillStyle=color;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();}
+function tree(x,y,size){ctx.fillStyle='#234c3d30';ctx.beginPath();ctx.ellipse(x+8,y+size*.45,size*.7,size*.3,0,0,Math.PI*2);ctx.fill();rounded(x-3,y,6,size*.6,2,'#715744');poly([[x,y-size],[x-size*.7,y+size*.15],[x+size*.7,y+size*.15]],'#306b50');poly([[x,y-size*1.3],[x-size*.53,y-size*.2],[x+size*.53,y-size*.2]],'#47875a');}
+function drawRoad(){
+  ctx.fillStyle='#82ad72';ctx.fillRect(0,0,W,H);
+  // Drawing strips from world coordinates keeps curves, objects and collisions aligned.
+  for(let y=-12;y<H+12;y+=8){const s=game.distance+(CAR_Y-y)/SCALE;const c=center(s);ctx.fillStyle=Math.floor(s/95)%2===0?'#7ca86c':'#80ac70';ctx.fillRect(0,y,W,9);ctx.fillStyle='#c3ba94';ctx.fillRect(c-halfRoad-18,y,halfRoad*2+36,9);ctx.fillStyle=Math.floor(s/50)%2===0?'#f6edd9':'#df785f';ctx.fillRect(c-halfRoad-8,y,halfRoad*2+16,9);ctx.fillStyle='#46595a';ctx.fillRect(c-halfRoad,y,halfRoad*2,9);if(Math.floor(s/55)%2===0){ctx.fillStyle='#b7c7b6';ctx.fillRect(c-halfRoad/3-2,y,4,9);ctx.fillRect(c+halfRoad/3-2,y,4,9);}}
+  const first=Math.floor((game.distance-240)/110);
+  for(let i=first;i<first+13;i++){const s=i*110,y=screenY(s),c=center(s);for(const side of [-1,1]){const x=c+side*(halfRoad+62+(Math.sin(i*17)*.5+.5)*70);tree(x,y,21+Math.abs(Math.sin(i*6))*11);if(i%3===0){rounded(x+side*40,y+15,6,6,3,'#f2d980');rounded(x+side*40+8,y+10,5,5,3,'#f7efd0');}}}
+  const goalY=screenY(FINISH);if(goalY>-80&&goalY<H+100){const c=center(FINISH);for(let r=0;r<3;r++)for(let j=0;j<14;j++){ctx.fillStyle=(r+j)%2?'#243c40':'#fff8de';ctx.fillRect(c-halfRoad+j*30,goalY+r*14,30,14);}rounded(c-70,goalY-48,140,34,8,'#f9eed3');ctx.fillStyle='#23423c';ctx.font='bold 19px sans-serif';ctx.textAlign='center';ctx.fillText('GOAL',c,goalY-24);}
+  const startY=screenY(0);if(startY<H){ctx.fillStyle='#ecedce';ctx.fillRect(center(0)-halfRoad,startY+60,halfRoad*2,5);}
+}
+function drawObject(o){
+  const x=objectX(o),y=screenY(o.s);if(y<-70||y>H+70||o.used)return;
+  ctx.save();ctx.translate(x,y);
+  if(o.type==='turbo'||o.type==='shield'){
+    const color=o.type==='turbo'?'#ffe17e':'#a9f2e3';ctx.shadowColor=color;ctx.shadowBlur=18;ctx.fillStyle=color;ctx.beginPath();ctx.arc(0,0,24,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#fffde5';ctx.lineWidth=3;ctx.stroke();ctx.fillStyle='#294d48';
+    if(o.type==='turbo')poly([[1,-17],[-11,3],[-1,3],[-4,17],[12,-5],[2,-5]],'#735424');
+    else{poly([[-13,-13],[0,-17],[13,-13],[11,4],[0,16],[-11,4]],'#37877f');poly([[-6,-6],[0,-9],[6,-6],[4,2],[0,7],[-4,2]],'#d7fff1');}
+  }else if(o.type==='rock'){ctx.fillStyle='#273e3c44';ctx.beginPath();ctx.ellipse(4,13,29,14,0,0,Math.PI*2);ctx.fill();poly([[-29,9],[-22,-15],[-3,-25],[20,-16],[30,8],[12,23],[-12,22]],'#9bafa4');poly([[-22,-15],[-3,-25],[20,-16],[0,-5]],'#c8d2bb');poly([[0,-5],[20,-16],[30,8],[12,23]],'#718b81');}
+  else if(o.type==='cone'){rounded(-23,14,46,10,4,'#273d3c66');rounded(-24,9,48,11,4,'#e97b45');poly([[-18,12],[0,-30],[18,12]],'#ff9854');poly([[-12,-2],[-8,-12],[8,-12],[12,-2]],'#fff5d7');}
+  else{ctx.fillStyle='#182d35';ctx.beginPath();ctx.ellipse(0,0,40,22,-.12,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#658084';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(-5,-4,23,10,-.12,Math.PI,Math.PI*1.8);ctx.stroke();}
+  ctx.restore();
+}
+function drawCar(){
+  ctx.save();ctx.translate(game.x,CAR_Y);const steering=(keys.has('right')||[...pointers.values()].includes('right')?1:0)-(keys.has('left')||[...pointers.values()].includes('left')?1:0);ctx.rotate(steering*.09+(game.skid>0?Math.sin(game.time*17)*.15:0));
+  if(game.invincible>0&&Math.floor(game.invincible*12)%2===0)ctx.globalAlpha=.5;
+  if(game.turbo>0){poly([[-16,36],[-10,72+Math.sin(game.time*40)*10],[-1,39]],'#ffb83f');poly([[1,39],[10,72+Math.cos(game.time*40)*10],[16,36]],'#ffb83f');poly([[-8,36],[0,62],[8,36]],'#fff0a4');}
+  rounded(-27,-37,58,90,16,'#132f3440');rounded(-27,-26,10,25,3,'#18323b');rounded(17,-26,10,25,3,'#18323b');rounded(-27,20,10,25,3,'#18323b');rounded(17,20,10,25,3,'#18323b');rounded(-22,-44,44,89,12,'#a83e36');rounded(-21,-46,42,83,12,'#f47a5d');rounded(-14,-19,28,37,8,'#e7c7a0');poly([[-13,-18],[13,-18],[11,-2],[-11,-2]],'#254b57');poly([[-11,7],[11,7],[13,18],[-13,18]],'#315660');rounded(-3,-41,6,20,2,'#fff0c5');rounded(-3,22,6,13,2,'#fff0c5');rounded(-18,-39,9,5,2,'#fff3bc');rounded(9,-39,9,5,2,'#fff3bc');rounded(-18,32,8,5,2,'#b63832');rounded(10,32,8,5,2,'#b63832');
+  if(game.shield){ctx.strokeStyle='#b0fff0';ctx.lineWidth=3;ctx.shadowColor='#88ffdf';ctx.shadowBlur=15;ctx.beginPath();ctx.ellipse(0,0,40,59,0,0,Math.PI*2);ctx.stroke();}
+  ctx.restore();
+}
+function render(){
+  ctx.clearRect(0,0,W,H);drawRoad();for(const o of game.objects)drawObject(o);drawCar();
+  for(const p of game.particles){ctx.globalAlpha=Math.max(0,p.life/.65);rounded(p.x,p.y,6,6,2,p.color);}ctx.globalAlpha=1;
+  if(game.turbo>0&&game.mode==='running'){ctx.strokeStyle='#fff3bc88';ctx.lineWidth=3;for(let i=0;i<12;i++){const x=(i<6?i*24:W-(i-6)*24),y=(game.time*530+i*87)%H;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+28);ctx.stroke();}}
+  rounded(W-124,18,105,40,12,'#1d3d3cd9');ctx.fillStyle='#f1f5de';ctx.font='bold 19px sans-serif';ctx.textAlign='center';ctx.fillText(timeText(game.time),W-72,44);
+}
+function frame(now){const dt=Math.min((now-lastTime)/1000||0, .05);lastTime=now;update(dt);render();requestAnimationFrame(frame);}
+$('start').addEventListener('click',()=>game.mode==='paused'?pauseRace():startRace());
+$('pause').addEventListener('click',pauseRace);$('menu').addEventListener('click',setMenu);
+$('difficulty').addEventListener('change',()=>{game.difficulty=$('difficulty').value;showRecord();});
+const keyActions={ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right',ArrowDown:'brake',s:'brake',S:'brake'};
+document.addEventListener('keydown',e=>{if(e.target.matches('select,input'))return;if(keyActions[e.key]&&game.mode==='running'){e.preventDefault();keys.add(keyActions[e.key]);}if((e.key==='p'||e.key==='P'||e.key==='Escape')&&!e.repeat){e.preventDefault();pauseRace();}});
+document.addEventListener('keyup',e=>{if(keyActions[e.key])keys.delete(keyActions[e.key]);});
+for(const action of ['left','right','brake']){const button=$(action);button.addEventListener('pointerdown',e=>{if(game.mode!=='running')return;e.preventDefault();button.setPointerCapture(e.pointerId);pointers.set(e.pointerId,action);button.classList.add('active');});const release=e=>{pointers.delete(e.pointerId);if(![...pointers.values()].includes(action))button.classList.remove('active');};button.addEventListener('pointerup',release);button.addEventListener('pointercancel',release);button.addEventListener('lostpointercapture',release);}
+function setDrag(e){const r=canvas.getBoundingClientRect();dragTarget=clamp((e.clientX-r.left)/r.width*W,24,W-24);}
+canvas.addEventListener('pointerdown',e=>{if(game.mode!=='running'||dragPointer!==null)return;e.preventDefault();canvas.setPointerCapture(e.pointerId);dragPointer=e.pointerId;setDrag(e);});canvas.addEventListener('pointermove',e=>{if(e.pointerId===dragPointer)setDrag(e);});for(const event of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(event,e=>{if(e.pointerId===dragPointer){dragPointer=null;dragTarget=null;}});
+window.addEventListener('blur',()=>{resetInput();if(game.mode==='running')pauseRace();});document.addEventListener('visibilitychange',()=>{if(document.hidden){resetInput();if(game.mode==='running')pauseRace();}});
+// Keep drawing sharp on high-density screens without changing game coordinates.
+function resize(){const previousWidth=W;const bounds=canvas.getBoundingClientRect();W=bounds.width;H=bounds.height;CAR_Y=H*.77;halfRoad=Math.min(210,W*.31);game.x=clamp(game.x*W/previousWidth,24,W-24);const dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);}
+window.addEventListener('resize',resize);resize();game.objects=generateCourse();showRecord();requestAnimationFrame(frame);
+</script>
+</body>
+</html>
