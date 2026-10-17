@@ -20,6 +20,7 @@ GitHub Pages で公開しています：
 | ⚔️ ようちゃんバトル | ストーリー・無限・防衛モードのRPGバトル | ようちゃん | `games/youchan-battle/` |
 | 🌌 惑星ぶっこわし3D | 惑星をタッチして破壊。お金で強い攻撃を解放する | ようちゃん | `games/planet-smash/` |
 | 🍳 料理ゲーム | ミッションの料理を作る。食材の調理・ショップ・図鑑・実績 | こうちゃん | `games/cooking/` |
+| 🎯 丸をタップ！ | 20秒で丸をタップ。最高記録を保存 | ようちゃん | `games/tap-circle/` |
 
 ## 📁 リポジトリ構成
 
@@ -27,6 +28,8 @@ GitHub Pages で公開しています：
 kids-game/
 ├── index.html              ← 入り口ページ（ゲーム一覧）
 ├── games/
+│   ├── tap-circle/
+│   │   └── index.html      ← 丸をタップ！（ようちゃん）
 │   ├── base-defense/
 │   │   └── index.html      ← 地獄基地防衛（こうちゃん）
 │   ├── snake/
