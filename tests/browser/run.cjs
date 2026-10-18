@@ -114,6 +114,7 @@ const scenarios = {
       contentType: 'text/javascript',
       body: fs.readFileSync(path.join(root, 'games/snake/game.js'), 'utf8') + '\nglobalThis.__snakeTest = model;',
     }));
+    await p.addInitScript(() => { Math.random = () => 0.5; });
     await p.reload();
     await p.clock.install();
     await p.click('#startBtn');
