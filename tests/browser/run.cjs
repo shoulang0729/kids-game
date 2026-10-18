@@ -152,7 +152,9 @@ const scenarios = {
       for (const game of [{ id: 'home', url: 'index.html' }, { id: 'manual', url: 'wiki/index.html' }, ...games.map(g => ({ ...g, url: `games/${g.id}/index.html` }))]) {
         const context = await browser.newContext({ viewport: { width, height: 844 }, hasTouch: width === 390 });
         const page = await context.newPage();
-        page.setDefaultTimeout(8000);
+        // Software WebGL on CI is slower than a desktop GPU. Keep ordinary
+        // pages fast while allowing the real arcade scene time to render.
+        page.setDefaultTimeout(game.id === 'kochan-3d-arcade' ? 30000 : 8000);
         const errors = [];
         page.on('pageerror', e => errors.push(e.message));
         page.on('response', r => { if (r.url().startsWith(base) && r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
