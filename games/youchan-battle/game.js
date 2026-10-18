@@ -1,86 +1,20 @@
-let playerMaxHp = 150;
-let playerHp = 150;
+const battleGame = BattleState.createGame(BattleData);
+const battle = battleGame.state;
+const { skills } = BattleData;
+let transitionTimer;
+let encounterVersion = 0;
 
-let enemyMaxHp = 100;
-let enemyHp = 100;
-
-let baseMaxHp = 1000;
-let baseHp = 1000;
-
-let enemyAttackPower = 15;
-
-let currentNode = 1;
-
-let infiniteLevel = 1;
-
-let defenseWave = 1;
-
-let coins = 0;
-
-let robots = 0;
-
-let cannons = 0;
-
-let attackBoost = 0;
-
-let mode = "";
-
-let bossPhase = 1;
-
-let level = 1;
-
-let exp = 0;
-
-let nextExp = 100;
-
-let defending = false;
-
-let battleEnded = false;
-
-let currentWeapon = {
-  name: "🗡️ 木の剣",
-  bonus: 0,
-};
-
-let cooldowns = {
-  attack: 0,
-  fire: 0,
-  thunder: 0,
-  heal: 0,
-  ultimate: 0,
-};
-
-const skills = {
-  attack: {
-    name: "⚔️ 攻撃",
-    damage: [14, 24],
-    cooldown: 0,
-  },
-
-  fire: {
-    name: "🔥 ファイヤー",
-    damage: [28, 45],
-    cooldown: 2,
-  },
-
-  thunder: {
-    name: "⚡ サンダー",
-    damage: [45, 68],
-    cooldown: 3,
-  },
-
-  heal: {
-    name: "💚 回復",
-    heal: 45,
-    cooldown: 3,
-  },
-
-  ultimate: {
-    name: "🌈 必殺技",
-    damage: [90, 130],
-    cooldown: 5,
-  },
-};
+function cancelTransition() {
+  clearTimeout(transitionTimer);
+  encounterVersion++;
+}
+function queueTransition(callback, delay) {
+  clearTimeout(transitionTimer);
+  const version = encounterVersion;
+  transitionTimer = setTimeout(() => {
+    if (version === encounterVersion) callback();
+  }, delay);
+}
 
 showSelect();
 
@@ -91,24 +25,28 @@ function hideAll() {
 }
 
 function showSelect() {
+  cancelTransition();
+  battle.battleEnded = true;
   hideAll();
 
   document.getElementById("selectScreen").style.display = "block";
 }
 
 function showStoryMap() {
+  cancelTransition();
+  battle.battleEnded = true;
   hideAll();
 
   document.getElementById("mapScreen").style.display = "block";
 }
 
 function enterNode(node) {
-  currentNode = node;
+  battle.currentNode = node;
 
   if (node === 2) {
-    playerMaxHp += 20;
+    battle.playerMaxHp += 20;
 
-    coins += 200;
+    battle.coins += 200;
 
     alert("🎁 HPアップ！");
 
@@ -116,9 +54,9 @@ function enterNode(node) {
   }
 
   if (node === 4) {
-    playerHp = playerMaxHp;
+    battle.playerHp = battle.playerMaxHp;
 
-    coins += 300;
+    battle.coins += 300;
 
     alert("💚 全回復！");
 
@@ -129,11 +67,11 @@ function enterNode(node) {
 }
 
 function enemySetup(hp, attack, emoji, title) {
-  enemyMaxHp = hp;
+  battle.enemyMaxHp = hp;
 
-  enemyHp = hp;
+  battle.enemyHp = hp;
 
-  enemyAttackPower = attack;
+  battle.enemyAttackPower = attack;
 
   document.getElementById("enemy").innerText = emoji;
 
@@ -141,11 +79,12 @@ function enemySetup(hp, attack, emoji, title) {
 }
 
 function startStoryBattle(node) {
-  mode = "story";
+  cancelTransition();
+  battle.mode = "story";
 
-  playerHp = playerMaxHp;
+  battle.playerHp = battle.playerMaxHp;
 
-  bossPhase = 1;
+  battle.bossPhase = 1;
 
   baseArea(false);
 
@@ -175,11 +114,13 @@ function startStoryBattle(node) {
 }
 
 function startInfinite() {
-  mode = "infinite";
+  cancelTransition();
+  resetCooldowns();
+  battle.mode = "infinite";
 
-  infiniteLevel = 1;
+  battle.infiniteLevel = 1;
 
-  playerHp = playerMaxHp;
+  battle.playerHp = battle.playerMaxHp;
 
   baseArea(false);
 
@@ -189,13 +130,15 @@ function startInfinite() {
 }
 
 function startDefense() {
-  mode = "defense";
+  cancelTransition();
+  resetCooldowns();
+  battle.mode = "defense";
 
-  defenseWave = 1;
+  battle.defenseWave = 1;
 
-  baseHp = baseMaxHp;
+  battle.baseHp = battle.baseMaxHp;
 
-  playerHp = playerMaxHp;
+  battle.playerHp = battle.playerMaxHp;
 
   baseArea(true);
 
@@ -204,19 +147,20 @@ function startDefense() {
 
 function startDefenseWave() {
   enemySetup(
-    120 + defenseWave * 25,
-    12 + defenseWave * 2,
-    defenseWave === 50 ? "👑" : "👾",
+    120 + battle.defenseWave * 25,
+    12 + battle.defenseWave * 2,
+    battle.defenseWave === 50 ? "👑" : "👾",
     "🏰 防衛",
   );
 
-  document.getElementById("waveText").innerText = "🌊 Wave " + defenseWave + " / 50";
+  document.getElementById("waveText").innerText =
+    "🌊 Wave " + battle.defenseWave + " / 50";
 
   startBattle();
 }
 
 function startBattle() {
-  battleEnded = false;
+  battle.battleEnded = false;
 
   hideAll();
 
@@ -234,169 +178,104 @@ function startBattle() {
 }
 
 function baseArea(show) {
+  if (!show) document.getElementById("waveText").innerText = "";
   document.getElementById("baseArea").style.display = show ? "block" : "none";
 }
 
-function defend() {
-  if (battleEnded) {
-    return;
-  }
-
-  defending = true;
-
-  log("🛡️ 防御！ 次のダメージ半分！");
-
-  enemyTurn();
-
-  reduceCooldowns();
-
+function refreshBattle() {
+  updateBars();
   updateButtons();
+  updateCoins();
+  updateWeapon();
+  updateRobot();
+  updateLevel();
+}
+
+function defend() {
+  const result = battleGame.defend();
+  if (result.status === "blocked") return;
+  log("🛡️ 防御！ 次のダメージ半分！");
+  if (result.lost) loseBattle();
+  refreshBattle();
 }
 
 function useSkill(skillName) {
-  if (battleEnded) {
-    return;
-  }
-
-  if (cooldowns[skillName] > 0) {
+  const result = battleGame.useSkill(skillName);
+  if (result.status === "blocked") return;
+  if (result.status === "cooldown") {
     log("⏳ クールダウン");
-
     return;
   }
-
-  const skill = skills[skillName];
-
-  if (skill.damage) {
-    let dmg = BattleRules.strike(random(skill.damage[0], skill.damage[1]), currentWeapon.bonus, attackBoost, robots, cannons, false);
-
-    if (Math.random() < 0.1) {
-      dmg *= 2;
-
-      log("💥 クリティカル！ " + dmg + "ダメージ！");
-    } else {
-      log(skill.name + " " + dmg + "ダメージ！");
-    }
-
-    enemyHp -= dmg;
-  }
-
-  if (skill.heal) {
-    playerHp = BattleRules.heal(playerHp, skill.heal, playerMaxHp);
-  }
-
-  cooldowns[skillName] = skill.cooldown;
-
-  if (enemyHp <= 0) {
-    enemyHp = 0;
-
-    winBattle();
-
-    return;
-  }
-
-  enemyTurn();
-
-  reduceCooldowns();
-
-  updateButtons();
-
-  updateBars();
-}
-
-function enemyTurn() {
-  let dmg = random(enemyAttackPower - 5, enemyAttackPower + 7);
-
-  if (defending) {
-    dmg = BattleRules.defendDamage(dmg, true);
-
-    defending = false;
-  }
-
-  playerHp -= dmg;
-
-  if (mode === "defense") {
-    baseHp -= Math.floor(dmg / 2);
-  }
-
-  if (playerHp < 0) {
-    playerHp = 0;
-  }
-
-  if (baseHp < 0) {
-    baseHp = 0;
-  }
-
-  updateBars();
-
-  if (playerHp <= 0 || baseHp <= 0) {
-    loseBattle();
-  }
+  if (result.damage)
+    log(
+      result.critical
+        ? "💥 クリティカル！ " + result.damage + "ダメージ！"
+        : skills[skillName].name + " " + result.damage + "ダメージ！",
+    );
+  if (result.won) winBattle();
+  else if (result.lost) loseBattle();
+  refreshBattle();
 }
 
 function addExp(amount) {
-  exp += amount;
-
-  if (exp >= nextExp) {
-    exp -= nextExp;
-
-    level++;
-
-    nextExp += 100;
-
-    playerMaxHp += 20;
-
-    attackBoost += 5;
-
-    playerHp = playerMaxHp;
-
-    log("🧬 レベルアップ！ Lv." + level);
-  }
-
+  if (battleGame.addExp(amount)) log("🧬 レベルアップ！ Lv." + battle.level);
   updateLevel();
 }
 
 function bossTransform() {
-  if (bossPhase === 1) {
-    bossPhase = 2;
+  if (battle.bossPhase === 1) {
+    battle.bossPhase = 2;
 
     enemySetup(500, 35, "👑💀", "真・宇宙魔王");
 
-    battleEnded = false;
+    battle.battleEnded = false;
 
     return;
   }
 
-  if (bossPhase === 2) {
-    bossPhase = 3;
+  if (battle.bossPhase === 2) {
+    battle.bossPhase = 3;
 
     enemySetup(800, 45, "🔥👑🔥", "GOD宇宙魔王");
 
-    battleEnded = false;
+    battle.battleEnded = false;
 
     return;
   }
 
-  if (bossPhase === 3) {
-    coins += 3000;
+  if (battle.bossPhase === 3) {
+    battle.coins += 3000;
 
     log("🏆 完全クリア！");
 
-    setTimeout(showSelect, 3000);
+    queueTransition(showSelect, 3000);
   }
 }
 
 function winBattle() {
-  const metric = mode === "story" ? "story" : mode === "defense" ? "defense" : "infinite";
-  const value = mode === "story" ? (currentNode === 7 && bossPhase < 3 ? 6 : currentNode) : mode === "defense" ? defenseWave : infiniteLevel;
+  const metric =
+    battle.mode === "story"
+      ? "story"
+      : battle.mode === "defense"
+        ? "defense"
+        : "infinite";
+  const value =
+    battle.mode === "story"
+      ? battle.currentNode === 7 && battle.bossPhase < 3
+        ? 6
+        : battle.currentNode
+      : battle.mode === "defense"
+        ? battle.defenseWave
+        : battle.infiniteLevel;
   globalThis.GameRecords?.record("youchan-battle", { [metric]: value });
-  battleEnded = true;
+  battle.battleEnded = true;
 
   addExp(50);
 
-  if (mode === "story") {
-    coins += 200;
+  if (battle.mode === "story") {
+    battle.coins += 200;
 
-    if (currentNode === 7) {
+    if (battle.currentNode === 7) {
       bossTransform();
 
       return;
@@ -404,42 +283,42 @@ function winBattle() {
 
     log("🏆 勝利！");
 
-    setTimeout(showStoryMap, 1500);
+    queueTransition(showStoryMap, 1500);
   }
 
-  if (mode === "infinite") {
-    coins += 100 + infiniteLevel * 30;
+  if (battle.mode === "infinite") {
+    battle.coins += 100 + battle.infiniteLevel * 30;
 
-    infiniteLevel++;
+    battle.infiniteLevel++;
 
     enemySetup(
-      120 + infiniteLevel * 80,
-      18 + infiniteLevel * 5,
+      120 + battle.infiniteLevel * 80,
+      18 + battle.infiniteLevel * 5,
       "👾",
-      "♾️ レベル " + infiniteLevel,
+      "♾️ レベル " + battle.infiniteLevel,
     );
 
-    playerHp = playerMaxHp;
+    battle.playerHp = battle.playerMaxHp;
 
-    battleEnded = false;
+    battle.battleEnded = false;
   }
 
-  if (mode === "defense") {
-    coins += 50 + defenseWave * 10;
+  if (battle.mode === "defense") {
+    battle.coins += 50 + battle.defenseWave * 10;
 
-    defenseWave++;
+    battle.defenseWave++;
 
-    playerHp = playerMaxHp;
+    battle.playerHp = battle.playerMaxHp;
 
-    if (defenseWave > 50) {
+    if (battle.defenseWave > 50) {
       log("🏆 防衛制覇！");
 
-      setTimeout(showSelect, 3000);
+      queueTransition(showSelect, 3000);
 
       return;
     }
 
-    setTimeout(startDefenseWave, 1500);
+    queueTransition(startDefenseWave, 1500);
   }
 
   updateCoins();
@@ -448,141 +327,71 @@ function winBattle() {
 }
 
 function loseBattle() {
-  battleEnded = true;
+  battle.battleEnded = true;
 
   log("💀 負けた！");
 
-  setTimeout(showSelect, 2000);
+  queueTransition(showSelect, 2000);
 }
-
-const upgradeCosts = {
-  hp: 100,
-  attack: 100,
-  base: 150,
-  robot: 300,
-  cannon: 500,
-};
 
 function buyUpgrade(type) {
-  const cost = upgradeCosts[type];
-
-  if (coins < cost) {
+  const result = battleGame.buyUpgrade(type);
+  if (result === "insufficient") {
     log("💰 コインが足りない！");
-
     return;
   }
-
-  coins -= cost;
-
-  if (type === "hp") {
-    playerMaxHp += 20;
-
-    log("❤️ さいだいHPアップ！");
-  }
-
-  if (type === "attack") {
-    attackBoost += 10;
-
-    log("⚔️ こうげき力アップ！");
-  }
-
-  if (type === "base") {
-    baseHp += 200;
-
-    if (baseHp > baseMaxHp) {
-      baseHp = baseMaxHp;
-    }
-
-    log("🏯 基地を回復した！");
-  }
-
-  if (type === "robot") {
-    robots++;
-
-    log("🤖 ロボ兵がなかまになった！");
-  }
-
-  if (type === "cannon") {
-    cannons++;
-
-    log("🔫 砲台をせっちした！");
-  }
-
-  updateCoins();
-
-  updateRobot();
-
-  updateBars();
+  if (result !== "purchased") return;
+  const messages = {
+    hp: "❤️ さいだいHPアップ！",
+    attack: "⚔️ こうげき力アップ！",
+    base: "🏯 基地を回復した！",
+    robot: "🤖 ロボ兵がなかまになった！",
+    cannon: "🔫 砲台をせっちした！",
+  };
+  log(messages[type]);
+  refreshBattle();
 }
 
-const weapons = {
-  fire: { cost: 300, name: "🔥 炎ソード", bonus: 15 },
-  thunder: { cost: 700, name: "⚡ 雷神剣", bonus: 30 },
-  cosmo: { cost: 1500, name: "🌌 宇宙剣", bonus: 50 },
-  god: { cost: 5000, name: "👑 GOD剣", bonus: 100 },
-};
-
 function buyWeapon(type) {
-  const w = weapons[type];
-
-  if (coins < w.cost) {
+  const result = battleGame.buyWeapon(type);
+  if (result === "insufficient") {
     log("💰 コインが足りない！");
-
     return;
   }
-
-  coins -= w.cost;
-
-  currentWeapon = {
-    name: w.name,
-    bonus: w.bonus,
-  };
-
-  log(w.name + " を手に入れた！");
-
-  updateWeapon();
-
-  updateCoins();
+  if (result !== "purchased") return;
+  log(battle.currentWeapon.name + " を手に入れた！");
+  refreshBattle();
 }
 
 function updateWeapon() {
-  document.getElementById("weaponText").innerText = currentWeapon.name + " +" + currentWeapon.bonus;
+  document.getElementById("weaponText").innerText =
+    battle.currentWeapon.name + " +" + battle.currentWeapon.bonus;
 }
 
 function updateCoins() {
-  document.getElementById("coinsText").innerText = coins;
+  document.getElementById("coinsText").innerText = battle.coins;
 }
 
 function updateRobot() {
-  document.getElementById("robotText").innerText = robots;
+  document.getElementById("robotText").innerText = battle.robots;
 
-  document.getElementById("cannonText").innerText = cannons;
+  document.getElementById("cannonText").innerText = battle.cannons;
 }
 
 function updateLevel() {
-  document.getElementById("levelText").innerText = level;
+  document.getElementById("levelText").innerText = battle.level;
 
-  document.getElementById("expText").innerText = exp;
+  document.getElementById("expText").innerText = battle.exp;
 
-  document.getElementById("nextExpText").innerText = nextExp;
+  document.getElementById("nextExpText").innerText = battle.nextExp;
 }
 
 function resetCooldowns() {
-  for (let key in cooldowns) {
-    cooldowns[key] = 0;
-  }
-}
-
-function reduceCooldowns() {
-  for (let key in cooldowns) {
-    if (cooldowns[key] > 0) {
-      cooldowns[key]--;
-    }
-  }
+  battleGame.resetCooldowns();
 }
 
 function updateButtons() {
-  for (let key in cooldowns) {
+  for (let key in battle.cooldowns) {
     const btn = document.getElementById(key + "Btn");
 
     const names = {
@@ -597,22 +406,24 @@ function updateButtons() {
       ultimate: "🌈 必殺技",
     };
 
-    btn.innerText = cooldowns[key] > 0 ? names[key] + " " + cooldowns[key] : names[key];
+    btn.innerText =
+      battle.cooldowns[key] > 0
+        ? names[key] + " " + battle.cooldowns[key]
+        : names[key];
   }
 }
 
 function updateBars() {
-  document.getElementById("playerBar").style.width = (playerHp / playerMaxHp) * 100 + "%";
+  document.getElementById("playerBar").style.width =
+    (battle.playerHp / battle.playerMaxHp) * 100 + "%";
 
-  document.getElementById("enemyBar").style.width = (enemyHp / enemyMaxHp) * 100 + "%";
+  document.getElementById("enemyBar").style.width =
+    (battle.enemyHp / battle.enemyMaxHp) * 100 + "%";
 
-  document.getElementById("baseBar").style.width = (baseHp / baseMaxHp) * 100 + "%";
+  document.getElementById("baseBar").style.width =
+    (battle.baseHp / battle.baseMaxHp) * 100 + "%";
 }
 
 function log(text) {
   document.getElementById("log").innerText = text;
-}
-
-function random(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
