@@ -1,0 +1,91 @@
+[
+  {
+    "id": "base-defense",
+    "title": "地獄基地防衛",
+    "emoji": "☠️",
+    "description": "基地をつくって、せめてくるてきからコアをまもれ！",
+    "author": "こうちゃん",
+    "manual": "defense"
+  },
+  {
+    "id": "snake",
+    "title": "へびゲーム",
+    "emoji": "🐍",
+    "description": "りんごを食べてへびをのばそう！かべと自分に気をつけて",
+    "author": "としくん",
+    "manual": "snake"
+  },
+  {
+    "id": "youchan-battle",
+    "title": "ようちゃんバトル",
+    "emoji": "⚔️",
+    "description": "ストーリー・無限・防衛モードのRPGバトル！武器を強くして魔王をたおせ",
+    "author": "ようちゃん",
+    "manual": "battle"
+  },
+  {
+    "id": "planet-smash",
+    "title": "惑星ぶっこわし3D",
+    "emoji": "🌌",
+    "description": "惑星をタッチしてこわそう！お金をためて強い攻撃を解放。地球から宇宙皇帝まで18ステージ",
+    "author": "ようちゃん",
+    "manual": "planet"
+  },
+  {
+    "id": "cooking",
+    "title": "料理ゲーム",
+    "emoji": "🍳",
+    "description": "ミッションの料理を作ろう！食材を切ったり焼いたり。ショップ・図鑑・実績つき",
+    "author": "こうちゃん",
+    "manual": "cooking"
+  },
+  {
+    "id": "snake-battle",
+    "title": "スネークバトル",
+    "emoji": "🐲",
+    "description": "最大4人＆CPUと対戦するスネーク！顔やステージも自分で描ける本格バトル",
+    "author": "こうちゃん",
+    "manual": "snake-battle"
+  },
+  {
+    "id": "snake-battle-online",
+    "title": "スネークバトルオンライン",
+    "emoji": "🌐",
+    "description": "合言葉で友だちとオンライン対戦！CPUもまざって10匹でバトル。アイテムで逆転をねらえ",
+    "author": "こうちゃん&としくん",
+    "manual": "snake-online"
+  },
+  {
+    "id": "online-demo",
+    "title": "オンラインちびデモ",
+    "emoji": "🧪",
+    "description": "オンラインのテスト！同じ合言葉を入れて、べつの端末と四角をいっしょに動かそう",
+    "author": "",
+    "manual": null,
+    "manualNote": "接続テスト用デモ。画面の案内に従い同じ合言葉で入室します。"
+  },
+  {
+    "id": "chaos-ultra-x",
+    "title": "カオス世界大崩壊 ULTRA X INFINITE",
+    "emoji": "🌌",
+    "description": "20形態に進化！ブラックホール・トリプルボス・無限ドローン・巨大戦艦で生き残れ！",
+    "author": "ようちゃん",
+    "manual": "chaos-ultra-x"
+  },
+  {
+    "id": "kochan-3d-arcade",
+    "title": "こうちゃんの3Dゲームセンター",
+    "emoji": "🕹️",
+    "description": "店内を歩いて全37種類！クレーン・ゴルフ・バスケ・レースなど。スポーツは直接タッチして遊べる",
+    "author": "こうちゃん",
+    "manual": "kochan-arcade"
+  },
+  {
+    "id": "tap-circle",
+    "title": "丸をタップ！",
+    "emoji": "🎯",
+    "description": "出てくる丸をタップ！20秒で何点とれるかな？最高記録に挑戦しよう",
+    "author": "ようちゃん",
+    "manual": "tap-circle"
+  }
+]
