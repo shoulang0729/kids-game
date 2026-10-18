@@ -6,6 +6,9 @@ const http = require('node:http');
 
 const root = path.resolve(__dirname, '../..');
 const games = JSON.parse(fs.readFileSync(path.join(root, 'data/games.json'), 'utf8'));
+const entries = [{ id: 'home', url: 'index.html' }, { id: 'manual', url: 'wiki/index.html' }, { id: 'ranking', url: 'ranking/index.html' }, ...games.map(g => ({ ...g, url: `games/${g.id}/index.html` }))];
+const targets = process.env.BROWSER_GAME ? entries.filter(g => g.id === process.env.BROWSER_GAME) : entries;
+if (!targets.length) throw Error('Unknown BROWSER_GAME: ' + process.env.BROWSER_GAME);
 const results = path.join(root, 'test-results');
 fs.mkdirSync(results, { recursive: true });
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png' };
@@ -94,16 +97,65 @@ const scenarios = {
   },
   async cooking(p) {
     await p.clock.install();
-    await p.locator('button[onclick="startGame()"]').first().click();
-    assert.ok(await p.evaluate(() => currentMission !== null));
-    assert.ok(await p.locator('#foodButtons button').count() > 0);
-    await p.evaluate(() => { for (const food of currentMission.answer) addFood('🍴', food); });
-    await p.locator('button[onclick="mix()"]').click();
-    await p.clock.runFor(2100);
-    assert.match(await p.locator('#message').innerText(), /ミッション成功/);
+    p.on('dialog', dialog => dialog.accept());
+    const start = p.locator('button[onclick="startGame()"]').first();
+    const mixButton = p.locator('button[onclick="mix()"]');
+    assert.ok(await mixButton.isDisabled());
     await p.click('#menuBtn');
-    await p.locator('button[onclick="showScreen(\'bookScreen\')"]').click();
-    assert.ok(await p.locator('#bookScreen').isVisible());
+    await p.locator("button[onclick=\"showScreen('shopScreen')\"]").click();
+    await p.getByRole('button', { name: '🥔じゃがいも 100💰', exact: true }).click();
+    assert.ok(await p.getByRole('button', { name: '🥔じゃがいも ✅購入済み', exact: true }).isDisabled());
+    assert.match(await p.locator('#shopMoney').innerText(), /400/);
+    await p.click('#menuBtn');
+    await p.locator("button[onclick=\"showScreen('gameScreen')\"]").click();
+    await start.click();
+    await p.getByRole('button', { name: '🥕にんじん', exact: true }).click();
+    await p.getByRole('button', { name: '🔪千切り', exact: true }).click();
+    await p.locator('.deleteFoodBtn').click();
+    assert.equal(await p.locator('.food').count(), 0);
+    const fillRecipe = async () => {
+      await p.getByRole('button', { name: '🥚たまご', exact: true }).click();
+      await p.getByRole('button', { name: '🔥焼く', exact: true }).click();
+      await p.getByRole('button', { name: '🧂塩', exact: true }).click();
+    };
+    await fillRecipe();
+    await mixButton.click();
+    assert.ok(await mixButton.isDisabled());
+    assert.ok(await p.locator('.deleteFoodBtn').first().isDisabled());
+    // Model guards must hold even if a duplicate event bypasses disabled buttons.
+    await p.evaluate(() => { mix(); removeFood(0); addFood('💧', '水'); });
+    await p.clock.runFor(2100);
+    assert.match(await p.locator('#message').innerText(), /ミッション成功！ \+100/);
+    assert.match(await p.locator('#dish').innerText(), /パーフェクト/);
+    assert.match(await p.locator('#rankBox').innerText(), /ポイント：100/);
+    assert.equal(await p.evaluate(() => cooking.history.length), 1);
+    assert.ok(await mixButton.isDisabled());
+    await p.click('#nextBtn');
+    await p.click('#passBtn');
+    await p.evaluate(() => { passMission(); mix(); });
+    assert.match(await p.locator('#rankBox').innerText(), /ポイント：130/);
+    assert.match(await p.locator('#message').innerText(), /パス！ \+30/);
+    await p.click('#nextBtn');
+    await fillRecipe();
+    await mixButton.click();
+    await p.clock.runFor(500);
+    await start.click();
+    await p.clock.runFor(2100);
+    assert.equal(await p.evaluate(() => cooking.history.length), 2);
+    assert.ok(await p.locator('#nextBtn').isHidden());
+    assert.ok(!await p.locator('.bowl').evaluate(e => e.classList.contains('spin')));
+    await mixButton.click(); // Empty bowl: failure does not grant money/score.
+    await p.clock.runFor(2100);
+    assert.match(await p.locator('#message').innerText(), /ミッション失敗/);
+    assert.match(await p.locator('#rankBox').innerText(), /ポイント：130/);
+    assert.match(await p.locator('#rankBox').innerText(), /お金：530/);
+    await p.click('#menuBtn');
+    await p.locator("button[onclick=\"showScreen('bookScreen')\"]").click();
+    assert.match(await p.locator('#bookBox').innerText(), /たまご焼き ✅/);
+    await p.click('#menuBtn');
+    await p.locator("button[onclick=\"showScreen('achievementScreen')\"]").click();
+    assert.match(await p.locator('#achievementBox').innerText(), /✅ 初めてのシェフ/);
+    assert.match(await p.locator('#historyBox').innerText(), /空っぽ料理 評価なし/);
   },
   async 'youchan-battle'(p) {
     await p.locator('button[onclick="startInfinite()"]').click();
@@ -223,7 +275,7 @@ async function mockRankings(context, store = new Map()) {
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, args: ['--no-sandbox', '--enable-unsafe-swiftshader'] });
     for (const width of [390, 1280]) {
-      for (const game of [{ id: 'home', url: 'index.html' }, { id: 'manual', url: 'wiki/index.html' }, { id: 'ranking', url: 'ranking/index.html' }, ...games.map(g => ({ ...g, url: `games/${g.id}/index.html` }))]) {
+      for (const game of targets) {
         const context = await browser.newContext({ viewport: { width, height: 844 }, hasTouch: width === 390 });
         const page = await context.newPage();
         // Software WebGL on CI is slower than a desktop GPU. Keep ordinary
