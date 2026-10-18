@@ -41,6 +41,7 @@
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
      ```
 3. `data/games.json` にゲームの `id`（フォルダ名）・`title`・`emoji`・`description`・`author`・`manual`（説明書のセクションID）を追加。
+   - 一覧はリポジトリへ追加した古い順→新しい順です。新作は配列の末尾へ追加し、既存作品の更新だけでは順番を変えません。同時に追加した作品はそのときの並びを維持します。
    - 専用の選択画面がある場合は `entry` に同じフォルダ内のHTML名を指定できます。3Dゲームセンターの入口一覧はゲーム本体の定義から生成するため、`lobby.html` の生成範囲は直接編集しません。
 4. `wiki/index.html` に同じIDの遊び方セクションを追加。説明書を省く場合は `manual: null` と理由の `manualNote` が必要。
 5. `npm run generate` を実行。トップページ・README・説明書の目次の `GENERATED` 範囲は直接編集しない。
