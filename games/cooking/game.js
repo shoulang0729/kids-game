@@ -1,177 +1,7 @@
-let bowl = [];
-let score = 0;
-let money = 500;
-let currentMission = null;
-let history = [];
-let madeDishes = [];
-
-let unlockedFoods = ["にんじん", "たまご", "塩", "水"];
-
-let shopFoods = [
-  { name: "じゃがいも", emoji: "🥔", price: 100 },
-  { name: "たまねぎ", emoji: "🧅", price: 100 },
-  { name: "肉", emoji: "🥩", price: 200 },
-  { name: "魚", emoji: "🐟", price: 250 },
-  { name: "パン", emoji: "🍞", price: 150 },
-  { name: "チーズ", emoji: "🧀", price: 300 },
-  { name: "トマト", emoji: "🍅", price: 120 },
-  { name: "レタス", emoji: "🥬", price: 120 },
-  { name: "コーン", emoji: "🌽", price: 180 },
-  { name: "ごはん", emoji: "🍚", price: 200 },
-  { name: "めん", emoji: "🍜", price: 250 },
-  { name: "しょうゆ", emoji: "🟤", price: 80 },
-  { name: "ケチャップ", emoji: "🍅", price: 100 },
-  { name: "カレー粉", emoji: "🍛", price: 350 },
-  { name: "きのこ", emoji: "🍄", price: 180 },
-  { name: "えび", emoji: "🦐", price: 300 },
-  { name: "牛乳", emoji: "🥛", price: 160 },
-  { name: "バター", emoji: "🧈", price: 220 },
-  { name: "小麦粉", emoji: "🌾", price: 180 },
-  { name: "砂糖", emoji: "🍬", price: 100 },
-  { name: "りんご", emoji: "🍎", price: 150 },
-  { name: "いちご", emoji: "🍓", price: 180 },
-  { name: "チョコ", emoji: "🍫", price: 250 },
-  { name: "にんにく", emoji: "🧄", price: 120 },
-];
-
-let missions = [
-  {
-    text: "🥗にんじんサラダを作れ！",
-    answer: ["千切りにんじん", "塩", "レタス"],
-    dish: "🥗",
-    success: "にんじんサラダ",
-    reward: 100,
-    rare: false,
-  },
-  {
-    text: "🍳たまご焼きを作れ！",
-    answer: ["焼いたたまご", "塩"],
-    dish: "🍳",
-    success: "たまご焼き",
-    reward: 100,
-    rare: false,
-  },
-  {
-    text: "🍛カレーを作れ！",
-    answer: ["角切りじゃがいも", "みじん切りたまねぎ", "焼いた肉", "水", "カレー粉"],
-    dish: "🍛",
-    success: "カレー",
-    reward: 130,
-    rare: false,
-  },
-  {
-    text: "🍔ハンバーガーを作れ！",
-    answer: ["パン", "焼いた肉", "レタス", "ケチャップ"],
-    dish: "🍔",
-    success: "ハンバーガー",
-    reward: 130,
-    rare: false,
-  },
-  {
-    text: "🍙おにぎりを作れ！",
-    answer: ["ごはん", "塩"],
-    dish: "🍙",
-    success: "おにぎり",
-    reward: 80,
-    rare: false,
-  },
-  {
-    text: "🍣おすしを作れ！",
-    answer: ["ごはん", "切った魚"],
-    dish: "🍣",
-    success: "おすし",
-    reward: 120,
-    rare: false,
-  },
-  {
-    text: "🍜ラーメンを作れ！",
-    answer: ["めん", "水", "しょうゆ"],
-    dish: "🍜",
-    success: "ラーメン",
-    reward: 130,
-    rare: false,
-  },
-  {
-    text: "🥪サンドイッチを作れ！",
-    answer: ["パン", "レタス", "トマト"],
-    dish: "🥪",
-    success: "サンドイッチ",
-    reward: 120,
-    rare: false,
-  },
-  {
-    text: "🍕ピザを作れ！",
-    answer: ["パン", "チーズ", "ケチャップ", "焼いた肉"],
-    dish: "🍕",
-    success: "ピザ",
-    reward: 180,
-    rare: false,
-  },
-  {
-    text: "🍲シチューを作れ！",
-    answer: ["角切りじゃがいも", "にんじん", "焼いた肉", "水", "牛乳"],
-    dish: "🍲",
-    success: "シチュー",
-    reward: 180,
-    rare: false,
-  },
-  {
-    text: "🍝えびパスタを作れ！",
-    answer: ["めん", "えび", "トマト", "にんにく"],
-    dish: "🍝",
-    success: "えびパスタ",
-    reward: 220,
-    rare: false,
-  },
-  {
-    text: "🍄きのこソテーを作れ！",
-    answer: ["きのこ", "バター", "塩"],
-    dish: "🍄",
-    success: "きのこソテー",
-    reward: 160,
-    rare: false,
-  },
-  {
-    text: "🥞パンケーキを作れ！",
-    answer: ["小麦粉", "たまご", "牛乳", "砂糖"],
-    dish: "🥞",
-    success: "パンケーキ",
-    reward: 200,
-    rare: false,
-  },
-  {
-    text: "🥧アップルパイを作れ！",
-    answer: ["りんご", "小麦粉", "バター", "砂糖"],
-    dish: "🥧",
-    success: "アップルパイ",
-    reward: 220,
-    rare: false,
-  },
-  {
-    text: "🍓いちごチョコを作れ！",
-    answer: ["いちご", "チョコ"],
-    dish: "🍓🍫",
-    success: "いちごチョコ",
-    reward: 180,
-    rare: false,
-  },
-  {
-    text: "👑🍛レア！王様カレーを作れ！",
-    answer: ["角切りじゃがいも", "みじん切りたまねぎ", "焼いた肉", "水", "カレー粉", "チーズ"],
-    dish: "👑🍛",
-    success: "王様カレー",
-    reward: 300,
-    rare: true,
-  },
-  {
-    text: "🌈👑超レア！神様のフルコースを作れ！",
-    answer: ["焼いた肉", "チーズ", "トマト", "レタス", "パン", "焼いたたまご", "コーン", "えび"],
-    dish: "🌈👑🍽️",
-    success: "神様のフルコース",
-    reward: 1000,
-    rare: true,
-  },
-];
+const { shopFoods, missions } = CookingData;
+const cookingGame = CookingState.createGame(CookingData);
+const cooking = cookingGame.state;
+let mixTimer;
 
 function toggleMenu() {
   let menu = document.getElementById("menu");
@@ -193,72 +23,59 @@ function showScreen(id) {
 }
 
 function startGame() {
-  bowl = [];
+  clearTimeout(mixTimer);
+  const mission = cookingGame.start();
+  document.querySelector(".bowl").classList.remove("spin");
   updateBowl();
-
-  let possibleMissions = missions.filter((mission) => {
-    return mission.answer.every((item) => canMakeItem(item));
-  });
-
-  if (possibleMissions.length === 0) {
-    currentMission = null;
-    document.getElementById("mission").innerHTML = "🎯ミッション：作れる料理がない！";
-    document.getElementById("message").innerHTML = "🛒ショップで食材を買ってね！";
-    document.getElementById("passBtn").style.display = "none";
-    document.getElementById("nextBtn").style.display = "none";
-    return;
-  }
-
-  let rares = possibleMissions.filter((m) => m.rare);
-  let normals = possibleMissions.filter((m) => !m.rare);
-  let r = Math.random();
-
-  if (r < 0.15 && rares.length > 0) {
-    currentMission = rares[Math.floor(Math.random() * rares.length)];
-  } else {
-    currentMission = normals[Math.floor(Math.random() * normals.length)];
-  }
-
-  document.getElementById("mission").innerHTML = "🎯ミッション：" + currentMission.text;
-
-  let passText = madeDishes.includes(currentMission.success)
-    ? "<br>📖図鑑登録済み！パスできるよ"
-    : "";
-
-  document.getElementById("message").innerHTML =
-    (currentMission.rare ? "✨レアミッション発生！✨" : "食材を選ぼう！") + passText;
-
   document.getElementById("dish").innerHTML = "";
   document.getElementById("dish").classList.remove("perfect");
   document.getElementById("actions").innerHTML = "";
-  document.getElementById("nextBtn").style.display = "none";
-
-  if (madeDishes.includes(currentMission.success)) {
-    document.getElementById("passBtn").style.display = "inline-block";
-  } else {
-    document.getElementById("passBtn").style.display = "none";
-  }
-
-  updateRank();
-  updateFoodButtons();
-  updateShop();
+  document.getElementById("mission").textContent = mission
+    ? "🎯ミッション：" + mission.text
+    : "🎯ミッション：作れる料理がない！";
+  const passText =
+    mission && cooking.madeDishes.includes(mission.success)
+      ? "<br>📖図鑑登録済み！パスできるよ"
+      : "";
+  document.getElementById("message").innerHTML = mission
+    ? (mission.rare ? "✨レアミッション発生！✨" : "食材を選ぼう！") + passText
+    : "🛒ショップで食材を買ってね！";
+  updateProgress();
 }
 
-function canMakeItem(item) {
-  if (item.includes("にんじん")) return unlockedFoods.includes("にんじん");
-  if (item.includes("じゃがいも")) return unlockedFoods.includes("じゃがいも");
-  if (item.includes("たまねぎ")) return unlockedFoods.includes("たまねぎ");
-  if (item.includes("たまご")) return unlockedFoods.includes("たまご");
-  if (item.includes("肉")) return unlockedFoods.includes("肉");
-  if (item.includes("魚")) return unlockedFoods.includes("魚");
-  return unlockedFoods.includes(item);
+function updateControls() {
+  const editable = cooking.phase === "idle" || cooking.phase === "preparing";
+  document
+    .querySelectorAll("#foodButtons button, #actions button, .deleteFoodBtn")
+    .forEach((button) => {
+      button.disabled = !editable;
+    });
+  document.querySelector('button[onclick="mix()"]').disabled =
+    cooking.phase !== "preparing";
+  document.getElementById("nextBtn").style.display =
+    cooking.phase === "finished" ? "inline-block" : "none";
+  document.getElementById("passBtn").style.display =
+    cooking.phase === "preparing" &&
+    cooking.madeDishes.includes(cooking.currentMission.success)
+      ? "inline-block"
+      : "none";
+}
+
+function updateProgress() {
+  updateRank();
+  updateHistory();
+  updateShop();
+  updateBook();
+  updateAchievements();
+  updateFoodButtons();
+  updateControls();
 }
 
 function updateFoodButtons() {
   let area = document.getElementById("foodButtons");
   area.innerHTML = "";
 
-  unlockedFoods.forEach((food) => {
+  cooking.unlockedFoods.forEach((food) => {
     let btn = document.createElement("button");
     btn.innerHTML = getEmoji(food) + food;
     btn.onclick = function () {
@@ -272,20 +89,20 @@ function updateShop() {
   let area = document.getElementById("shopItems");
   if (!area) return;
 
-  document.getElementById("shopMoney").innerHTML = "💰お金：" + money;
+  document.getElementById("shopMoney").innerHTML = "💰お金：" + cooking.money;
   area.innerHTML = "";
 
   shopFoods.forEach((item) => {
     let btn = document.createElement("button");
 
-    if (unlockedFoods.includes(item.name)) {
+    if (cooking.unlockedFoods.includes(item.name)) {
       btn.innerHTML = item.emoji + item.name + " ✅購入済み";
       btn.className = "bought";
       btn.disabled = true;
     } else {
       btn.innerHTML = item.emoji + item.name + " " + item.price + "💰";
       btn.onclick = function () {
-        buyFood(item.name, item.price);
+        buyFood(item.name);
       };
     }
 
@@ -293,23 +110,19 @@ function updateShop() {
   });
 }
 
-function buyFood(food, price) {
-  if (money < price) {
+function buyFood(food) {
+  const result = cookingGame.buyFood(food);
+  if (result === "insufficient") {
     alert("💰お金が足りない！");
     return;
   }
-
-  money -= price;
-  unlockedFoods.push(food);
-
-  updateRank();
-  updateShop();
-  updateFoodButtons();
-
+  if (result !== "purchased") return;
+  updateProgress();
   alert(food + "を買った！食材ボタンが追加された！");
 }
 
 function chooseFood(food) {
+  if (cooking.phase === "mixing" || cooking.phase === "finished") return;
   let actions = document.getElementById("actions");
 
   if (food === "にんじん") {
@@ -360,40 +173,40 @@ function chooseFood(food) {
 
 function getEmoji(food) {
   let emojis = {
-    "にんじん": "🥕",
-    "じゃがいも": "🥔",
-    "たまねぎ": "🧅",
-    "たまご": "🥚",
-    "肉": "🥩",
-    "魚": "🐟",
-    "パン": "🍞",
-    "チーズ": "🧀",
-    "トマト": "🍅",
-    "レタス": "🥬",
-    "コーン": "🌽",
-    "ごはん": "🍚",
-    "めん": "🍜",
-    "水": "💧",
-    "塩": "🧂",
-    "しょうゆ": "🟤",
-    "ケチャップ": "🍅",
-    "カレー粉": "🍛",
-    "きのこ": "🍄",
-    "えび": "🦐",
-    "牛乳": "🥛",
-    "バター": "🧈",
-    "小麦粉": "🌾",
-    "砂糖": "🍬",
-    "りんご": "🍎",
-    "いちご": "🍓",
-    "チョコ": "🍫",
-    "にんにく": "🧄",
+    にんじん: "🥕",
+    じゃがいも: "🥔",
+    たまねぎ: "🧅",
+    たまご: "🥚",
+    肉: "🥩",
+    魚: "🐟",
+    パン: "🍞",
+    チーズ: "🧀",
+    トマト: "🍅",
+    レタス: "🥬",
+    コーン: "🌽",
+    ごはん: "🍚",
+    めん: "🍜",
+    水: "💧",
+    塩: "🧂",
+    しょうゆ: "🟤",
+    ケチャップ: "🍅",
+    カレー粉: "🍛",
+    きのこ: "🍄",
+    えび: "🦐",
+    牛乳: "🥛",
+    バター: "🧈",
+    小麦粉: "🌾",
+    砂糖: "🍬",
+    りんご: "🍎",
+    いちご: "🍓",
+    チョコ: "🍫",
+    にんにく: "🧄",
   };
   return emojis[food] || "🍴";
 }
 
 function addFood(emoji, name) {
-  bowl.push({ emoji: emoji, name: name });
+  if (!cookingGame.addIngredient(emoji, name)) return;
   updateBowl();
   document.getElementById("actions").innerHTML = "";
 }
@@ -402,7 +215,7 @@ function updateBowl() {
   let bowlItems = document.getElementById("bowlItems");
   bowlItems.innerHTML = "";
 
-  bowl.forEach((item, index) => {
+  cooking.bowl.forEach((item, index) => {
     let div = document.createElement("div");
     div.className = "food";
     div.innerHTML = `
@@ -412,163 +225,108 @@ function updateBowl() {
     `;
     bowlItems.appendChild(div);
   });
+  updateControls();
 }
 
 function removeFood(index) {
-  bowl.splice(index, 1);
+  if (!cookingGame.removeIngredient(index)) return;
   updateBowl();
 }
 
 function mix() {
-  if (currentMission === null) {
-    document.getElementById("message").innerHTML = "先にスタートしてね！";
+  const token = cookingGame.beginMix();
+  if (!token) {
+    if (cooking.phase === "idle")
+      document.getElementById("message").textContent = "先にスタートしてね！";
     return;
   }
-
-  let bowlElement = document.querySelector(".bowl");
+  const bowlElement = document.querySelector(".bowl");
   bowlElement.classList.add("spin");
-
-  document.getElementById("message").innerHTML = "🌀まぜまぜまぜ...";
+  document.getElementById("message").textContent = "🌀まぜまぜまぜ...";
   document.getElementById("dish").innerHTML = "";
   document.getElementById("dish").classList.remove("perfect");
-  document.getElementById("passBtn").style.display = "none";
-
-  setTimeout(() => {
+  updateControls();
+  mixTimer = setTimeout(() => {
+    const result = cookingGame.finishMix(token);
+    if (!result) return;
     bowlElement.classList.remove("spin");
-
-    let names = bowl.map((x) => x.name);
-    const judgement = CookingRules.judgeMission(names, currentMission);
-    let { clear, extra } = judgement;
-
-    if (clear) {
-      let stars = "";
-      let starText = "";
-      let point = 0;
-
-      if (extra === 0) {
-        stars = "⭐⭐⭐";
-        starText = "パーフェクト！";
-        point = judgement.point;
-        document.getElementById("dish").classList.add("perfect");
-      } else if (extra === 1) {
-        stars = "⭐⭐";
-        starText = "おしい！";
-        point = judgement.point;
-      } else {
-        stars = "⭐";
-        starText = "なんとか完成！";
-        point = judgement.point;
-      }
-
-      score += point;
-      money += point;
-
-      document.getElementById("message").innerHTML =
-        "🎉ミッション成功！ +" + point + "ポイント＆お金";
-
-      document.getElementById("dish").innerHTML =
-        currentMission.dish +
-        "<br><span style='font-size:35px'>" +
-        currentMission.success +
-        "</span>" +
-        "<br><span style='font-size:35px'>" +
-        stars +
-        "<br>" +
-        starText +
-        "</span>";
-
-      addHistory(currentMission.dish + " " + currentMission.success + " " + stars);
-      addBook(currentMission.success);
-    } else {
-      let madeDish = getMadeDish(names);
-
-      document.getElementById("message").innerHTML = "😵ミッション失敗！変な料理になった！";
-
-      document.getElementById("dish").innerHTML =
-        madeDish.emoji +
-        "<br><span style='font-size:35px'>" +
-        madeDish.name +
-        "</span>" +
-        "<br><span style='font-size:28px'>⭐評価なし</span>";
-
-      addHistory(madeDish.emoji + " " + madeDish.name + " 評価なし");
-    }
-
-    updateRank();
-    updateHistory();
-    updateShop();
-    updateBook();
-    updateAchievements();
-
-    document.getElementById("nextBtn").style.display = "inline-block";
+    showResult(result);
   }, 2000);
 }
 
 function passMission() {
-  if (currentMission === null) {
-    return;
-  }
-
-  if (!madeDishes.includes(currentMission.success)) {
-    document.getElementById("message").innerHTML =
+  const result = cookingGame.pass();
+  if (result) showResult(result);
+  else if (cooking.phase === "preparing")
+    document.getElementById("message").textContent =
       "❌まだ一度も作ったことがない料理はパスできない！";
-    return;
-  }
-
-  let point = Math.floor(currentMission.reward * 0.3);
-
-  score += point;
-  money += point;
-
-  document.getElementById("message").innerHTML = "⏩パス！ +" + point + "ポイント＆お金";
-
-  document.getElementById("dish").innerHTML =
-    currentMission.dish +
-    "<br><span style='font-size:35px'>" +
-    currentMission.success +
-    "</span>" +
-    "<br><span style='font-size:28px'>パス報酬 30%</span>";
-
-  addHistory(currentMission.dish + " " + currentMission.success + " パス");
-
-  updateRank();
-  updateHistory();
-  updateShop();
-  updateBook();
-  updateAchievements();
-
-  document.getElementById("nextBtn").style.display = "inline-block";
-  document.getElementById("passBtn").style.display = "none";
 }
 
-function getMadeDish(names) { return CookingRules.getMadeDish(names); }
+function showResult(result) {
+  let message, rating;
+  if (result.kind === "success") {
+    const starText =
+      result.stars === 3
+        ? "パーフェクト！"
+        : result.stars === 2
+          ? "おしい！"
+          : "なんとか完成！";
+    rating = "⭐".repeat(result.stars) + "<br>" + starText;
+    message = "🎉ミッション成功！ +" + result.point + "ポイント＆お金";
+  } else if (result.kind === "pass") {
+    rating = "パス報酬 30%";
+    message = "⏩パス！ +" + result.point + "ポイント＆お金";
+  } else {
+    rating = "⭐評価なし";
+    message = "😵ミッション失敗！変な料理になった！";
+  }
+  document.getElementById("message").textContent = message;
+  document
+    .getElementById("dish")
+    .classList.toggle("perfect", result.stars === 3);
+  document.getElementById("dish").innerHTML =
+    result.dish.emoji +
+    "<br><span style='font-size:35px'>" +
+    result.dish.name +
+    "</span>" +
+    "<br><span style='font-size:" +
+    (result.kind === "success" ? 35 : 28) +
+    "px'>" +
+    rating +
+    "</span>";
+  updateProgress();
+}
 
 function updateRank() {
-  globalThis.GameRecords?.record("cooking", { points: score });
+  globalThis.GameRecords?.record("cooking", { points: cooking.score });
   document.getElementById("rankBox").innerHTML =
-    "🏆ランク：" + getRank() + "<br>⭐ポイント：" + score + "<br>💰お金：" + money;
+    "🏆ランク：" +
+    getRank() +
+    "<br>⭐ポイント：" +
+    cooking.score +
+    "<br>💰お金：" +
+    cooking.money;
 }
 
-function getRank() { return CookingRules.rankFor(score); }
-
-function addHistory(text) {
-  history.push(text);
-  if (history.length > 6) history.shift();
+function getRank() {
+  return CookingRules.rankFor(cooking.score);
 }
 
 function updateHistory() {
-  if (history.length === 0) {
-    document.getElementById("historyBox").innerHTML = "📖作った料理<br>まだないよ";
-    return;
-  }
-
-  document.getElementById("historyBox").innerHTML = "📖作った料理<br>" + history.join("<br>");
-}
-
-function addBook(name) {
-  if (!madeDishes.includes(name)) {
-    madeDishes.push(name);
-  }
+  const rows = cooking.history.map(
+    (result) =>
+      result.dish.emoji +
+      " " +
+      result.dish.name +
+      " " +
+      (result.kind === "success"
+        ? "⭐".repeat(result.stars)
+        : result.kind === "pass"
+          ? "パス"
+          : "評価なし"),
+  );
+  document.getElementById("historyBox").innerHTML =
+    "📖作った料理<br>" + (rows.length ? rows.join("<br>") : "まだないよ");
 }
 
 function updateBook() {
@@ -578,7 +336,7 @@ function updateBook() {
   let html = "";
 
   missions.forEach((m) => {
-    if (madeDishes.includes(m.success)) {
+    if (cooking.madeDishes.includes(m.success)) {
       html += m.dish + " " + m.success + " ✅<br>";
     } else {
       html += "？？？<br>";
@@ -594,17 +352,20 @@ function updateAchievements() {
 
   let text = "";
 
-  text += score >= 100 ? "✅ 初めてのシェフ<br>" : "🔒 初めてのシェフ<br>";
-  text += score >= 300 ? "✅ 一流への道<br>" : "🔒 一流への道<br>";
-  text += score >= 1000 ? "✅ 伝説の料理王<br>" : "🔒 伝説の料理王<br>";
-  text += madeDishes.length >= 5 ? "✅ 料理コレクター<br>" : "🔒 料理コレクター<br>";
-  text += unlockedFoods.length >= 10 ? "✅ 食材マスター<br>" : "🔒 食材マスター<br>";
+  text +=
+    cooking.score >= 100 ? "✅ 初めてのシェフ<br>" : "🔒 初めてのシェフ<br>";
+  text += cooking.score >= 300 ? "✅ 一流への道<br>" : "🔒 一流への道<br>";
+  text += cooking.score >= 1000 ? "✅ 伝説の料理王<br>" : "🔒 伝説の料理王<br>";
+  text +=
+    cooking.madeDishes.length >= 5
+      ? "✅ 料理コレクター<br>"
+      : "🔒 料理コレクター<br>";
+  text +=
+    cooking.unlockedFoods.length >= 10
+      ? "✅ 食材マスター<br>"
+      : "🔒 食材マスター<br>";
 
   box.innerHTML = text;
 }
 
-updateRank();
-updateFoodButtons();
-updateShop();
-updateBook();
-updateAchievements();
+updateProgress();
