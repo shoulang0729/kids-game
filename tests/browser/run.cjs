@@ -26,22 +26,28 @@ const server = http.createServer((req, res) => {
 const scenarios = {
   async ranking(p) {
     const base = new URL('../', p.url()).href;
+    assert.ok(await p.locator('#profile-panel').isVisible());
+    assert.ok(await p.locator('#board-panel').isHidden());
+    assert.equal(await p.locator('#game').count(), 0);
     // First-time play must survive navigation before a ranking name is registered.
     await p.goto(base + 'games/planet-smash/index.html');
     await p.evaluate(() => damagePlanet(planet.hp, 350, 200));
     await p.reload();
     await p.goto(base + 'ranking/index.html?game=planet-smash');
     assert.equal(await p.evaluate(() => GameRecords.profile().pending), 1);
-    p.context().rankingReadDelay = 150; // Exercise a slower board refresh after POST.
+    assert.ok(await p.locator('#profile-panel').isHidden());
+    await p.click('#profile-link');
     await p.fill('#name', 'テスト');
     await p.click('#save');
     await p.waitForFunction(() => document.querySelector('#status').textContent.includes('送信が完了'));
-    await p.waitForFunction(() => document.querySelector('#own').textContent.includes('1個'));
-    p.context().rankingReadDelay = 0;
     await p.locator('summary').click();
     await p.click('#show-code');
     const code = await p.locator('#code').innerText();
     assert.match(code, /^[a-f0-9]{64}$/);
+    p.context().rankingReadDelay = 150;
+    await p.click('#return-link');
+    await p.waitForFunction(() => document.querySelector('#own').textContent.includes('1個'));
+    p.context().rankingReadDelay = 0;
     await p.goto(base + 'games/tap-circle/index.html');
     p.context().rankingsWritable = false;
     await p.clock.install();
@@ -50,10 +56,13 @@ const scenarios = {
     await p.clock.fastForward(20100);
     await p.evaluate(() => globalThis.GameRecords.flush().catch(() => {}));
     await p.goto(base + 'ranking/index.html?game=tap-circle');
+    await p.click('#profile-link');
     await p.click('#retry');
     await p.waitForFunction(() => document.querySelector('#status').textContent.includes('送れませんでした'));
     p.context().rankingsWritable = true;
     await p.click('#retry');
+    await p.waitForFunction(() => document.querySelector('#status').textContent.includes('送信が完了'));
+    await p.click('#return-link');
     await p.waitForFunction(() => document.querySelector('#own').textContent.includes('1点'));
     assert.match(await p.locator('#rows').innerText(), /テスト/);
     assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
@@ -63,13 +72,50 @@ const scenarios = {
       await mockRankings(second, p.context().rankingStore);
       const device = await second.newPage();
       await device.goto(base + 'ranking/index.html?game=tap-circle');
+      await device.click('#profile-link');
       await device.fill('#name', 'テスト');
       await device.locator('details').evaluate(e => { e.open = true; });
       await device.fill('#import-code', code);
       await device.click('#import');
+      await device.waitForFunction(() => document.querySelector('#status').textContent.includes('送信が完了'));
+      await device.click('#return-link');
       await device.waitForFunction(() => document.querySelector('#own').textContent.includes('1点'));
       assert.equal(await device.locator('#rows tr').count(), 1);
     } finally { await second.close(); }
+    for (const g of games.filter(g => g.id !== 'online-demo')) {
+      await p.goto(base + `ranking/index.html?game=${g.id}`);
+      await p.waitForFunction(() => !document.querySelector('#board-panel').hidden);
+      assert.equal(await p.locator('#page-title').innerText(), `${g.emoji} ${g.title}のランキング`);
+      assert.ok(await p.locator('#profile-panel').isHidden());
+      assert.equal(await p.locator('#game').count(), 0);
+      assert.equal(await p.locator('#play-link').getAttribute('href'), `../games/${g.id}/${g.entry || 'index.html'}`);
+    }
+    await p.goto(base + 'ranking/index.html?game=online-demo');
+    await p.waitForFunction(() => document.querySelector('#page-title').textContent === 'ゲームが見つかりません');
+    assert.ok(await p.locator('#board-panel').isHidden());
+    // Settings and return navigation must retain the validated local API override.
+    await mockRankings(p.context(), p.context().rankingStore, 'http://localhost:8787');
+    const requests = [];
+    const collect = r => { if (r.url().includes('/rankings/')) requests.push({url:r.url(),method:r.method()}); };
+    p.on('request', collect);
+    await p.goto(base + 'ranking/index.html?game=snake&server=localhost:8787');
+    await p.evaluate(() => GameRecords.record('snake', {score:60}));
+    await p.click('#profile-link');
+    assert.equal(new URL(p.url()).searchParams.get('server'), 'localhost:8787');
+    await p.fill('#name', 'ローカル');
+    await p.click('#save');
+    await p.waitForFunction(() => document.querySelector('#status').textContent.includes('送信が完了'));
+    await p.click('#return-link');
+    assert.equal(new URL(p.url()).searchParams.get('server'), 'localhost:8787');
+    await p.waitForFunction(() => document.querySelector('#own').textContent.includes('60点'));
+    assert.equal(new URL(await p.locator('#play-link').getAttribute('href'),p.url()).searchParams.get('server'), 'localhost:8787');
+    assert.ok(requests.some(r=>r.method==='POST'));
+    assert.ok(requests.every(r=>r.url.startsWith('http://localhost:8787/')), 'local test must not contact the production API');
+    p.off('request', collect);
+    await p.goto(base+'ranking/index.html?return=snake&server=example.com');
+    await p.waitForFunction(()=>!document.querySelector('#settings').disabled);
+    assert.equal(await p.locator('#return-link').getAttribute('href'),'index.html?game=snake');
+
   },
   async 'tap-circle'(p) {
     await p.clock.install();
@@ -438,9 +484,9 @@ const scenarios = {
   }
 };
 
-async function mockRankings(context, store = new Map()) {
+async function mockRankings(context, store = new Map(), api = 'https://tomiyoko-online.shoulang.workers.dev') {
   context.rankingStore = store;
-  await context.route('https://tomiyoko-online.shoulang.workers.dev/rankings/**', async route => {
+  await context.route(api + '/rankings/**', async route => {
     const request = route.request(), url = new URL(request.url()), game = url.pathname.split('/').pop();
     const code = request.headers().authorization || '';
     if (request.method() === 'POST') {
@@ -484,18 +530,26 @@ async function mockRankings(context, store = new Map()) {
           if (game.id === 'home') {
             assert.equal(await page.locator('#grid .card').count(), games.length);
             assert.deepEqual(await page.locator('#grid h2').allTextContents(), games.map(g => g.title));
-            assert.deepEqual(await page.locator('#grid .card').evaluateAll(cards => cards.map(c => c.getAttribute('href'))), games.map(g => `games/${g.id}/${g.entry || 'index.html'}`));
+            assert.deepEqual(await page.locator('#grid .play-link').evaluateAll(links => links.map(a => a.getAttribute('href'))), games.map(g => `games/${g.id}/${g.entry || 'index.html'}`));
+            assert.deepEqual(await page.locator('#grid .game-manual').evaluateAll(links => links.map(a => a.getAttribute('href'))), games.map(g => `wiki/index.html#${g.manual}`));
+            assert.deepEqual(await page.locator('#grid .game-ranking').evaluateAll(links => links.map(a => a.getAttribute('href'))), games.filter(g => g.id !== 'online-demo').map(g => `ranking/index.html?game=${g.id}`));
             assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
             // Navigation must work with scripts disabled as well.
             const noJS = await browser.newContext({ javaScriptEnabled: false });
             const fallback = await noJS.newPage(); await fallback.goto(base);
-            assert.equal(await fallback.locator('#grid a').count(), games.length); await noJS.close();
+            assert.equal(await fallback.locator('#grid .play-link').count(), games.length); await noJS.close();
           } else if (game.id === 'manual') {
             for (const g of games.filter(g => g.manual)) assert.equal(await page.locator(`section#${g.manual}`).count(), 1);
             assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
           } else {
             assert.ok(scenarios[game.id], `missing scenario for ${game.id}`);
             await scenarios[game.id](page);
+          }
+          if (games.some(g => g.id === game.id)) {
+            assert.equal(await page.locator('.game-page-links .game-manual').first().getAttribute('href'), `../../wiki/index.html#${game.manual}`);
+            const links = await page.locator('.game-page-links .game-ranking').evaluateAll(a => a.map(e => e.getAttribute('href')));
+            assert.equal(links.length > 0, game.id !== 'online-demo');
+            assert.ok(links.every(href => href === `../../ranking/index.html?game=${game.id}`));
           }
           // Observe several real rendering frames, not only synchronous initialization.
           await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
