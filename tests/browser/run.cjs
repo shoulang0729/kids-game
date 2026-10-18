@@ -32,10 +32,12 @@ const scenarios = {
     await p.reload();
     await p.goto(base + 'ranking/index.html?game=planet-smash');
     assert.equal(await p.evaluate(() => GameRecords.profile().pending), 1);
+    p.context().rankingReadDelay = 150; // Exercise a slower board refresh after POST.
     await p.fill('#name', 'テスト');
     await p.click('#save');
     await p.waitForFunction(() => document.querySelector('#status').textContent.includes('送信が完了'));
-    assert.match(await p.locator('#own').innerText(), /1個/);
+    await p.waitForFunction(() => document.querySelector('#own').textContent.includes('1個'));
+    p.context().rankingReadDelay = 0;
     await p.locator('summary').click();
     await p.click('#show-code');
     const code = await p.locator('#code').innerText();
@@ -450,6 +452,7 @@ async function mockRankings(context, store = new Map()) {
       }
       return route.fulfill({json:{saved:true}});
     }
+    if (context.rankingReadDelay) await new Promise(resolve => setTimeout(resolve, context.rankingReadDelay));
     const metric = url.searchParams.get('metric') || 'score';
     const rows = [...store.values()].filter(r => r.game === game && r.metric === metric).sort((a,b) => b.score-a.score);
     return route.fulfill({json:{rows,own:rows.find(r => r.code === code) || null}});
