@@ -393,6 +393,9 @@ function bossTransform() {
 }
 
 function winBattle() {
+  const metric = mode === "story" ? "story" : mode === "defense" ? "defense" : "infinite";
+  const value = mode === "story" ? (currentNode === 7 && bossPhase < 3 ? 6 : currentNode) : mode === "defense" ? defenseWave : infiniteLevel;
+  globalThis.GameRecords?.record("youchan-battle", { [metric]: value });
   battleEnded = true;
 
   addExp(50);

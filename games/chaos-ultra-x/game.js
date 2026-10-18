@@ -663,6 +663,7 @@ function hurt(v) {
   }
 }
 function gameOver() {
+  globalThis.GameRecords?.record("chaos-ultra-x", { kills, wave });
   state = "over";
   best = Math.max(best, kills);
   try {

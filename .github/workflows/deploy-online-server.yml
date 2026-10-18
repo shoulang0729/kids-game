@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - "online-server/**"
+      - "shared/leaderboard-policy.mjs"
       - ".github/workflows/deploy-online-server.yml"
   workflow_dispatch:
 

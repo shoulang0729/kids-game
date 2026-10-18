@@ -21,6 +21,44 @@ const server = http.createServer((req, res) => {
 // Test user-observable transitions first; state assertions check that actions really
 // change the game, instead of merely hiding a start screen.
 const scenarios = {
+  async ranking(p) {
+    await p.fill('#name', 'テスト');
+    await p.click('#save');
+    await p.waitForFunction(() => document.querySelector('#status').textContent.includes('送信が完了'));
+    await p.locator('summary').click();
+    await p.click('#show-code');
+    const code = await p.locator('#code').innerText();
+    assert.match(code, /^[a-f0-9]{64}$/);
+    const base = new URL('../', p.url()).href;
+    await p.goto(base + 'games/tap-circle/index.html');
+    p.context().rankingsWritable = false;
+    await p.clock.install();
+    await p.click('#start');
+    await p.locator('#target').dispatchEvent('pointerdown', { pointerId: 1 });
+    await p.clock.fastForward(20100);
+    await p.evaluate(() => globalThis.GameRecords.flush().catch(() => {}));
+    await p.goto(base + 'ranking/index.html?game=tap-circle');
+    await p.click('#retry');
+    await p.waitForFunction(() => document.querySelector('#status').textContent.includes('送れませんでした'));
+    p.context().rankingsWritable = true;
+    await p.click('#retry');
+    await p.waitForFunction(() => document.querySelector('#own').textContent.includes('1点'));
+    assert.match(await p.locator('#rows').innerText(), /テスト/);
+    assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+    // A fresh browser context has no localStorage: import the code there.
+    const second = await p.context().browser().newContext();
+    try {
+      await mockRankings(second, p.context().rankingStore);
+      const device = await second.newPage();
+      await device.goto(base + 'ranking/index.html?game=tap-circle');
+      await device.fill('#name', 'テスト');
+      await device.locator('details').evaluate(e => { e.open = true; });
+      await device.fill('#import-code', code);
+      await device.click('#import');
+      await device.waitForFunction(() => document.querySelector('#own').textContent.includes('1点'));
+      assert.equal(await device.locator('#rows tr').count(), 1);
+    } finally { await second.close(); }
+  },
   async 'tap-circle'(p) {
     await p.clock.install();
     await p.click('#start');
@@ -142,6 +180,26 @@ const scenarios = {
   }
 };
 
+async function mockRankings(context, store = new Map()) {
+  context.rankingStore = store;
+  await context.route('https://tomiyoko-online.shoulang.workers.dev/rankings/**', async route => {
+    const request = route.request(), url = new URL(request.url()), game = url.pathname.split('/').pop();
+    const code = request.headers().authorization || '';
+    if (request.method() === 'POST') {
+      if (context.rankingsWritable === false) return route.fulfill({status:503,json:{error:'offline test'}});
+      const {name,scores} = request.postDataJSON();
+      for (const [metric,score] of Object.entries(scores)) {
+        const key = `${game}/${metric}/${code}`, old = store.get(key);
+        store.set(key, {code,name,score:Math.max(old?.score || 0,score),game,metric});
+      }
+      return route.fulfill({json:{saved:true}});
+    }
+    const metric = url.searchParams.get('metric') || 'score';
+    const rows = [...store.values()].filter(r => r.game === game && r.metric === metric).sort((a,b) => b.score-a.score);
+    return route.fulfill({json:{rows,own:rows.find(r => r.code === code) || null}});
+  });
+}
+
 (async () => {
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const base = `http://127.0.0.1:${server.address().port}/kids-game/`;
@@ -150,7 +208,7 @@ const scenarios = {
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, args: ['--no-sandbox', '--enable-unsafe-swiftshader'] });
     for (const width of [390, 1280]) {
-      for (const game of [{ id: 'home', url: 'index.html' }, { id: 'manual', url: 'wiki/index.html' }, ...games.map(g => ({ ...g, url: `games/${g.id}/index.html` }))]) {
+      for (const game of [{ id: 'home', url: 'index.html' }, { id: 'manual', url: 'wiki/index.html' }, { id: 'ranking', url: 'ranking/index.html' }, ...games.map(g => ({ ...g, url: `games/${g.id}/index.html` }))]) {
         const context = await browser.newContext({ viewport: { width, height: 844 }, hasTouch: width === 390 });
         const page = await context.newPage();
         // Software WebGL on CI is slower than a desktop GPU. Keep ordinary
@@ -160,7 +218,8 @@ const scenarios = {
         page.on('pageerror', e => errors.push(e.message));
         page.on('response', r => { if (r.url().startsWith(base) && r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
         page.on('requestfailed', r => { if (r.url().startsWith(base)) errors.push(`${r.failure()?.errorText} ${r.url()}`); });
-        await page.route('**/*', route => route.request().url().startsWith(base) ? route.continue() : route.abort());
+        await context.route('**/*', route => route.request().url().startsWith(base) ? route.continue() : route.abort());
+        if (game.id === 'ranking') await mockRankings(context);
         try {
           await page.goto(base + game.url, { waitUntil: 'load' });
           if (game.id === 'home') {

@@ -399,6 +399,7 @@ function damagePlanet(dmg, tx, ty) {
 }
 
 function clearStage() {
+  globalThis.GameRecords?.record("planet-smash", { stages: stage + 1 });
   clearAllPoison();
   if (stage >= stages.length - 1) {
     cleared = true;

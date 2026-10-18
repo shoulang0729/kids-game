@@ -4,7 +4,8 @@
   "description": "とみよこゲームランドのオンラインサーバー（Cloudflare Workers + Durable Objects）",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "test": "wrangler deploy --dry-run --outdir .wrangler/test-bundle && node test/leaderboard.cjs"
   },
   "devDependencies": {
     "wrangler": "^4.147.0"

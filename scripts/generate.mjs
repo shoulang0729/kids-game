@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { RANKINGS } from '../shared/leaderboard-policy.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const games = JSON.parse(readFileSync(path.join(root, 'data/games.json'), 'utf8'));
@@ -40,6 +41,7 @@ ${games.map(g => `| ${cell(g.emoji)} ${cell(g.title)} | ${cell(g.description)} |
 
 update('README.md', 'tree', '```\nkids-game/\n├── index.html ← 入り口ページ（生成）\n├── games/\n' +
   games.map((g, i) => `│   ${i === games.length - 1 ? '└' : '├'}── ${g.id}/index.html ← ${g.title}`).join('\n') +
-  '\n├── data/games.json ← ゲーム情報の正本\n├── wiki/index.html ← せつめいしょ（目次を生成）\n├── assets/ ← アイコン画像\n├── online-server/ ← オンライン対戦サーバー\n├── scripts/ ← 生成・整合性検査\n├── tests/ ← ブラウザ・ゲームの回帰テスト\n├── docs/refactoring.md ← 段階的な整理の計画\n├── .github/workflows/ ← PR検査・オンラインサーバーの公開\n├── package.json ← 開発用コマンド\n├── CONTRIBUTING.md ← 修正・追加・PRのルール\n└── README.md\n```');
+  '\n├── data/games.json ← ゲーム情報の正本\n├── wiki/index.html ← せつめいしょ（目次を生成）\n├── ranking/ ← ランキング・記録の引継ぎ\n├── shared/ ← 共通の記録保存・ランキング方針\n├── assets/ ← アイコン画像\n├── online-server/ ← オンライン対戦・ランキングサーバー\n├── scripts/ ← 生成・整合性検査\n├── tests/ ← ブラウザ・ゲームの回帰テスト\n├── docs/refactoring.md ← 段階的な整理の計画\n├── .github/workflows/ ← PR検査・オンラインサーバーの公開\n├── package.json ← 開発用コマンド\n├── CONTRIBUTING.md ← 修正・追加・PRのルール\n└── README.md\n```');
 update('wiki/index.html', 'navigation', games.filter(g => g.manual).map(g => `<a href="#${escape(g.manual)}">${escape(g.emoji)} ${escape(g.title)}</a>`).join('\n'));
+update('README.md', 'rankings', '| ゲーム | 記録 |\n|---|---|\n' + games.filter(g => RANKINGS[g.id]).map(g => `| ${cell(g.title)} | ${Object.values(RANKINGS[g.id]).map(m => cell(m.label)).join('・')} |`).join('\n'));
 console.log(check ? 'PASS: generated catalog is up to date' : 'Generated homepage, README and manual navigation');

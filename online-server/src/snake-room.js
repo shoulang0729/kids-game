@@ -5,6 +5,7 @@
 
 import { DurableObject } from "cloudflare:workers";
 import { Game, TICK_MS, COLORS, TOTAL_SNAKES } from "./snake/game.js";
+import { playerId } from './leaderboard.js';
 
 const MAX_HUMANS = 4;
 const COUNTDOWN_MS = 3000;
@@ -26,7 +27,11 @@ export class SnakeRoom extends DurableObject {
     this.hostId = null;
     this.settings = { ...DEFAULT_SETTINGS };
     this.phase = "lobby";
-    this.tally = {};            // 名前 -> 優勝回数
+    this.sql = ctx.storage.sql;
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS room_wins(name TEXT PRIMARY KEY, wins INTEGER NOT NULL);
+      CREATE TABLE IF NOT EXISTS ranking_outbox(id TEXT PRIMARY KEY, payload TEXT NOT NULL);`);
+    this.tally = Object.assign(Object.create(null), Object.fromEntries(this.sql.exec('SELECT name,wins FROM room_wins').toArray().map(r => [r.name, r.wins])));
+    if (this.sql.exec('SELECT id FROM ranking_outbox LIMIT 1').toArray().length) ctx.waitUntil(ctx.storage.setAlarm(Date.now() + 1000));
     this.game = null;
     this.loop = null;
     this.countdownTimer = null;
@@ -90,6 +95,15 @@ export class SnakeRoom extends DurableObject {
     const isHost = client.id === this.hostId;
 
     switch (m.t) {
+      case 'profile':
+        if (this.phase !== 'lobby') return;
+        this.ctx.waitUntil(playerId(m.code).then(id => {
+          if (id && this.phase === 'lobby' && this.clients.includes(client)) {
+            client.profileId = id;
+            this.send(client, { t: 'profile', saved: true });
+          }
+        }));
+        return;
       case "in":
         if (this.phase === "playing" && client.playing) this.game.input(client.id, Number(m.a), m.b);
         return;
@@ -145,6 +159,8 @@ export class SnakeRoom extends DurableObject {
   // ---------- ゲーム ----------
 
   startGame() {
+    this.matchId = crypto.randomUUID();
+    this.matchProfiles = new Map(this.clients.map(c => [c.id, c.profileId]));
     const players = this.clients.map((c) => ({ id: c.id, name: c.name, color: c.color }));
     for (const c of this.clients) c.playing = true;
     this.game = new Game({ ...this.settings }, players);
@@ -177,12 +193,18 @@ export class SnakeRoom extends DurableObject {
   }
 
   endGame() {
+    if (!this.game) return;
     const results = this.game.results();
     const winner = results.rows[0];
-    if (winner) {
-      const key = winner.cpu ? "🤖 CPU" : winner.name;
-      this.tally[key] = (this.tally[key] ?? 0) + 1;
-    }
+    const rows = results.rows.filter(r => !r.cpu && this.matchProfiles.get(r.id)).map(r => ({
+      player: this.matchProfiles.get(r.id), name: r.name, meters: r.maxMeters, winner: r === winner,
+    }));
+    this.ctx.storage.transactionSync(() => {
+      if (winner) this.sql.exec('INSERT INTO room_wins VALUES(?,1) ON CONFLICT(name) DO UPDATE SET wins=wins+1', winner.cpu ? '🤖 CPU' : winner.name);
+      if (rows.length) this.sql.exec('INSERT OR IGNORE INTO ranking_outbox VALUES(?,?)', this.matchId, JSON.stringify(rows));
+    });
+    this.tally = Object.assign(Object.create(null), Object.fromEntries(this.sql.exec('SELECT name,wins FROM room_wins').toArray().map(r => [r.name, r.wins])));
+    if (rows.length) this.ctx.waitUntil(this.ctx.storage.setAlarm(Date.now() + 1000));
     this.stopGame();
     this.phase = "lobby";
     for (const c of this.clients) {
@@ -191,6 +213,20 @@ export class SnakeRoom extends DurableObject {
     }
     this.broadcast({ t: "end", results, tally: this.tally });
     this.broadcastLobby();
+  }
+
+  // Durable outbox: a server restart or an interrupted RPC must not lose a win
+  // or count the same match twice. The destination deduplicates by match ID.
+  async alarm() {
+    try {
+      const board = this.env.LEADERBOARDS.get(this.env.LEADERBOARDS.idFromName('snake-battle-online'));
+      for (const row of this.sql.exec('SELECT id,payload FROM ranking_outbox LIMIT 10').toArray()) {
+        await board.recordMatch(row.id, JSON.parse(row.payload));
+        this.sql.exec('DELETE FROM ranking_outbox WHERE id=?', row.id);
+      }
+    } finally {
+      if (this.sql.exec('SELECT id FROM ranking_outbox LIMIT 1').toArray().length) await this.ctx.storage.setAlarm(Date.now() + 10000);
+    }
   }
 
   stopGame() {

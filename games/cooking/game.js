@@ -568,6 +568,7 @@ function getMadeDish(names) {
 }
 
 function updateRank() {
+  globalThis.GameRecords?.record("cooking", { points: score });
   document.getElementById("rankBox").innerHTML =
     "🏆ランク：" + getRank() + "<br>⭐ポイント：" + score + "<br>💰お金：" + money;
 }
