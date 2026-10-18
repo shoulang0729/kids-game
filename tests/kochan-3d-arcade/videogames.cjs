@@ -1,6 +1,5 @@
-// Validate the exact inline scripts shipped in the standalone game HTML.
-const arcadeHTML=require('fs').readFileSync(require('path').join(__dirname,'../../games/kochan-3d-arcade/index.html'),'utf8');
-function readSource(name){const prefix='<script data-source="'+name+'">\n',start=arcadeHTML.indexOf(prefix);if(start<0)throw Error('Missing source '+name);const end=arcadeHTML.indexOf('\n</script>',start);if(end<0)throw Error('Missing script end');return arcadeHTML.slice(start+prefix.length,end)}
+// Validate the scripts actually loaded by the shipped game page.
+const readSource = require('./read-source.cjs');
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
 const sb={window:{},Math,console};vm.createContext(sb);vm.runInContext(readSource("videogames.js"),sb);const api=sb.window.ArcadeVideo;
 const ctx=new Proxy({},{get(t,p){if(p==='createLinearGradient'||p==='createRadialGradient')return ()=>({addColorStop(){}});return p in t?t[p]:(...args)=>{for(const v of args)if(typeof v==='number')assert(Number.isFinite(v),'nonfinite canvas '+p)}},set(t,p,v){t[p]=v;return true}});

@@ -1,0 +1,622 @@
+let playerMaxHp = 150;
+let playerHp = 150;
+
+let enemyMaxHp = 100;
+let enemyHp = 100;
+
+let baseMaxHp = 1000;
+let baseHp = 1000;
+
+let enemyAttackPower = 15;
+
+let currentNode = 1;
+
+let infiniteLevel = 1;
+
+let defenseWave = 1;
+
+let coins = 0;
+
+let robots = 0;
+
+let cannons = 0;
+
+let attackBoost = 0;
+
+let mode = "";
+
+let bossPhase = 1;
+
+let level = 1;
+
+let exp = 0;
+
+let nextExp = 100;
+
+let defending = false;
+
+let battleEnded = false;
+
+let currentWeapon = {
+  name: "🗡️ 木の剣",
+  bonus: 0,
+};
+
+let cooldowns = {
+  attack: 0,
+  fire: 0,
+  thunder: 0,
+  heal: 0,
+  ultimate: 0,
+};
+
+const skills = {
+  attack: {
+    name: "⚔️ 攻撃",
+    damage: [14, 24],
+    cooldown: 0,
+  },
+
+  fire: {
+    name: "🔥 ファイヤー",
+    damage: [28, 45],
+    cooldown: 2,
+  },
+
+  thunder: {
+    name: "⚡ サンダー",
+    damage: [45, 68],
+    cooldown: 3,
+  },
+
+  heal: {
+    name: "💚 回復",
+    heal: 45,
+    cooldown: 3,
+  },
+
+  ultimate: {
+    name: "🌈 必殺技",
+    damage: [90, 130],
+    cooldown: 5,
+  },
+};
+
+showSelect();
+
+function hideAll() {
+  document.querySelectorAll(".screen").forEach((screen) => {
+    screen.style.display = "none";
+  });
+}
+
+function showSelect() {
+  hideAll();
+
+  document.getElementById("selectScreen").style.display = "block";
+}
+
+function showStoryMap() {
+  hideAll();
+
+  document.getElementById("mapScreen").style.display = "block";
+}
+
+function enterNode(node) {
+  currentNode = node;
+
+  if (node === 2) {
+    playerMaxHp += 20;
+
+    coins += 200;
+
+    alert("🎁 HPアップ！");
+
+    return;
+  }
+
+  if (node === 4) {
+    playerHp = playerMaxHp;
+
+    coins += 300;
+
+    alert("💚 全回復！");
+
+    return;
+  }
+
+  startStoryBattle(node);
+}
+
+function enemySetup(hp, attack, emoji, title) {
+  enemyMaxHp = hp;
+
+  enemyHp = hp;
+
+  enemyAttackPower = attack;
+
+  document.getElementById("enemy").innerText = emoji;
+
+  document.getElementById("title").innerText = title;
+}
+
+function startStoryBattle(node) {
+  mode = "story";
+
+  playerHp = playerMaxHp;
+
+  bossPhase = 1;
+
+  baseArea(false);
+
+  resetCooldowns();
+
+  if (node === 1) {
+    enemySetup(140, 16, "👾", "🌲 森");
+  }
+
+  if (node === 3) {
+    enemySetup(230, 22, "💀", "🕳️ 洞窟");
+  }
+
+  if (node === 5) {
+    enemySetup(280, 24, "👹", "🌋 火山鬼");
+  }
+
+  if (node === 6) {
+    enemySetup(320, 27, "🐉", "🏰 ドラゴン");
+  }
+
+  if (node === 7) {
+    enemySetup(340, 25, "👑", "🌌 宇宙魔王");
+  }
+
+  startBattle();
+}
+
+function startInfinite() {
+  mode = "infinite";
+
+  infiniteLevel = 1;
+
+  playerHp = playerMaxHp;
+
+  baseArea(false);
+
+  enemySetup(120, 18, "👾", "♾️ 無限モード");
+
+  startBattle();
+}
+
+function startDefense() {
+  mode = "defense";
+
+  defenseWave = 1;
+
+  baseHp = baseMaxHp;
+
+  playerHp = playerMaxHp;
+
+  baseArea(true);
+
+  startDefenseWave();
+}
+
+function startDefenseWave() {
+  enemySetup(
+    120 + defenseWave * 25,
+    12 + defenseWave * 2,
+    defenseWave === 50 ? "👑" : "👾",
+    "🏰 防衛",
+  );
+
+  document.getElementById("waveText").innerText = "🌊 Wave " + defenseWave + " / 50";
+
+  startBattle();
+}
+
+function startBattle() {
+  battleEnded = false;
+
+  hideAll();
+
+  document.getElementById("battleScreen").style.display = "block";
+
+  updateBars();
+
+  updateButtons();
+
+  updateCoins();
+
+  updateWeapon();
+
+  updateLevel();
+}
+
+function baseArea(show) {
+  document.getElementById("baseArea").style.display = show ? "block" : "none";
+}
+
+function defend() {
+  if (battleEnded) {
+    return;
+  }
+
+  defending = true;
+
+  log("🛡️ 防御！ 次のダメージ半分！");
+
+  enemyTurn();
+
+  reduceCooldowns();
+
+  updateButtons();
+}
+
+function useSkill(skillName) {
+  if (battleEnded) {
+    return;
+  }
+
+  if (cooldowns[skillName] > 0) {
+    log("⏳ クールダウン");
+
+    return;
+  }
+
+  const skill = skills[skillName];
+
+  if (skill.damage) {
+    let autoDamage = robots * 10 + cannons * 20;
+
+    let dmg =
+      random(skill.damage[0], skill.damage[1]) + currentWeapon.bonus + attackBoost + autoDamage;
+
+    if (Math.random() < 0.1) {
+      dmg *= 2;
+
+      log("💥 クリティカル！ " + dmg + "ダメージ！");
+    } else {
+      log(skill.name + " " + dmg + "ダメージ！");
+    }
+
+    enemyHp -= dmg;
+  }
+
+  if (skill.heal) {
+    playerHp += skill.heal;
+
+    if (playerHp > playerMaxHp) {
+      playerHp = playerMaxHp;
+    }
+  }
+
+  cooldowns[skillName] = skill.cooldown;
+
+  if (enemyHp <= 0) {
+    enemyHp = 0;
+
+    winBattle();
+
+    return;
+  }
+
+  enemyTurn();
+
+  reduceCooldowns();
+
+  updateButtons();
+
+  updateBars();
+}
+
+function enemyTurn() {
+  let dmg = random(enemyAttackPower - 5, enemyAttackPower + 7);
+
+  if (defending) {
+    dmg = Math.floor(dmg / 2);
+
+    defending = false;
+  }
+
+  playerHp -= dmg;
+
+  if (mode === "defense") {
+    baseHp -= Math.floor(dmg / 2);
+  }
+
+  if (playerHp < 0) {
+    playerHp = 0;
+  }
+
+  if (baseHp < 0) {
+    baseHp = 0;
+  }
+
+  updateBars();
+
+  if (playerHp <= 0 || baseHp <= 0) {
+    loseBattle();
+  }
+}
+
+function addExp(amount) {
+  exp += amount;
+
+  if (exp >= nextExp) {
+    exp -= nextExp;
+
+    level++;
+
+    nextExp += 100;
+
+    playerMaxHp += 20;
+
+    attackBoost += 5;
+
+    playerHp = playerMaxHp;
+
+    log("🧬 レベルアップ！ Lv." + level);
+  }
+
+  updateLevel();
+}
+
+function bossTransform() {
+  if (bossPhase === 1) {
+    bossPhase = 2;
+
+    enemySetup(500, 35, "👑💀", "真・宇宙魔王");
+
+    battleEnded = false;
+
+    return;
+  }
+
+  if (bossPhase === 2) {
+    bossPhase = 3;
+
+    enemySetup(800, 45, "🔥👑🔥", "GOD宇宙魔王");
+
+    battleEnded = false;
+
+    return;
+  }
+
+  if (bossPhase === 3) {
+    coins += 3000;
+
+    log("🏆 完全クリア！");
+
+    setTimeout(showSelect, 3000);
+  }
+}
+
+function winBattle() {
+  battleEnded = true;
+
+  addExp(50);
+
+  if (mode === "story") {
+    coins += 200;
+
+    if (currentNode === 7) {
+      bossTransform();
+
+      return;
+    }
+
+    log("🏆 勝利！");
+
+    setTimeout(showStoryMap, 1500);
+  }
+
+  if (mode === "infinite") {
+    coins += 100 + infiniteLevel * 30;
+
+    infiniteLevel++;
+
+    enemySetup(
+      120 + infiniteLevel * 80,
+      18 + infiniteLevel * 5,
+      "👾",
+      "♾️ レベル " + infiniteLevel,
+    );
+
+    playerHp = playerMaxHp;
+
+    battleEnded = false;
+  }
+
+  if (mode === "defense") {
+    coins += 50 + defenseWave * 10;
+
+    defenseWave++;
+
+    playerHp = playerMaxHp;
+
+    if (defenseWave > 50) {
+      log("🏆 防衛制覇！");
+
+      setTimeout(showSelect, 3000);
+
+      return;
+    }
+
+    setTimeout(startDefenseWave, 1500);
+  }
+
+  updateCoins();
+
+  updateBars();
+}
+
+function loseBattle() {
+  battleEnded = true;
+
+  log("💀 負けた！");
+
+  setTimeout(showSelect, 2000);
+}
+
+const upgradeCosts = {
+  hp: 100,
+  attack: 100,
+  base: 150,
+  robot: 300,
+  cannon: 500,
+};
+
+function buyUpgrade(type) {
+  const cost = upgradeCosts[type];
+
+  if (coins < cost) {
+    log("💰 コインが足りない！");
+
+    return;
+  }
+
+  coins -= cost;
+
+  if (type === "hp") {
+    playerMaxHp += 20;
+
+    log("❤️ さいだいHPアップ！");
+  }
+
+  if (type === "attack") {
+    attackBoost += 10;
+
+    log("⚔️ こうげき力アップ！");
+  }
+
+  if (type === "base") {
+    baseHp += 200;
+
+    if (baseHp > baseMaxHp) {
+      baseHp = baseMaxHp;
+    }
+
+    log("🏯 基地を回復した！");
+  }
+
+  if (type === "robot") {
+    robots++;
+
+    log("🤖 ロボ兵がなかまになった！");
+  }
+
+  if (type === "cannon") {
+    cannons++;
+
+    log("🔫 砲台をせっちした！");
+  }
+
+  updateCoins();
+
+  updateRobot();
+
+  updateBars();
+}
+
+const weapons = {
+  fire: { cost: 300, name: "🔥 炎ソード", bonus: 15 },
+  thunder: { cost: 700, name: "⚡ 雷神剣", bonus: 30 },
+  cosmo: { cost: 1500, name: "🌌 宇宙剣", bonus: 50 },
+  god: { cost: 5000, name: "👑 GOD剣", bonus: 100 },
+};
+
+function buyWeapon(type) {
+  const w = weapons[type];
+
+  if (coins < w.cost) {
+    log("💰 コインが足りない！");
+
+    return;
+  }
+
+  coins -= w.cost;
+
+  currentWeapon = {
+    name: w.name,
+    bonus: w.bonus,
+  };
+
+  log(w.name + " を手に入れた！");
+
+  updateWeapon();
+
+  updateCoins();
+}
+
+function updateWeapon() {
+  document.getElementById("weaponText").innerText = currentWeapon.name + " +" + currentWeapon.bonus;
+}
+
+function updateCoins() {
+  document.getElementById("coinsText").innerText = coins;
+}
+
+function updateRobot() {
+  document.getElementById("robotText").innerText = robots;
+
+  document.getElementById("cannonText").innerText = cannons;
+}
+
+function updateLevel() {
+  document.getElementById("levelText").innerText = level;
+
+  document.getElementById("expText").innerText = exp;
+
+  document.getElementById("nextExpText").innerText = nextExp;
+}
+
+function resetCooldowns() {
+  for (let key in cooldowns) {
+    cooldowns[key] = 0;
+  }
+}
+
+function reduceCooldowns() {
+  for (let key in cooldowns) {
+    if (cooldowns[key] > 0) {
+      cooldowns[key]--;
+    }
+  }
+}
+
+function updateButtons() {
+  for (let key in cooldowns) {
+    const btn = document.getElementById(key + "Btn");
+
+    const names = {
+      attack: "⚔️ 攻撃",
+
+      fire: "🔥 ファイヤー",
+
+      thunder: "⚡ サンダー",
+
+      heal: "💚 回復",
+
+      ultimate: "🌈 必殺技",
+    };
+
+    btn.innerText = cooldowns[key] > 0 ? names[key] + " " + cooldowns[key] : names[key];
+  }
+}
+
+function updateBars() {
+  document.getElementById("playerBar").style.width = (playerHp / playerMaxHp) * 100 + "%";
+
+  document.getElementById("enemyBar").style.width = (enemyHp / enemyMaxHp) * 100 + "%";
+
+  document.getElementById("baseBar").style.width = (baseHp / baseMaxHp) * 100 + "%";
+}
+
+function log(text) {
+  document.getElementById("log").innerText = text;
+}
+
+function random(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}

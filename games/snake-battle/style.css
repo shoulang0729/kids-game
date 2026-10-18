@@ -1,0 +1,1226 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #07101f;
+  color: #fff;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+body {
+  touch-action: none;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+canvas {
+  display: block;
+}
+
+#game {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  touch-action: none;
+}
+
+/* =====================================================
+   分割線
+===================================================== */
+
+.splitV,
+.splitH {
+  position: fixed;
+  z-index: 12;
+  display: none;
+  background: #ffffff55;
+  box-shadow: 0 0 8px #fff;
+  pointer-events: none;
+}
+
+#splitV {
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  transform: translateX(-1px);
+}
+
+#splitH {
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 3px;
+  transform: translateY(-1px);
+}
+
+/* =====================================================
+   HUD
+===================================================== */
+
+.playerHud {
+  position: fixed;
+  z-index: 30;
+  display: none;
+  pointer-events: none;
+}
+
+.hudRow {
+  display: flex;
+  gap: 5px;
+  align-items: flex-start;
+}
+
+.status {
+  padding: 7px 9px;
+  border-radius: 11px;
+  background: #0b1221e8;
+  border: 2px solid #ffffff22;
+  font-size: 10px;
+  line-height: 1.45;
+  font-weight: 900;
+}
+
+.viewToggle {
+  padding: 7px 8px;
+  border-radius: 10px;
+  border: 2px solid #5bd1ff;
+  background: #103952e8;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 1000;
+  white-space: nowrap;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+#hud1 {
+  left: 8px;
+  top: 8px;
+}
+#hud2 {
+  left: calc(50% + 8px);
+  top: 8px;
+}
+#hud3 {
+  left: 8px;
+  top: calc(50% + 8px);
+}
+#hud4 {
+  left: calc(50% + 8px);
+  top: calc(50% + 8px);
+}
+
+/* =====================================================
+   撃破メッセージ
+===================================================== */
+
+.killMessage {
+  position: fixed;
+  z-index: 70;
+  display: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.8);
+  padding: 11px 15px;
+  border-radius: 18px;
+  border: 3px solid #ffffffbb;
+  background: #e73643ed;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 1000;
+  text-align: center;
+  text-shadow: 0 3px 8px #000;
+  box-shadow: 0 0 18px #ff4d6d88;
+  pointer-events: none;
+  transition: 0.15s;
+}
+
+.killMessage.show {
+  display: block;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+#kill1 {
+  left: 25%;
+  top: 27%;
+}
+#kill2 {
+  left: 75%;
+  top: 27%;
+}
+#kill3 {
+  left: 25%;
+  top: 77%;
+}
+#kill4 {
+  left: 75%;
+  top: 77%;
+}
+
+.onePlayer #kill1 {
+  left: 50%;
+  top: 38%;
+}
+
+.twoPlayer #kill1 {
+  left: 25%;
+  top: 38%;
+}
+
+.twoPlayer #kill2 {
+  left: 75%;
+  top: 38%;
+}
+
+/* =====================================================
+   1位メッセージ
+===================================================== */
+
+.firstPlaceMessage {
+  position: fixed;
+  z-index: 75;
+  display: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.65);
+  padding: 13px 20px;
+  border-radius: 20px;
+  border: 3px solid #fff3a1;
+  background: #d79d12f2;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 1000;
+  text-align: center;
+  text-shadow: 0 3px 8px #000;
+  box-shadow: 0 0 24px #ffd84d99;
+  pointer-events: none;
+  transition: 0.18s;
+}
+
+.firstPlaceMessage.show {
+  display: block;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+#firstPlace1 {
+  left: 25%;
+  top: 38%;
+}
+#firstPlace2 {
+  left: 75%;
+  top: 38%;
+}
+#firstPlace3 {
+  left: 25%;
+  top: 88%;
+}
+#firstPlace4 {
+  left: 75%;
+  top: 88%;
+}
+
+.onePlayer #firstPlace1 {
+  left: 50%;
+  top: 48%;
+}
+
+.twoPlayer #firstPlace1 {
+  left: 25%;
+  top: 48%;
+}
+
+.twoPlayer #firstPlace2 {
+  left: 75%;
+  top: 48%;
+}
+
+/* =====================================================
+   ランキング
+===================================================== */
+
+.ranking {
+  position: fixed;
+  z-index: 24;
+  display: none;
+  width: 200px;
+  max-height: 200px;
+  overflow: hidden;
+  padding: 7px;
+  border-radius: 11px;
+  background: #0b1221e0;
+  border: 2px solid #ffffff22;
+  font-size: 8px;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+#ranking1 {
+  top: 8px;
+  right: calc(50% + 6px);
+}
+#ranking2 {
+  top: 8px;
+  right: 6px;
+}
+#ranking3 {
+  bottom: 8px;
+  right: calc(50% + 6px);
+}
+#ranking4 {
+  bottom: 8px;
+  right: 6px;
+}
+
+.onePlayer #ranking1 {
+  right: 8px;
+}
+
+.playerHighlight {
+  padding: 1px 3px;
+  border-radius: 4px;
+  background: #ffffff16;
+}
+
+.rankingDivider {
+  height: 0;
+  margin: 5px 0;
+  border-top: 2px solid #ffffff55;
+}
+
+/* =====================================================
+   方向
+===================================================== */
+
+.directions {
+  position: fixed;
+  z-index: 25;
+  display: none;
+  gap: 4px;
+  pointer-events: none;
+}
+
+#directions1 {
+  left: 25%;
+  top: 8px;
+  transform: translateX(-50%);
+}
+#directions2 {
+  left: 75%;
+  top: 8px;
+  transform: translateX(-50%);
+}
+#directions3 {
+  left: 25%;
+  top: calc(50% + 8px);
+  transform: translateX(-50%);
+}
+#directions4 {
+  left: 75%;
+  top: calc(50% + 8px);
+  transform: translateX(-50%);
+}
+
+.onePlayer #directions1 {
+  left: 50%;
+}
+
+.directionBox {
+  padding: 5px 7px;
+  border-radius: 15px;
+  background: #0b1221dc;
+  border: 2px solid #ffffff22;
+  font-size: 8px;
+  font-weight: 1000;
+  white-space: nowrap;
+}
+
+.arrow {
+  display: inline-block;
+  font-size: 13px;
+  transform-origin: center;
+}
+
+/* =====================================================
+   MAP
+===================================================== */
+
+.mapBox {
+  position: fixed;
+  z-index: 23;
+  display: none;
+  padding: 4px;
+  border-radius: 10px;
+  background: #0b1221e0;
+  border: 2px solid #ffffff22;
+  pointer-events: none;
+}
+
+.mapTitle {
+  margin-bottom: 2px;
+  text-align: center;
+  font-size: 8px;
+  font-weight: 1000;
+}
+
+.mapCanvas {
+  width: 88px;
+  height: 88px;
+  background: #07101f;
+  border-radius: 7px;
+}
+
+#mapBox1 {
+  right: calc(50% + 6px);
+  bottom: calc(50% + 6px);
+}
+#mapBox2 {
+  right: 6px;
+  bottom: calc(50% + 6px);
+}
+#mapBox3 {
+  right: calc(50% + 6px);
+  bottom: 6px;
+}
+#mapBox4 {
+  right: 6px;
+  bottom: 6px;
+}
+
+.onePlayer #mapBox1 {
+  right: 8px;
+  bottom: 8px;
+}
+
+.twoPlayer #mapBox1,
+.twoPlayer #mapBox2 {
+  bottom: 8px;
+}
+
+/* =====================================================
+   BOOST
+===================================================== */
+
+.boost {
+  position: fixed;
+  z-index: 40;
+  display: none;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  border: 4px solid #ffb52b;
+  background: #ff741c;
+  color: #fff;
+  font-size: 23px;
+  font-weight: 1000;
+  touch-action: none;
+}
+
+.boost.active {
+  transform: scale(0.9);
+  background: #ff3917;
+  box-shadow: 0 0 16px #ff7b25;
+}
+
+#boost1 {
+  left: calc(50% - 168px);
+  top: calc(50% - 78px);
+}
+#boost2 {
+  right: 106px;
+  top: calc(50% - 78px);
+}
+#boost3 {
+  left: calc(50% - 168px);
+  bottom: 18px;
+}
+#boost4 {
+  right: 106px;
+  bottom: 18px;
+}
+
+.onePlayer #boost1 {
+  left: auto;
+  right: 110px;
+  top: auto;
+  bottom: 20px;
+}
+
+.twoPlayer #boost1 {
+  left: auto;
+  right: calc(50% + 108px);
+  top: auto;
+  bottom: 20px;
+}
+
+.twoPlayer #boost2 {
+  right: 108px;
+  top: auto;
+  bottom: 20px;
+}
+
+/* =====================================================
+   STICK
+===================================================== */
+
+.stick {
+  position: fixed;
+  z-index: 41;
+  display: none;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: #15233dcc;
+  border: 3px solid #ffffff44;
+  touch-action: none;
+}
+
+.knob {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffd84d;
+  border: 3px solid #8c7518;
+  pointer-events: none;
+}
+
+#stick1 {
+  left: 14px;
+  top: calc(50% - 108px);
+}
+#stick2 {
+  left: calc(50% + 14px);
+  top: calc(50% - 108px);
+}
+#stick3 {
+  left: 14px;
+  bottom: 14px;
+}
+#stick4 {
+  left: calc(50% + 14px);
+  bottom: 14px;
+}
+
+.onePlayer #stick1 {
+  top: auto;
+  bottom: 16px;
+}
+
+.twoPlayer #stick1,
+.twoPlayer #stick2 {
+  top: auto;
+  bottom: 16px;
+}
+
+/* =====================================================
+   DEATH
+===================================================== */
+
+.deathMessage {
+  position: fixed;
+  z-index: 50;
+  display: none;
+  transform: translate(-50%, -50%);
+  padding: 8px 12px;
+  border-radius: 15px;
+  background: #000b;
+  border: 2px solid #ffffff33;
+  font-size: 10px;
+  font-weight: 1000;
+  pointer-events: none;
+}
+
+#death1 {
+  left: 25%;
+  top: 25%;
+}
+#death2 {
+  left: 75%;
+  top: 25%;
+}
+#death3 {
+  left: 25%;
+  top: 75%;
+}
+#death4 {
+  left: 75%;
+  top: 75%;
+}
+
+.onePlayer #death1 {
+  left: 50%;
+  top: 50%;
+}
+
+.twoPlayer #death1 {
+  left: 25%;
+  top: 50%;
+}
+
+.twoPlayer #death2 {
+  left: 75%;
+  top: 50%;
+}
+
+/* =====================================================
+   START
+===================================================== */
+
+#start,
+#gameOver {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  overflow: auto;
+  background: #030712f4;
+}
+
+#gameOver {
+  display: none;
+}
+
+.panel {
+  width: min(920px, calc(100vw - 16px));
+  max-height: 96vh;
+  overflow: auto;
+  padding: 18px;
+  border-radius: 20px;
+  background: #101a2d;
+  border: 2px solid #ffffff22;
+  text-align: center;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
+h1 {
+  margin: 0 0 12px;
+}
+
+.section {
+  margin-top: 10px;
+  padding: 11px;
+  border-radius: 13px;
+  background: #ffffff09;
+  border: 1px solid #ffffff16;
+}
+
+.sectionTitle {
+  margin-bottom: 7px;
+  font-size: 14px;
+  font-weight: 1000;
+}
+
+.small {
+  margin-top: 5px;
+  color: #ffffff99;
+  font-size: 10px;
+}
+
+.modeButtons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.modeButton {
+  padding: 10px 5px;
+  border-radius: 10px;
+  border: 3px solid transparent;
+  background: #25324b;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 1000;
+}
+
+.modeButton.selected {
+  border-color: #ffd84d;
+  background: #3d4d70;
+}
+
+.playerSettings {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.playerPanel {
+  background: #07101faa;
+}
+
+#player2Settings,
+#player3Settings,
+#player4Settings {
+  display: none;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 9px;
+  border: 2px solid #ffffff22;
+  border-radius: 9px;
+  outline: none;
+  background: #08101f;
+  color: #fff;
+  text-align: center;
+  font-size: 13px;
+}
+
+input {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.twoCols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.controlChoice,
+.viewChoice {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.choiceLabel {
+  position: relative;
+}
+
+.choiceLabel input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.choiceChip {
+  display: block;
+  padding: 8px 4px;
+  border-radius: 9px;
+  background: #26344e;
+  border: 3px solid transparent;
+  font-size: 10px;
+  font-weight: 1000;
+}
+
+.choiceLabel input:checked + .choiceChip {
+  border-color: #ffd84d;
+  background: #3d4d70;
+}
+
+.colorGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.colorOption {
+  position: relative;
+}
+
+.colorOption input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.colorChip {
+  display: block;
+  padding: 7px 2px;
+  border-radius: 8px;
+  border: 3px solid transparent;
+  font-size: 10px;
+  font-weight: 1000;
+}
+
+.colorOption input:checked + .colorChip {
+  border-color: #fff;
+  box-shadow: 0 0 8px #fff8;
+}
+
+.randomChip {
+  background: linear-gradient(90deg, #ff4d6d, #ffd84d, #5dff87, #4fc3ff, #b06cff);
+  color: #111;
+}
+
+.drawOpenButton,
+.stageOpenButton {
+  width: 100%;
+  margin-top: 7px;
+  padding: 9px;
+  border-radius: 9px;
+  color: #fff;
+  font-weight: 1000;
+}
+
+.drawOpenButton {
+  border: 2px solid #b267ff;
+  background: #342054;
+}
+
+.stageOpenButton {
+  border: 2px solid #ff5f69;
+  background: #4e1d2c;
+}
+
+.presetMainButton {
+  width: 100%;
+  padding: 11px;
+  border-radius: 11px;
+  border: 3px solid #54c8ff;
+  background: #14354e;
+  color: #fff;
+  font-weight: 1000;
+}
+
+.playButton {
+  margin-top: 14px;
+  padding: 13px 30px;
+  border: 0;
+  border-radius: 13px;
+  background: #ffd84d;
+  color: #191919;
+  font-size: 20px;
+  font-weight: 1000;
+}
+
+/* =====================================================
+   INLINE FACE DRAW
+===================================================== */
+
+.inlineDraw {
+  display: none;
+  margin-top: 9px;
+  padding: 10px;
+  border-radius: 13px;
+  background: #101a2d;
+  border: 2px solid #9c64ff66;
+}
+
+.inlineDraw.open {
+  display: block;
+}
+
+.drawHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 7px;
+}
+
+.drawHeaderTitle {
+  font-size: 13px;
+  font-weight: 1000;
+}
+
+.closeInlineDraw {
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: #ffd84d;
+  color: #171717;
+  font-size: 10px;
+  font-weight: 1000;
+}
+
+.faceTabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  margin-bottom: 7px;
+}
+
+.faceTab {
+  padding: 8px;
+  border: 2px solid #ffffff22;
+  border-radius: 9px;
+  background: #25324b;
+  color: #fff;
+  font-weight: 1000;
+}
+
+.faceTab.selected {
+  border-color: #ffd84d;
+  background: #3c4d6f;
+}
+
+.faceCanvasWrap {
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 1/1;
+  margin: auto;
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid #fff8;
+  background: #4fc3ff;
+}
+
+.faceCanvas {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+.drawTools {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.drawTools input[type="color"] {
+  height: 42px;
+  padding: 2px;
+}
+
+.drawTools input[type="range"] {
+  padding: 0;
+}
+
+.drawBottom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.drawBottom button {
+  flex: 1 1 120px;
+  padding: 8px;
+  border: 0;
+  border-radius: 8px;
+  font-weight: 1000;
+}
+
+.clearDraw {
+  background: #8b2938;
+  color: #fff;
+}
+
+.faceFrameButton {
+  background: #365b8c;
+  color: #fff;
+}
+
+/* =====================================================
+   STAGE EDITOR
+===================================================== */
+
+#stageEditor {
+  display: none;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 14px;
+  background: #091221;
+  border: 2px solid #ff5f6966;
+}
+
+#stageEditor.open {
+  display: block;
+}
+
+.stageModeButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.stageModeButton {
+  padding: 10px 6px;
+  border: 3px solid transparent;
+  border-radius: 10px;
+  background: #26344e;
+  color: #fff;
+  font-weight: 1000;
+}
+
+.stageModeButton.selected {
+  border-color: #ffd84d;
+  background: #40577d;
+}
+
+#stageCanvas {
+  width: min(100%, 600px);
+  aspect-ratio: 1/1;
+  margin: auto;
+  border: 4px solid #ff4d6d;
+  border-radius: 10px;
+  background:
+    linear-gradient(#ffffff08 1px, transparent 1px),
+    linear-gradient(90deg, #ffffff08 1px, transparent 1px), #07101f;
+  background-size: 30px 30px;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+.stageTools {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.stageTools button {
+  padding: 9px 5px;
+  border: 0;
+  border-radius: 9px;
+  color: #fff;
+  font-weight: 1000;
+}
+
+#stageUndo {
+  background: #40506c;
+}
+#stageClearWalls {
+  background: #8b2938;
+}
+#stageClearBoundary {
+  background: #8b4d29;
+}
+#stageClose {
+  background: #ffd84d;
+  color: #161616;
+}
+
+.stageInfo {
+  margin-top: 6px;
+  font-size: 10px;
+  color: #ffffff99;
+}
+
+/* =====================================================
+   PRESETS
+===================================================== */
+
+#presetModal,
+#confirmModal {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: #000d;
+}
+
+.modalPanel {
+  width: min(540px, 95vw);
+  max-height: 88vh;
+  overflow: auto;
+  padding: 16px;
+  border-radius: 18px;
+  background: #111d31;
+  border: 2px solid #ffffff33;
+  touch-action: pan-y;
+}
+
+.modalTitle {
+  margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: 1000;
+}
+
+.presetSaveRow {
+  display: flex;
+  gap: 6px;
+}
+
+.presetSaveRow input {
+  flex: 1;
+}
+
+.savePresetButton,
+.modalClose {
+  padding: 10px;
+  border: 0;
+  border-radius: 9px;
+  font-weight: 1000;
+}
+
+.savePresetButton {
+  background: #ffd84d;
+  color: #191919;
+}
+
+.modalClose {
+  width: 100%;
+  margin-top: 10px;
+  background: #45516a;
+  color: #fff;
+}
+
+.presetList {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.presetRow {
+  display: flex;
+  gap: 5px;
+}
+
+.presetUse {
+  flex: 1;
+  min-width: 0;
+  padding: 10px;
+  border: 2px solid #ffffff22;
+  border-radius: 9px;
+  background: #25324b;
+  color: #fff;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 900;
+}
+
+.presetDelete {
+  padding: 10px;
+  border: 2px solid #ff6373;
+  border-radius: 9px;
+  background: #5d1f29;
+  color: #fff;
+  font-weight: 1000;
+}
+
+.confirmButtons {
+  display: flex;
+  gap: 7px;
+  margin-top: 14px;
+}
+
+.confirmButtons button {
+  flex: 1;
+  padding: 11px;
+  border: 0;
+  border-radius: 9px;
+  font-weight: 1000;
+}
+
+#confirmYes {
+  background: #ffd84d;
+  color: #191919;
+}
+
+#confirmNo {
+  background: #465168;
+  color: #fff;
+}
+
+#overviewLabel {
+  position: fixed;
+  left: 75%;
+  top: calc(50% + 10px);
+  transform: translateX(-50%);
+  z-index: 20;
+  display: none;
+  padding: 6px 10px;
+  border-radius: 15px;
+  background: #0b1221dc;
+  border: 2px solid #61ceff77;
+  font-size: 10px;
+  font-weight: 1000;
+  pointer-events: none;
+}
+
+@media (max-width: 700px) {
+  .panel {
+    padding: 12px;
+  }
+
+  .playerSettings {
+    grid-template-columns: 1fr;
+  }
+
+  .modeButtons {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ranking {
+    width: 150px;
+    font-size: 7px;
+  }
+
+  .status {
+    font-size: 8px;
+  }
+
+  .viewToggle {
+    font-size: 7px;
+    padding: 5px;
+  }
+
+  .directions {
+    display: none !important;
+  }
+
+  .mapCanvas {
+    width: 72px;
+    height: 72px;
+  }
+
+  .boost {
+    width: 54px;
+    height: 54px;
+    font-size: 19px;
+  }
+
+  .stick {
+    width: 78px;
+    height: 78px;
+  }
+
+  .knob {
+    width: 30px;
+    height: 30px;
+  }
+
+  .killMessage {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  .firstPlaceMessage {
+    font-size: 16px;
+    padding: 10px 14px;
+  }
+
+  .stageTools {
+    grid-template-columns: 1fr 1fr;
+  }
+}

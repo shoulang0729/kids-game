@@ -1,356 +1,45 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>🐍 としくんのへびゲーム</title>
-<style>
-:root{
-  --bg1:#071428; --bg2:#0f1f33;
-  --card: rgba(255,255,255,0.04);
-  --accent-cyan:#7CE7FF; --accent-purple:#9B8CFF; --muted:#DCEFFF;
-}
-*{box-sizing:border-box}
-html{height:100%;overflow-x:hidden}
-body{
-  min-height:100dvh;margin:0;
-  display:flex;align-items:center;justify-content:center;
-  padding:clamp(10px,3vw,24px) 10px;
-  background: linear-gradient(180deg,var(--bg1) 0%, var(--bg2) 100%);
-  color:var(--muted);font-family:Inter, system-ui, -apple-system, "Hiragino Maru Gothic Pro","Yu Gothic",sans-serif;
-  -webkit-font-smoothing:antialiased;user-select:none;touch-action:none;overflow-x:hidden;
-}
-.container{
-  width: min(96vw, 920px); padding:clamp(12px,3vw,28px); border-radius:18px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  box-shadow: 0 20px 50px rgba(2,6,23,0.6);
-  display:flex;flex-direction:column;align-items:center;gap:clamp(8px,2vw,16px);position:relative;
-}
-.header{display:flex;flex-direction:column;align-items:center;gap:6px}
-h1{margin:0;font-size:clamp(20px,4vw,32px);letter-spacing:0.6px}
-.meta{display:flex;gap:12px;align-items:center}
-#score{font-size:18px;font-weight:700}
-#best{font-size:13px;opacity:.85}
-.wrap{position:relative;width:100%;max-width:min(780px,calc(100dvh - 210px),94vw)}
-.game-frame{width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;position:relative}
-canvas{width:100%;height:100%;display:block;border-radius:12px;background:transparent}
-.frame-bg{position:absolute;inset:0;border-radius:12px;padding:14px;pointer-events:none;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); box-shadow:0 6px 20px rgba(0,0,0,0.6);
-  border: 1px solid rgba(255,255,255,0.03);
-}
-.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(2,6,23,0.55);border-radius:12px}
-.overlay.hidden{display:none}
-.overlay h2{margin:0;font-size:26px}
-.btn{font-size:16px;font-weight:700;padding:10px 22px;border:none;border-radius:999px;background:linear-gradient(90deg,var(--accent-cyan),var(--accent-purple));color:#051426;cursor:pointer;box-shadow:0 6px 18px rgba(124,181,255,0.12);}
-.btn:active{transform:translateY(2px)}
-.hint{font-size:13px;opacity:.85}
-.controls{display:flex;gap:12px;align-items:center;justify-content:center}
-.back{color:var(--accent-cyan);text-decoration:none;font-weight:700}
-.legend{display:flex;gap:12px;align-items:center;font-size:13px}
-.note{font-size:12px;opacity:.85}
-/* Neon glow for snake head */
-.glow{filter:drop-shadow(0 0 8px rgba(124,181,255,0.55))}
-@media(max-width:600px){
-  body{align-items:flex-start}
-  .container{width:100%;min-height:100dvh;border-radius:0;padding:10px 8px}
-  .wrap{max-width:min(94vw,calc(100dvh - 180px))}
-  .overlay h2{font-size:20px}
-  .hint,.legend{font-size:11px}
-  .controls{flex-wrap:wrap}
-}
-@media(max-height:620px){
-  .wrap{max-width:min(70dvh,94vw)}
-  h1{font-size:20px}
-  .container{gap:8px}
-}
-</style>
-</head>
-<body>
-<div class="container">
-  <div class="header">
-    <h1>🐍 としくんのへびゲーム</h1>
-    <div class="meta">
-      <div id="score">てんすう：0</div>
-      <div id="best">さいこう記録：0</div>
-    </div>
-  </div>
-
-  <div class="wrap">
-    <div class="game-frame">
-      <div class="frame-bg"></div>
-      <canvas id="cv" width="600" height="600"></canvas>
-      <div id="overlay" class="overlay">
-        <h2 id="ovTitle">🐍 へびゲーム</h2>
-        <button class="btn" id="startBtn">▶ はじめる</button>
-        <div class="hint">やじるしキー / スワイプ で うごく</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>🐍 としくんのへびゲーム</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🐍 としくんのへびゲーム</h1>
+        <div class="meta">
+          <div id="score">てんすう：0</div>
+          <div id="best">さいこう記録：0</div>
+        </div>
       </div>
+
+      <div class="wrap">
+        <div class="game-frame">
+          <div class="frame-bg"></div>
+          <canvas id="cv" width="600" height="600"></canvas>
+          <div id="overlay" class="overlay">
+            <h2 id="ovTitle">🐍 へびゲーム</h2>
+            <button class="btn" id="startBtn">▶ はじめる</button>
+            <div class="hint">やじるしキー / スワイプ で うごく</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="legend">
+          <div class="note">レベル: <span id="level">1</span></div>
+          <div class="note">グリッド: <span id="gridSize">20</span></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 8px"
+        ><a class="back" href="../../index.html">← トップにもどる</a></div
+      >
     </div>
-  </div>
 
-  <div class="controls">
-    <div class="legend">
-      <div class="note">レベル: <span id="level">1</span></div>
-      <div class="note">グリッド: <span id="gridSize">20</span></div>
-    </div>
-  </div>
-
-  <div style="margin-top:8px"><a class="back" href="../../index.html">← トップにもどる</a></div>
-</div>
-
-<script>
-// High-level improvements:
-// - Levels with changing grid size, speed, obstacles
-// - High-DPI canvas scaling, responsive centered layout
-// - Obstacles generation
-// - Time-based game loop with interpolation for smooth rendering
-// - Touch/swipe and button controls
-
-const cv = document.getElementById('cv');
-const ctx = cv.getContext('2d');
-const scoreEl = document.getElementById('score');
-const bestEl = document.getElementById('best');
-const overlay = document.getElementById('overlay');
-const ovTitle = document.getElementById('ovTitle');
-const startBtn = document.getElementById('startBtn');
-const levelEl = document.getElementById('level');
-const gridEl = document.getElementById('gridSize');
-
-let DPR = Math.max(1, window.devicePixelRatio || 1);
-function resizeCanvas(){
-  const cssW = cv.clientWidth;
-  const cssH = cv.clientHeight;
-  cv.width = Math.round(cssW * DPR);
-  cv.height = Math.round(cssH * DPR);
-  ctx.setTransform(DPR,0,0,DPR,0,0);
-}
-window.addEventListener('resize', () => { DPR = Math.max(1, window.devicePixelRatio || 1); resizeCanvas(); draw(); });
-resizeCanvas();
-
-// Level definitions: grid (cells per row), base speed (moves/sec), obstacles count
-const levels = [
-  {grid:20, speed:6, obstacles:0},
-  {grid:18, speed:7, obstacles:2},
-  {grid:16, speed:8, obstacles:3},
-  {grid:14, speed:9, obstacles:5},
-  {grid:12, speed:10, obstacles:7},
-  {grid:10, speed:12, obstacles:9}
-];
-let currentLevel = 0;
-let GRID = levels[0].grid;
-let CELL = 0; // set based on canvas size
-let snake = [], dir = {x:1,y:0}, nextDir = {x:1,y:0}, food = null, obstacles = [];
-let score = 0, best = Number(localStorage.getItem('snakeBest') || 0);
-bestEl.textContent = 'さいこう記録：' + best;
-let alive = false;
-
-// Timing
-let movesPerSec = levels[0].speed;
-let moveInterval = 1000 / movesPerSec; // ms per step
-let accumulator = 0; // for stepping
-let lastTs = 0;
-
-function applyLevel(n){
-  currentLevel = Math.max(0, Math.min(levels.length-1, n));
-  const lv = levels[currentLevel];
-  GRID = lv.grid; movesPerSec = lv.speed; moveInterval = 1000 / movesPerSec;
-  levelEl.textContent = currentLevel+1; gridEl.textContent = GRID;
-  fitSnakeToGrid();
-  generateObstacles(lv.obstacles);
-}
-
-// グリッドが縮んだときにヘビが盤外に出て理不尽に即ゲームオーバーに
-// ならないよう、はみ出す場合は中央に作り直す。
-function fitSnakeToGrid(){
-  if(!snake || snake.length === 0) return;
-  const tooBig = snake.some(s => s.x < 0 || s.y < 0 || s.x >= GRID || s.y >= GRID);
-  if(tooBig){
-    const c = Math.floor(GRID/2);
-    snake = [ {x:c,y:c}, {x:c-1,y:c}, {x:c-2,y:c} ];
-    dir = {x:1,y:0};
-    nextDir = {x:1,y:0};
-  }
-}
-
-function allCells(){
-  const cells = [];
-  for(let y=0;y<GRID;y++) for(let x=0;x<GRID;x++) cells.push({x,y});
-  return cells;
-}
-
-function shuffle(arr){
-  for(let i=arr.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];
-  }
-}
-
-function generateObstacles(count){
-  obstacles = [];
-  // ヘビの頭の数マス前には障害物を置かない（避けられない死を防ぐ）
-  const head = snake && snake[0];
-  const safe = [];
-  if(head){
-    for(let i=1;i<=3;i++) safe.push({x:head.x+dir.x*i, y:head.y+dir.y*i});
-  }
-  const empties = allCells().filter(c =>
-    !isOnSnake(c) && !isFood(c) &&
-    !safe.some(s => s.x===c.x && s.y===c.y)
-  );
-  shuffle(empties);
-  obstacles = empties.slice(0, count);
-}
-
-function isOnSnake(cell){
-  return snake.some(s => s.x===cell.x && s.y===cell.y);
-}
-function isFood(cell){
-  return food && food.x===cell.x && food.y===cell.y;
-}
-
-function placeFood(){
-  const empties = allCells().filter(c => !isOnSnake(c) && !obstacles.some(o=>o.x===c.x&&o.y===c.y));
-  if(empties.length===0){ food = null; return; }
-  food = empties[Math.floor(Math.random()*empties.length)];
-}
-
-function reset(){
-  GRID = levels[0].grid; applyLevel(0);
-  snake = [ {x:Math.floor(GRID/2), y:Math.floor(GRID/2)}, {x:Math.floor(GRID/2)-1, y:Math.floor(GRID/2)}, {x:Math.floor(GRID/2)-2, y:Math.floor(GRID/2)} ];
-  dir = {x:1,y:0}; nextDir = {x:1,y:0}; score = 0; alive = false; accumulator = 0; lastTs = 0;
-  placeFood();
-  scoreEl.textContent = 'てんすう：' + score;
-}
-
-function start(){
-  if(!alive) { alive = true; overlay.classList.add('hidden'); }
-  reset();
-  alive = true;
-}
-
-function gameOver(){
-  alive = false; overlay.classList.remove('hidden');
-  if(score > best){ best = score; localStorage.setItem('snakeBest', best); bestEl.textContent = 'さいこう記録：' + best; }
-  ovTitle.textContent = '💥 おわり！ てんすう ' + score;
-  startBtn.textContent = '▶ もういちど';
-}
-
-function setDir(x,y){
-  // prevent reverse
-  if(dir.x === -x && dir.y === -y) return;
-  nextDir = {x,y};
-}
-
-function step(){
-  dir = nextDir;
-  const head = {x: snake[0].x + dir.x, y: snake[0].y + dir.y};
-  // wall
-  if(head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID){ gameOver(); return; }
-  // self
-  if(snake.some(s => s.x===head.x && s.y===head.y)){ gameOver(); return; }
-  // obstacle
-  if(obstacles.some(o => o.x===head.x && o.y===head.y)){ gameOver(); return; }
-
-  snake.unshift(head);
-  if(food && head.x===food.x && head.y===food.y){
-    score += 10;
-    scoreEl.textContent = 'てんすう：' + score;
-    // level up every 50 points
-    if(score % 50 === 0){ applyLevel(currentLevel+1); flashLevel(); }
-    placeFood();
-    // slight speed up per food
-    movesPerSec = Math.min(24, movesPerSec + 0.25);
-    moveInterval = 1000 / movesPerSec;
-  } else {
-    snake.pop();
-  }
-}
-
-function flashLevel(){
-  // small visual flash on level up
-  const old = overlay.className;
-  overlay.classList.remove('hidden');
-  ovTitle.textContent = '⚡ レベルアップ！ L' + (currentLevel+1);
-  setTimeout(()=>{ overlay.classList.add('hidden'); ovTitle.textContent = '🐍 へびゲーム'; }, 900);
-}
-
-function gameLoop(ts){
-  if(!lastTs) lastTs = ts;
-  const dt = ts - lastTs; lastTs = ts;
-  if(!alive){ draw(); requestAnimationFrame(gameLoop); return; }
-  accumulator += dt;
-  while(accumulator >= moveInterval){
-    accumulator -= moveInterval; step();
-  }
-  draw(accumulator / moveInterval); // pass alpha for interpolation (if needed)
-  requestAnimationFrame(gameLoop);
-}
-
-function draw(alpha=0){
-  resizeCanvas();
-  const W = cv.clientWidth; const H = cv.clientHeight; // css px
-  CELL = W / GRID;
-  // clear
-  ctx.clearRect(0,0,W,H);
-
-  // background grid subtle
-  ctx.fillStyle = 'rgba(5,14,22,0.35)';
-  ctx.fillRect(0,0,W,H);
-
-  // draw obstacles
-  obstacles.forEach(o=>{
-    ctx.fillStyle = 'rgba(155,140,255,0.22)';
-    ctx.fillRect(o.x*CELL+2, o.y*CELL+2, CELL-4, CELL-4);
-    ctx.strokeStyle = 'rgba(155,140,255,0.08)'; ctx.strokeRect(o.x*CELL+2, o.y*CELL+2, CELL-4, CELL-4);
-  });
-
-  // food
-  if(food){
-    ctx.font = Math.floor(CELL*0.8) + 'px serif';
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('🍎', food.x*CELL + CELL/2, food.y*CELL + CELL/2 + 1);
-  }
-
-  // snake body
-  for(let i=snake.length-1;i>=0;i--){
-    const s = snake[i];
-    const t = i / Math.max(1, snake.length);
-    const x = s.x * CELL; const y = s.y * CELL;
-    if(i===0){
-      // head
-      ctx.font = Math.floor(CELL*0.9) + 'px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText('😊', x + CELL/2, y + CELL/2 + 1);
-      // glow
-      ctx.fillStyle = 'rgba(124,181,255,0.06)'; ctx.fillRect(x+4, y+4, CELL-8, CELL-8);
-    } else {
-      const g = 140 - t*80; ctx.fillStyle = `hsl(${g}, 70%, ${45 - t*18}%)`;
-      ctx.fillRect(x+2, y+2, CELL-4, CELL-4);
-    }
-  }
-
-  // border glow
-  ctx.strokeStyle = 'rgba(124,231,255,0.06)'; ctx.lineWidth = 2; ctx.strokeRect(0,0,W,H);
-}
-
-// controls
-document.addEventListener('keydown', e=>{
-  const k = e.key;
-  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(k)) e.preventDefault();
-  if(k==='ArrowUp') setDir(0,-1);
-  if(k==='ArrowDown') setDir(0,1);
-  if(k==='ArrowLeft') setDir(-1,0);
-  if(k==='ArrowRight') setDir(1,0);
-  if(k===' ' && !alive) start();
-});
-
-// touch swipe
-let sx=0, sy=0;
-cv.addEventListener('touchstart', e=>{ const t = e.touches[0]; sx=t.clientX; sy=t.clientY; }, {passive:true});
-cv.addEventListener('touchmove', e=>{ if(!sx&&!sy) return; const t=e.touches[0]; const dx=t.clientX-sx, dy=t.clientY-sy; if(Math.abs(dx)+Math.abs(dy)<18) return; if(Math.abs(dx)>Math.abs(dy)) setDir(dx>0?1:-1,0); else setDir(0,dy>0?1:-1); sx=0; sy=0; }, {passive:true});
-
-// initialize
-reset(); draw(); requestAnimationFrame(gameLoop);
-
-startBtn.onclick = ()=>{ start(); };
-
-</script>
-</body>
+    <script src="game.js"></script>
+  </body>
 </html>

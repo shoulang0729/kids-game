@@ -1,0 +1,495 @@
+* {
+  box-sizing: border-box;
+}
+html {
+  overflow-x: hidden;
+}
+body {
+  margin: 0;
+  background: #111;
+  color: white;
+  font-family: sans-serif;
+  text-align: center;
+  overflow-x: hidden;
+  overflow-y: auto;
+  user-select: none;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+h1 {
+  margin: 6px;
+  font-size: clamp(18px, 5vw, 32px);
+  line-height: 1.15;
+}
+/* HUD：ステータスをカテゴリごとのチップに分割 */
+#hud {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 8px auto;
+  max-width: 920px;
+  padding: 0 8px;
+}
+.chip {
+  background: #1c1c2e;
+  border: 2px solid #333;
+  border-radius: 12px;
+  padding: 5px 10px;
+  min-width: 80px;
+}
+.chip .l {
+  font-size: 11px;
+  opacity: 0.65;
+  letter-spacing: 1px;
+}
+.chip .v {
+  font-size: 17px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.chip .bar {
+  height: 6px;
+  background: #333;
+  border-radius: 3px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+.chip .bar i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.2s;
+}
+button {
+  font-size: 16px;
+  padding: 8px 12px;
+  margin: 3px;
+  border-radius: 12px;
+  touch-action: manipulation;
+  max-width: 100%;
+}
+/* ショップ：カテゴリ別メニュー */
+#shop {
+  max-width: 940px;
+  margin: 10px auto;
+  padding: 0 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.shop-group {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid #333;
+  border-radius: 14px;
+  padding: 8px 10px;
+  flex: 1 1 270px;
+  min-width: 250px;
+}
+.shop-group h3 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  opacity: 0.85;
+  text-align: left;
+  border-bottom: 1px solid #444;
+  padding-bottom: 4px;
+}
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 6px;
+}
+.shop-grid button {
+  margin: 0;
+  width: 100%;
+  min-height: 48px;
+  font-size: 14px;
+  background: #26263a;
+  color: #fff;
+  border: 2px solid #444;
+  line-height: 1.15;
+}
+.shop-grid button b {
+  display: block;
+  font-size: 14px;
+}
+.shop-grid button .price {
+  display: block;
+  font-size: 11px;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+.tool-btn.active {
+  border-color: #ffcc00;
+  background: #3a3a1a;
+  box-shadow: 0 0 10px #ffcc00;
+}
+.shop-grid button.cant {
+  opacity: 0.4;
+}
+.start-btn {
+  background: #2a7d2a !important;
+  border-color: #5fd35f !important;
+  font-weight: bold;
+}
+#stage {
+  margin: 10px auto;
+  overflow: hidden;
+  touch-action: none;
+}
+#game {
+  width: 900px;
+  height: 600px;
+  margin: 0;
+  position: relative;
+  overflow: hidden;
+  border: 5px solid white;
+  background: #224422;
+  transform-origin: top left;
+}
+.tile {
+  position: absolute;
+  width: 45px;
+  height: 45px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.buildable {
+  background: rgba(0, 255, 255, 0.15);
+}
+.base {
+  background: #777;
+  border: 3px solid #ccc;
+}
+.core {
+  background: #ff2244;
+  border: 3px solid white;
+  border-radius: 50%;
+}
+.core::after {
+  content: "❤️";
+  font-size: 26px;
+}
+.wall {
+  background: #8b5a2b;
+  border: 3px solid #d6a86a;
+}
+.spike {
+  background: #444;
+  border: 3px solid #aaa;
+}
+.spike::after {
+  content: "▲▲";
+  color: white;
+}
+.mine {
+  background: #111;
+  border: 3px solid yellow;
+  border-radius: 50%;
+}
+.mine::after {
+  content: "💣";
+}
+.turret,
+.laser,
+.cannon,
+.blackhole {
+  border-radius: 50%;
+}
+.turret {
+  background: #222;
+  border: 3px solid cyan;
+}
+.turret::after {
+  content: "🔫";
+}
+.laser {
+  background: #101060;
+  border: 3px solid #66f;
+}
+.laser::after {
+  content: "⚡";
+}
+.cannon {
+  background: #552200;
+  border: 3px solid orange;
+}
+.cannon::after {
+  content: "💥";
+}
+.blackhole {
+  background: #000;
+  border: 3px solid violet;
+  box-shadow: 0 0 20px violet;
+}
+.blackhole::after {
+  content: "🕳️";
+}
+.blackholeField {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(180, 0, 255, 0.9),
+    rgba(40, 0, 70, 0.55),
+    rgba(0, 0, 0, 0)
+  );
+  pointer-events: none;
+  z-index: 15;
+  animation: spin 2s linear infinite;
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.enemy {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  z-index: 5;
+  background: red;
+  border: 3px solid #ffaaaa;
+}
+.enemy::after {
+  content: "👾";
+  font-size: 24px;
+}
+.enemy.fast {
+  background: orange;
+}
+.enemy.tank {
+  background: purple;
+  width: 48px;
+  height: 48px;
+}
+.enemy.bomber {
+  background: black;
+  border: 4px solid orange;
+}
+.enemy.fly {
+  background: cyan;
+  border: 4px solid white;
+  border-radius: 0;
+}
+.enemy.laserEnemy {
+  background: #ff00ff;
+  border: 4px solid white;
+}
+.enemy.breaker {
+  background: #552200;
+  border: 4px solid yellow;
+}
+.enemy.splitter {
+  background: #00cc66;
+  border: 4px solid #aaffaa;
+}
+.enemy.splitter::after {
+  content: "🟢";
+  font-size: 24px;
+}
+.enemy.boss {
+  background: #000;
+  border: 5px solid red;
+  width: 80px;
+  height: 80px;
+}
+.enemy.boss::after {
+  content: "👑";
+  font-size: 42px;
+}
+.enemy.giantBoss {
+  background: #050505;
+  border: 8px solid red;
+  width: 150px;
+  height: 150px;
+  box-shadow: 0 0 30px red;
+}
+.enemy.giantBoss::after {
+  content: "👹";
+  font-size: 90px;
+}
+.hpBar {
+  position: absolute;
+  height: 6px;
+  background: #222;
+  border: 1px solid white;
+  z-index: 30;
+}
+.hpFill {
+  height: 100%;
+  background: red;
+  width: 100%;
+}
+.player {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  background: #ff3333;
+  border: 3px solid white;
+  border-radius: 10px;
+  z-index: 10;
+}
+.player::after {
+  content: "😎";
+  font-size: 25px;
+}
+.robot {
+  position: absolute;
+  width: 35px;
+  height: 35px;
+  background: #00aaff;
+  border: 3px solid white;
+  border-radius: 8px;
+  z-index: 9;
+}
+.robot::after {
+  content: "🤖";
+}
+.bullet {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: yellow;
+  border-radius: 50%;
+  box-shadow: 0 0 10px yellow;
+  z-index: 20;
+}
+.warning {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border: 5px solid red;
+  border-radius: 50%;
+  box-shadow: 0 0 25px red;
+  z-index: 45;
+  animation: pulse 0.25s infinite alternate;
+  pointer-events: none;
+}
+@keyframes pulse {
+  from {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+.explosion {
+  position: absolute;
+  font-size: 36px;
+  z-index: 50;
+  animation: boom 0.45s forwards;
+  pointer-events: none;
+}
+@keyframes boom {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+#message {
+  position: absolute;
+  top: 245px;
+  width: 100%;
+  font-size: 34px;
+  color: yellow;
+  text-shadow: 3px 3px black;
+  z-index: 60;
+}
+#controls {
+  margin: 12px auto 30px;
+  display: flex;
+  justify-content: center;
+}
+.pad {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.pad-mid {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.ctrl {
+  width: 64px;
+  height: 58px;
+  font-size: 24px;
+  background: #26263a;
+  color: #fff;
+  border: 2px solid #555;
+}
+.ctrl.shoot {
+  background: #aa2233;
+  border-color: #ff6677;
+  font-size: 15px;
+  font-weight: bold;
+}
+@media (max-width: 700px) {
+  #hud {
+    gap: 4px;
+    margin: 5px auto;
+  }
+  .chip {
+    min-width: 66px;
+    padding: 4px 7px;
+  }
+  .chip .l {
+    font-size: 9px;
+  }
+  .chip .v {
+    font-size: 13px;
+  }
+  #shop {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin: 6px auto;
+    padding: 0 6px;
+  }
+  .shop-group {
+    min-width: 0;
+    flex: auto;
+    padding: 6px;
+  }
+  .shop-group h3 {
+    font-size: 11px;
+  }
+  .shop-grid {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .shop-grid button {
+    min-height: 40px;
+    font-size: 12px;
+    padding: 6px 5px;
+  }
+  .shop-grid button b {
+    font-size: 12px;
+  }
+  #controls {
+    margin: 8px auto 16px;
+  }
+  .ctrl {
+    width: 56px;
+    height: 50px;
+  }
+}
+@media (max-width: 390px) {
+  #shop {
+    grid-template-columns: 1fr;
+  }
+}

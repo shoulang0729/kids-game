@@ -22,7 +22,7 @@ try {
       assert.match(result.stderr, message);
     } finally { fs.writeFileSync(name, before); }
   }
-  rejects('games/snake/index.html', s => s.replace('<script>', '<script>\nconst broken = [{a: 1} {b: 2}];'), 'check.mjs', /SyntaxError/);
+  rejects('games/snake/game.js', s => 'const broken = [{a: 1} {b: 2}];\n' + s, 'check.mjs', /SyntaxError/);
   rejects('index.html', s => s.replace('games/snake/index.html', 'games/missing/index.html'), 'check.mjs', /missing games\/missing/);
   rejects('wiki/index.html', s => s.replace('id="chaos-ultra-x"', 'id="missing-chaos"'), 'check.mjs', /missing anchor/);
   rejects('index.html', s => s.replace('<header>', '<header id="grid">'), 'check.mjs', /duplicate id grid/);

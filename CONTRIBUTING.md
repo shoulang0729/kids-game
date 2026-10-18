@@ -28,14 +28,14 @@
 基本情報の正本は `data/games.json` です。
 
 - ゲームは **1つにつき1フォルダ**、中に `index.html` を置きます。
-- 各ゲームは **HTML/CSS/JavaScript だけ** で動く1ファイル完結が基本です（ビルド不要）。
+- 各ゲームは **HTML/CSS/JavaScript だけ** で動きます（ビルド不要）。画面は `index.html`、見た目は `style.css`、処理は `game.js` に置きます。3Dゲームセンターは役割ごとのJSを順番に読み込みます。
 
 ---
 
 ## ➕ 新しいゲームを追加する手順
 
 1. `games/` の中にフォルダを作る（英語の名前。例：`games/maze/`）。
-2. その中に `index.html` を作る（中身は1ファイルのゲーム）。
+2. その中に `index.html`・`style.css`・`game.js` を用意する。
    - `<head>` に必ずこれを入れる（スマホ対応）:
      ```html
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,7 +50,7 @@
 
 ## 🔧 ゲームを直す手順
 
-1. 直したいゲームの `games/<名前>/index.html` を開く。
+1. 直したいゲームの `games/<名前>/` を開く。表示は `index.html`、見た目は `style.css`、動きは `game.js`（3Dゲームセンターは役割別JS）を変更する。
 2. 直す。
 3. ブラウザで開いて動くか確認する（できれば**スマホ幅**でも確認）。
 4. ブランチを作って PR にする。

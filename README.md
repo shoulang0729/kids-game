@@ -68,7 +68,7 @@ kids-game/
 <!-- END GENERATED: tree -->
 
 - ルートの `index.html` がトップの「入り口ページ」です。
-- ゲームは1つずつ `games/<ゲーム名>/` フォルダに入れます。
+- ゲームは1つずつ `games/<ゲーム名>/` フォルダに入れます。画面のHTML・見た目のCSS・処理のJSを同じフォルダに置きます。
 - タイトル・作者・説明・掲載順は `data/games.json` で管理します。配信時のビルドは不要です。
 - オンライン対戦は別のサーバー（`online-server/`）も使います。静的ページの公開とサーバーの公開は別です。
 
@@ -76,7 +76,7 @@ kids-game/
 
 作業は新しいブランチで行い、PRを作成します。詳しくは [CONTRIBUTING.md](CONTRIBUTING.md) を見てください。
 
-1. `games/<ゲーム名>/index.html` にゲームを用意する。
+1. `games/<ゲーム名>/` に `index.html`・`style.css`・`game.js` を用意する。
 2. `data/games.json` にタイトル・絵文字・説明・作者・説明書のセクションIDを追加する。
 3. `wiki/index.html` に遊び方を追加する。接続テスト用デモなど説明書を省く場合は、`manual: null` と `manualNote` に理由を書く。
 4. `npm run generate` でトップページ・README・説明書の目次を更新する。`GENERATED` で囲まれた範囲は直接編集しない。
@@ -103,7 +103,7 @@ node tests/kochan-3d-arcade/videogames.cjs
 node tests/kochan-3d-arcade/regression.cjs
 ```
 
-公開する単体HTMLからスクリプトを取り出して、全37種類、景品のつかみ位置、無限生成・保存、スポーツの直接タッチ、キャンセル、再プレイをシミュレーションします。実際のWebGL描画やiPadでの操作感は別途実機で確認してください。
+公開HTMLが実際に読み込むJavaScriptを使って、全37種類、景品のつかみ位置、無限生成・保存、スポーツの直接タッチ、キャンセル、再プレイをシミュレーションします。実際のWebGL描画やiPadでの操作感は別途実機で確認してください。
 
 ## 🧪 サイト全体の確認
 

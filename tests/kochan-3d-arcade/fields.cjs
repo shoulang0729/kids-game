@@ -1,6 +1,5 @@
-// Validate the exact inline scripts shipped in the standalone game HTML.
-const arcadeHTML=require('fs').readFileSync(require('path').join(__dirname,'../../games/kochan-3d-arcade/index.html'),'utf8');
-function readSource(name){const prefix='<script data-source="'+name+'">\n',start=arcadeHTML.indexOf(prefix);if(start<0)throw Error('Missing source '+name);const end=arcadeHTML.indexOf('\n</script>',start);if(end<0)throw Error('Missing script end');return arcadeHTML.slice(start+prefix.length,end)}
+// Validate the scripts actually loaded by the shipped game page.
+const readSource = require('./read-source.cjs');
 const fs=require('fs'),vm=require('vm'),assert=require('assert');const elements=[];function el(){return {className:'',classList:{add(){},remove(){}},setAttribute(){},addEventListener(){},appendChild(){},remove(){}}}const sb={window:{addEventListener(){}},document:{createElement(){const e=el();elements.push(e);return e},querySelector(){return el()}},console,Math};vm.createContext(sb);vm.runInContext(readSource("fields.js"),sb);const scene={project(){return {x:0,y:0}},player:{x:0,z:5},distance(){return 0},planePoint(){return {x:0,z:0}},verticalPoint(){return {x:0,y:.65}}};const api=sb.window.createPhysicalFields(scene,()=>{},()=>{});assert.equal(api.templates.length,6);assert.equal(api.games.length,6);
 function tick(g,s){for(let i=0;i<s/.01&&g.state==='playing';i++)api.advance(.01)}
 const golf=api.games[0];api.start(golf);for(let hole=0;hole<3;hole++){let dx=golf.hole.x-golf.ball.x,dz=golf.ball.z-golf.hole.z,d=Math.hypot(dx,dz);golf.aimX=dx/dz;golf.power=(d*.85+.10-1)/2.4;api.shoot(golf);tick(golf,8)}assert.equal(golf.score,3,'golf holes');assert.equal(golf.state,'done');assert.equal(golf.win,true);assert.equal(golf.shots,3);
