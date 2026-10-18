@@ -267,10 +267,7 @@ function useSkill(skillName) {
   const skill = skills[skillName];
 
   if (skill.damage) {
-    let autoDamage = robots * 10 + cannons * 20;
-
-    let dmg =
-      random(skill.damage[0], skill.damage[1]) + currentWeapon.bonus + attackBoost + autoDamage;
+    let dmg = BattleRules.strike(random(skill.damage[0], skill.damage[1]), currentWeapon.bonus, attackBoost, robots, cannons, false);
 
     if (Math.random() < 0.1) {
       dmg *= 2;
@@ -284,11 +281,7 @@ function useSkill(skillName) {
   }
 
   if (skill.heal) {
-    playerHp += skill.heal;
-
-    if (playerHp > playerMaxHp) {
-      playerHp = playerMaxHp;
-    }
+    playerHp = BattleRules.heal(playerHp, skill.heal, playerMaxHp);
   }
 
   cooldowns[skillName] = skill.cooldown;
@@ -314,7 +307,7 @@ function enemyTurn() {
   let dmg = random(enemyAttackPower - 5, enemyAttackPower + 7);
 
   if (defending) {
-    dmg = Math.floor(dmg / 2);
+    dmg = BattleRules.defendDamage(dmg, true);
 
     defending = false;
   }

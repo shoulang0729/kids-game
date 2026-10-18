@@ -22,6 +22,7 @@ export class TestRoom extends SnakeRoom {
     this.endGame();
   }
   async winsForTest() { return this.tally['家族'] || 0; }
+  async pendingForTest() { return this.sql.exec('SELECT COUNT(*) AS n FROM ranking_outbox').one().n; }
   flushForTest() { return this.alarm(); }
 }
 `;
@@ -139,6 +140,8 @@ async function post(game, scores, token = code, name = "家族") {
     await room.finishMatch("family-match", hash(code));
     assert.equal(await room.winsForTest(), 1);
     await room.flushForTest();
+    await room.finishMatch("family-pending", hash(code));
+    assert.equal(await room.pendingForTest(), 1, "unflushed match is durably queued");
     await mf.dispose();
     mf = new Miniflare(options);
     assert.equal(
@@ -150,14 +153,16 @@ async function post(game, scores, token = code, name = "家族") {
     room = roomsAfter.get(roomsAfter.idFromName("family"));
     assert.equal(
       await room.winsForTest(),
-      1,
+      2,
       "room wins survive a full runtime restart",
     );
+    await room.flushForTest();
+    assert.equal(await room.pendingForTest(), 0);
     const online = await (await api("snake-battle-online?metric=wins")).json();
     assert.equal(
       online.rows[0].score,
-      2,
-      "durable outbox adds the room match exactly once",
+      3,
+      "durable outbox restores the unflushed match exactly once",
     );
     assert.equal(
       (await (await api("snake-battle-online?metric=meters")).json()).rows[0]

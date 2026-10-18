@@ -96,9 +96,9 @@ try {
   best = Number(localStorage.getItem("chaos_best")) || 0;
 } catch (e) {}
 $("best").textContent = best;
-const fusionCount = () => Math.floor(p.drones / 6),
-  normalDrones = () => p.drones % 6,
-  shipCount = () => Math.floor(p.drones / 60);
+const fusionCount = () => ChaosRules.formation(p.drones).turrets,
+  normalDrones = () => ChaosRules.formation(p.drones).normal,
+  shipCount = () => ChaosRules.formation(p.drones).ships;
 function notice(msg, seconds = 2) {
   $("notice").textContent = msg;
   noticeTime = seconds;
@@ -341,7 +341,7 @@ function spawnEnemy(type = null, x = null, y = null) {
   return e;
 }
 function bossWave() {
-  let count = wave % 15 === 0 ? 3 : wave >= 10 && wave % 10 === 0 ? 2 : 1;
+  let count = ChaosRules.bossCount(wave);
   for (let i = 0; i < count; i++) {
     if (enemies.length >= 180) {
       let ix = enemies.findIndex((e) => e.type !== "boss");
@@ -516,13 +516,7 @@ function updateHole(dt) {
 }
 function gainXP(v) {
   if (!p || !v) return;
-  p.xp += v;
-  while (p.xp >= p.need) {
-    p.xp -= p.need;
-    p.level++;
-    p.need = Math.floor(p.need * 1.24 + 11);
-    levelQueue++;
-  }
+  levelQueue += ChaosRules.awardXP(p, v);
   if (levelQueue > 0 && state === "play") levelUp();
 }
 function spawnXP(x, y, value, r = 6) {
@@ -613,8 +607,7 @@ function levelUp() {
 function damageEnemy(e, v, explosive = false, nonlethal = false) {
   if (!e.alive) return;
   let before = e.hp;
-  if (nonlethal) e.hp = Math.max(1, e.hp - Math.max(0, v));
-  else e.hp -= Math.max(0, v);
+  e.hp = ChaosRules.remainingHP(e.hp, v, nonlethal);
   let taken = Math.max(0, before - e.hp);
   if (taken) textPop(e.x, e.y - e.r, Math.ceil(taken), explosive ? "#ffe53a" : "#fff");
   if (nonlethal || e.hp > 0) return;
@@ -651,7 +644,7 @@ function damageEnemy(e, v, explosive = false, nonlethal = false) {
 }
 function hurt(v) {
   if (state !== "play" || invinc > 0 || dashTime > 0) return;
-  let n = Math.max(1, Math.round(v * (1 - p.armor)));
+  let n = ChaosRules.armoredDamage(v, p.armor);
   p.hp -= n;
   invinc = 0.55;
   flash = 0.1;
