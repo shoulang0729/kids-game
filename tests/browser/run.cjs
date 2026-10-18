@@ -93,6 +93,29 @@ const scenarios = {
     await p.goto(base + 'ranking/index.html?game=online-demo');
     await p.waitForFunction(() => document.querySelector('#page-title').textContent === 'ゲームが見つかりません');
     assert.ok(await p.locator('#board-panel').isHidden());
+    // Settings and return navigation must retain the validated local API override.
+    await mockRankings(p.context(), p.context().rankingStore, 'http://localhost:8787');
+    const requests = [];
+    const collect = r => { if (r.url().includes('/rankings/')) requests.push({url:r.url(),method:r.method()}); };
+    p.on('request', collect);
+    await p.goto(base + 'ranking/index.html?game=snake&server=localhost:8787');
+    await p.evaluate(() => GameRecords.record('snake', {score:60}));
+    await p.click('#profile-link');
+    assert.equal(new URL(p.url()).searchParams.get('server'), 'localhost:8787');
+    await p.fill('#name', 'ローカル');
+    await p.click('#save');
+    await p.waitForFunction(() => document.querySelector('#status').textContent.includes('送信が完了'));
+    await p.click('#return-link');
+    assert.equal(new URL(p.url()).searchParams.get('server'), 'localhost:8787');
+    await p.waitForFunction(() => document.querySelector('#own').textContent.includes('60点'));
+    assert.equal(new URL(await p.locator('#play-link').getAttribute('href'),p.url()).searchParams.get('server'), 'localhost:8787');
+    assert.ok(requests.some(r=>r.method==='POST'));
+    assert.ok(requests.every(r=>r.url.startsWith('http://localhost:8787/')), 'local test must not contact the production API');
+    p.off('request', collect);
+    await p.goto(base+'ranking/index.html?return=snake&server=example.com');
+    await p.waitForFunction(()=>!document.querySelector('#settings').disabled);
+    assert.equal(await p.locator('#return-link').getAttribute('href'),'index.html?game=snake');
+
   },
   async 'tap-circle'(p) {
     await p.clock.install();
@@ -461,9 +484,9 @@ const scenarios = {
   }
 };
 
-async function mockRankings(context, store = new Map()) {
+async function mockRankings(context, store = new Map(), api = 'https://tomiyoko-online.shoulang.workers.dev') {
   context.rankingStore = store;
-  await context.route('https://tomiyoko-online.shoulang.workers.dev/rankings/**', async route => {
+  await context.route(api + '/rankings/**', async route => {
     const request = route.request(), url = new URL(request.url()), game = url.pathname.split('/').pop();
     const code = request.headers().authorization || '';
     if (request.method() === 'POST') {
@@ -522,9 +545,10 @@ async function mockRankings(context, store = new Map()) {
             assert.ok(scenarios[game.id], `missing scenario for ${game.id}`);
             await scenarios[game.id](page);
           }
-          if (games.some(g => g.id === game.id) && game.id !== 'online-demo') {
+          if (games.some(g => g.id === game.id)) {
+            assert.equal(await page.locator('.game-page-links .game-manual').first().getAttribute('href'), `../../wiki/index.html#${game.manual}`);
             const links = await page.locator('.game-page-links .game-ranking').evaluateAll(a => a.map(e => e.getAttribute('href')));
-            assert.ok(links.length > 0);
+            assert.equal(links.length > 0, game.id !== 'online-demo');
             assert.ok(links.every(href => href === `../../ranking/index.html?game=${game.id}`));
           }
           // Observe several real rendering frames, not only synchronous initialization.
