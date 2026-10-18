@@ -37,7 +37,7 @@ GitHub Pages で公開しています：
 ## 🕹️ ゲーム一覧
 
 <!-- BEGIN GENERATED: catalog -->
-公開トップページと同じ11件を、同じ順番で掲載しています（接続テスト用デモを含む）。
+公開トップページと同じ11件を、追加が古い順から新しい順に掲載しています（接続テスト用デモを含む）。
 
 | ゲーム | せつめい | 作った人 | フォルダ |
 |--------|----------|----------|----------|
@@ -47,8 +47,8 @@ GitHub Pages で公開しています：
 | 🌌 [惑星ぶっこわし3D](https://shoulang0729.github.io/kids-game/games/planet-smash/index.html) | 惑星をタッチしてこわそう！お金をためて強い攻撃を解放。地球から宇宙皇帝まで18ステージ | ようちゃん | `games/planet-smash/` |
 | 🍳 [料理ゲーム](https://shoulang0729.github.io/kids-game/games/cooking/index.html) | ミッションの料理を作ろう！食材を切ったり焼いたり。ショップ・図鑑・実績つき | こうちゃん | `games/cooking/` |
 | 🐲 [スネークバトル](https://shoulang0729.github.io/kids-game/games/snake-battle/index.html) | 最大4人＆CPUと対戦するスネーク！顔やステージも自分で描ける本格バトル | こうちゃん | `games/snake-battle/` |
+| 🧪 [オンラインちびデモ](https://shoulang0729.github.io/kids-game/games/online-demo/index.html) | 接続テスト用の機能です。同じ合言葉で別の端末と四角を動かして通信を確認（4人まで） | としくん | `games/online-demo/` |
 | 🌐 [スネークバトルオンライン](https://shoulang0729.github.io/kids-game/games/snake-battle-online/index.html) | 合言葉で友だちとオンライン対戦！CPUもまざって10匹でバトル。アイテムで逆転をねらえ | こうちゃん&としくん | `games/snake-battle-online/` |
-| 🧪 [オンラインちびデモ](https://shoulang0729.github.io/kids-game/games/online-demo/index.html) | オンラインのテスト！同じ合言葉を入れて、べつの端末と四角をいっしょに動かそう | — | `games/online-demo/` |
 | 🌌 [カオス世界大崩壊 ULTRA X INFINITE](https://shoulang0729.github.io/kids-game/games/chaos-ultra-x/index.html) | 20形態に進化！ブラックホール・トリプルボス・無限ドローン・巨大戦艦で生き残れ！ | ようちゃん | `games/chaos-ultra-x/` |
 | 🕹️ [こうちゃんの3Dゲームセンター](https://shoulang0729.github.io/kids-game/games/kochan-3d-arcade/lobby.html) | 専用入口で全37種類から選ぼう！クレーン・立体スポーツ・レースなど。店内を歩いて探すこともできる | こうちゃん | `games/kochan-3d-arcade/` |
 | 🎯 [丸をタップ！](https://shoulang0729.github.io/kids-game/games/tap-circle/index.html) | 出てくる丸をタップ！20秒で何点とれるかな？最高記録に挑戦しよう | ようちゃん | `games/tap-circle/` |
@@ -71,8 +71,8 @@ kids-game/
 │   ├── planet-smash/index.html ← 惑星ぶっこわし3D
 │   ├── cooking/index.html ← 料理ゲーム
 │   ├── snake-battle/index.html ← スネークバトル
-│   ├── snake-battle-online/index.html ← スネークバトルオンライン
 │   ├── online-demo/index.html ← オンラインちびデモ
+│   ├── snake-battle-online/index.html ← スネークバトルオンライン
 │   ├── chaos-ultra-x/index.html ← カオス世界大崩壊 ULTRA X INFINITE
 │   ├── kochan-3d-arcade/lobby.html ← こうちゃんの3Dゲームセンター（店内はindex.html）
 │   └── tap-circle/index.html ← 丸をタップ！

@@ -31,10 +31,10 @@ update('index.html', 'cards', games.map(g => `<a class="card${g.entry ? ' portal
   <div class="emoji">${escape(g.emoji)}</div>
   <h2>${escape(g.title)}</h2>
   <p>${escape(g.description + (g.author ? `（${g.author}作）` : ''))}</p>
-  <span class="badge">${g.entry ? '専用入口でゲームをえらぶ ▶' : 'あそぶ ▶'}</span>
+  <span class="badge">${g.id === 'online-demo' ? '接続テスト ▶' : g.entry ? '専用入口でゲームをえらぶ ▶' : 'あそぶ ▶'}</span>
 </a>`).join('\n'));
 
-update('README.md', 'catalog', `公開トップページと同じ${games.length}件を、同じ順番で掲載しています（接続テスト用デモを含む）。
+update('README.md', 'catalog', `公開トップページと同じ${games.length}件を、追加が古い順から新しい順に掲載しています（接続テスト用デモを含む）。
 
 | ゲーム | せつめい | 作った人 | フォルダ |
 |--------|----------|----------|----------|

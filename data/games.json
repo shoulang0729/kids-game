@@ -48,21 +48,20 @@
     "manual": "snake-battle"
   },
   {
+    "id": "online-demo",
+    "title": "オンラインちびデモ",
+    "emoji": "🧪",
+    "description": "接続テスト用の機能です。同じ合言葉で別の端末と四角を動かして通信を確認（4人まで）",
+    "author": "としくん",
+    "manual": "online-demo"
+  },
+  {
     "id": "snake-battle-online",
     "title": "スネークバトルオンライン",
     "emoji": "🌐",
     "description": "合言葉で友だちとオンライン対戦！CPUもまざって10匹でバトル。アイテムで逆転をねらえ",
     "author": "こうちゃん&としくん",
     "manual": "snake-online"
-  },
-  {
-    "id": "online-demo",
-    "title": "オンラインちびデモ",
-    "emoji": "🧪",
-    "description": "オンラインのテスト！同じ合言葉を入れて、べつの端末と四角をいっしょに動かそう",
-    "author": "",
-    "manual": null,
-    "manualNote": "接続テスト用デモ。画面の案内に従い同じ合言葉で入室します。"
   },
   {
     "id": "chaos-ultra-x",
