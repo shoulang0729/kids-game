@@ -1,0 +1,43 @@
+* { box-sizing: border-box; }
+:root { color-scheme: dark; }
+body { margin: 0; color: #edf5ff; background: #101b2a; font-family: "Hiragino Maru Gothic Pro", "Yu Gothic", sans-serif; line-height: 1.7; }
+header, main, footer { max-width: 1120px; margin: auto; padding: 24px; }
+header { padding-top: 28px; }
+a { color: inherit; text-underline-offset: 4px; }
+a:focus-visible, input:focus-visible { outline: 3px solid #ffda7a; outline-offset: 5px; }
+.back { color: #b4c9df; }
+.eyebrow { margin: 36px 0 8px; color: #8fe5d3; font-weight: bold; letter-spacing: .12em; font-size: 13px; }
+h1 { margin: 0; font-size: clamp(30px, 5.5vw, 60px); line-height: 1.25; }
+.intro { color: #c8d6e7; font-size: 17px; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 26px; }
+.actions a, nav a { padding: 10px 16px; border: 1px solid #456075; border-radius: 12px; text-decoration: none; }
+.actions .walk { background: #a4eedb; color: #102e32; font-weight: bold; border-color: #a4eedb; }
+.find { padding: 20px; background: #1c2b3e; border-radius: 18px; }
+label { display: block; font-weight: bold; margin-bottom: 8px; }
+input { width: 100%; padding: 12px; border: 1px solid #68839b; border-radius: 10px; font: inherit; background: #101b2a; color: inherit; }
+#count { margin: 8px 0 0; color: #c8d6e7; font-size: 14px; }
+nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 40px; }
+nav a { font-size: 14px; }
+section { scroll-margin-top: 20px; margin-bottom: 42px; }
+h2 { font-size: clamp(20px, 4vw, 26px); }
+h2 small { color: #b4c9df; font-size: 15px; font-weight: normal; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); gap: 14px; }
+.game-card { display: flex; flex-direction: column; padding: 20px; border: 1px solid #3b536d; border-radius: 18px; background: #1c2b3e; text-decoration: none; }
+.game-card:hover { border-color: #8fe5d3; background: #24394c; }
+.icon { font-size: 34px; }
+h3 { font-size: 19px; line-height: 1.5; margin: 8px 0; overflow-wrap: anywhere; }
+.game-card p { font-size: 14px; color: #c8d6e7; margin: 0 0 18px; }
+.play { color: #8fe5d3; margin-top: auto; font-weight: bold; }
+[hidden] { display: none !important; }
+footer { color: #b4c9df; font-size: 13px; padding-bottom: 36px; }
+@media (max-width: 500px) { header, main, footer { padding-left: 18px; padding-right: 18px; } .eyebrow { letter-spacing: .04em; } }
+@media (max-width: 500px) {
+  header { padding-top: 20px; padding-bottom: 12px; }
+  .eyebrow { margin-top: 20px; }
+  h1 { font-size: 28px; }
+  .intro { font-size: 15px; margin: 12px 0; }
+  .actions { margin-top: 16px; gap: 8px; }
+  .actions a { padding: 8px 12px; font-size: 14px; }
+  main { padding-top: 12px; }
+  nav { margin: 18px 0 24px; }
+}

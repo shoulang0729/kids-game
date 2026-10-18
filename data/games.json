@@ -76,9 +76,10 @@
     "id": "kochan-3d-arcade",
     "title": "こうちゃんの3Dゲームセンター",
     "emoji": "🕹️",
-    "description": "店内を歩いて全37種類！クレーン・ゴルフ・バスケ・レースなど。スポーツは直接タッチして遊べる",
+    "description": "専用入口で全37種類から選ぼう！クレーン・立体スポーツ・レースなど。店内を歩いて探すこともできる",
     "author": "こうちゃん",
-    "manual": "kochan-arcade"
+    "manual": "kochan-arcade",
+    "entry": "lobby.html"
   },
   {
     "id": "tap-circle",

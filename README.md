@@ -41,17 +41,17 @@ GitHub Pages で公開しています：
 
 | ゲーム | せつめい | 作った人 | フォルダ |
 |--------|----------|----------|----------|
-| ☠️ 地獄基地防衛 | 基地をつくって、せめてくるてきからコアをまもれ！ | こうちゃん | `games/base-defense/` |
-| 🐍 へびゲーム | りんごを食べてへびをのばそう！かべと自分に気をつけて | としくん | `games/snake/` |
-| ⚔️ ようちゃんバトル | ストーリー・無限・防衛モードのRPGバトル！武器を強くして魔王をたおせ | ようちゃん | `games/youchan-battle/` |
-| 🌌 惑星ぶっこわし3D | 惑星をタッチしてこわそう！お金をためて強い攻撃を解放。地球から宇宙皇帝まで18ステージ | ようちゃん | `games/planet-smash/` |
-| 🍳 料理ゲーム | ミッションの料理を作ろう！食材を切ったり焼いたり。ショップ・図鑑・実績つき | こうちゃん | `games/cooking/` |
-| 🐲 スネークバトル | 最大4人＆CPUと対戦するスネーク！顔やステージも自分で描ける本格バトル | こうちゃん | `games/snake-battle/` |
-| 🌐 スネークバトルオンライン | 合言葉で友だちとオンライン対戦！CPUもまざって10匹でバトル。アイテムで逆転をねらえ | こうちゃん&としくん | `games/snake-battle-online/` |
-| 🧪 オンラインちびデモ | オンラインのテスト！同じ合言葉を入れて、べつの端末と四角をいっしょに動かそう | — | `games/online-demo/` |
-| 🌌 カオス世界大崩壊 ULTRA X INFINITE | 20形態に進化！ブラックホール・トリプルボス・無限ドローン・巨大戦艦で生き残れ！ | ようちゃん | `games/chaos-ultra-x/` |
-| 🕹️ こうちゃんの3Dゲームセンター | 店内を歩いて全37種類！クレーン・ゴルフ・バスケ・レースなど。スポーツは直接タッチして遊べる | こうちゃん | `games/kochan-3d-arcade/` |
-| 🎯 丸をタップ！ | 出てくる丸をタップ！20秒で何点とれるかな？最高記録に挑戦しよう | ようちゃん | `games/tap-circle/` |
+| ☠️ [地獄基地防衛](https://shoulang0729.github.io/kids-game/games/base-defense/index.html) | 基地をつくって、せめてくるてきからコアをまもれ！ | こうちゃん | `games/base-defense/` |
+| 🐍 [へびゲーム](https://shoulang0729.github.io/kids-game/games/snake/index.html) | りんごを食べてへびをのばそう！かべと自分に気をつけて | としくん | `games/snake/` |
+| ⚔️ [ようちゃんバトル](https://shoulang0729.github.io/kids-game/games/youchan-battle/index.html) | ストーリー・無限・防衛モードのRPGバトル！武器を強くして魔王をたおせ | ようちゃん | `games/youchan-battle/` |
+| 🌌 [惑星ぶっこわし3D](https://shoulang0729.github.io/kids-game/games/planet-smash/index.html) | 惑星をタッチしてこわそう！お金をためて強い攻撃を解放。地球から宇宙皇帝まで18ステージ | ようちゃん | `games/planet-smash/` |
+| 🍳 [料理ゲーム](https://shoulang0729.github.io/kids-game/games/cooking/index.html) | ミッションの料理を作ろう！食材を切ったり焼いたり。ショップ・図鑑・実績つき | こうちゃん | `games/cooking/` |
+| 🐲 [スネークバトル](https://shoulang0729.github.io/kids-game/games/snake-battle/index.html) | 最大4人＆CPUと対戦するスネーク！顔やステージも自分で描ける本格バトル | こうちゃん | `games/snake-battle/` |
+| 🌐 [スネークバトルオンライン](https://shoulang0729.github.io/kids-game/games/snake-battle-online/index.html) | 合言葉で友だちとオンライン対戦！CPUもまざって10匹でバトル。アイテムで逆転をねらえ | こうちゃん&としくん | `games/snake-battle-online/` |
+| 🧪 [オンラインちびデモ](https://shoulang0729.github.io/kids-game/games/online-demo/index.html) | オンラインのテスト！同じ合言葉を入れて、べつの端末と四角をいっしょに動かそう | — | `games/online-demo/` |
+| 🌌 [カオス世界大崩壊 ULTRA X INFINITE](https://shoulang0729.github.io/kids-game/games/chaos-ultra-x/index.html) | 20形態に進化！ブラックホール・トリプルボス・無限ドローン・巨大戦艦で生き残れ！ | ようちゃん | `games/chaos-ultra-x/` |
+| 🕹️ [こうちゃんの3Dゲームセンター](https://shoulang0729.github.io/kids-game/games/kochan-3d-arcade/lobby.html) | 専用入口で全37種類から選ぼう！クレーン・立体スポーツ・レースなど。店内を歩いて探すこともできる | こうちゃん | `games/kochan-3d-arcade/` |
+| 🎯 [丸をタップ！](https://shoulang0729.github.io/kids-game/games/tap-circle/index.html) | 出てくる丸をタップ！20秒で何点とれるかな？最高記録に挑戦しよう | ようちゃん | `games/tap-circle/` |
 <!-- END GENERATED: catalog -->
 
 - 3Dゲームセンターの遊び方：左下のスティックで歩く、画面をスライドして見回す、⚡長押しでダッシュ。
@@ -74,7 +74,7 @@ kids-game/
 │   ├── snake-battle-online/index.html ← スネークバトルオンライン
 │   ├── online-demo/index.html ← オンラインちびデモ
 │   ├── chaos-ultra-x/index.html ← カオス世界大崩壊 ULTRA X INFINITE
-│   ├── kochan-3d-arcade/index.html ← こうちゃんの3Dゲームセンター
+│   ├── kochan-3d-arcade/lobby.html ← こうちゃんの3Dゲームセンター（店内はindex.html）
 │   └── tap-circle/index.html ← 丸をタップ！
 ├── data/games.json ← ゲーム情報の正本
 ├── wiki/index.html ← せつめいしょ（目次を生成）

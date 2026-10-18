@@ -28,5 +28,8 @@ try {
   rejects('index.html', s => s.replace('<header>', '<header id="grid">'), 'check.mjs', /duplicate id grid/);
   rejects('data/games.json', s => { const data = JSON.parse(s); data.pop(); return JSON.stringify(data); }, 'check.mjs', /catalog must include every game/);
   rejects('data/games.json', s => { const data = JSON.parse(s); data[0].title = '変更'; return JSON.stringify(data); }, 'generate.mjs', /out of date/);
+  rejects('games/kochan-3d-arcade/lobby.html', s => s.replace('index.html?game=crane-real', 'missing.html?game=crane-real'), 'check.mjs', /missing missing.html/);
+  rejects('games/kochan-3d-arcade/arcade.js', s => s.replace('バスケットシュート', '新しいバスケ'), 'generate.mjs', /out of date/);
+  rejects('data/games.json', s => { const data = JSON.parse(s); data.find(g => g.entry).entry = '../index.html'; return JSON.stringify(data); }, 'check.mjs', /invalid entry/);
 } finally { fs.rmSync(fixture, { recursive: true, force: true }); }
 console.log('PASS: syntax, broken links, missing manual, duplicate IDs and catalog omissions are rejected');
