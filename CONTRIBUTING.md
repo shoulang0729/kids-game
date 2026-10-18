@@ -15,7 +15,7 @@
 2. 作業がおわったら **プルリクエスト（PR）** を作る。
 3. **公開（`main` へのマージ）は、おうちの人が中身を確認してからOKする。**
    → こうすれば、まちがえて直しても本番の公開サイトはこわれません。
-4. PRを作るとCodeRabbit（レビューAI）が自動でチェックしてくれます。指摘が出たら直しましょう。
+4. PRの自動チェック（Check site and games）とレビュー指摘を確認し、失敗・指摘を直しましょう。CodeRabbitは設定によりレビューを省略する場合があります。
 
 > AIエージェントへ: このリポジトリでは `main` への直接 push は禁止です。
 > 変更は必ずブランチを切って PR を作成してください。マージは人間（リポジトリ所有者）が行います。
@@ -24,19 +24,8 @@
 
 ## 🗺️ リポジトリの地図（構成）
 
-```
-kids-game/
-├── index.html              ← 入り口ページ（ゲーム一覧）
-├── games/
-│   ├── base-defense/index.html   ← 地獄基地防衛（こうちゃん）
-│   ├── snake/index.html          ← へびゲーム（としくん）
-│   ├── youchan-battle/index.html ← ようちゃんバトル（ようちゃん）
-│   ├── planet-smash/index.html   ← 惑星ぶっこわし3D（ようちゃん）
-│   └── cooking/index.html        ← 料理ゲーム（こうちゃん）
-├── wiki/index.html         ← せつめいしょ（あそびかたガイド）
-├── README.md               ← プロジェクトの説明
-└── CONTRIBUTING.md         ← このファイル
-```
+最新のゲーム一覧・フォルダ構成は [README.md](README.md) を見てください。
+基本情報の正本は `data/games.json` です。
 
 - ゲームは **1つにつき1フォルダ**、中に `index.html` を置きます。
 - 各ゲームは **HTML/CSS/JavaScript だけ** で動く1ファイル完結が基本です（ビルド不要）。
@@ -51,18 +40,11 @@ kids-game/
      ```html
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
      ```
-3. 入り口ページ `index.html` の `games` リストに1ブロック足す:
-   ```js
-   {
-     title: "めいろ",
-     emoji: "🌀",
-     desc: "ゴールをめざそう！（だれだれ作）",
-     url: "games/maze/index.html",
-     ready: true
-   }
-   ```
-4. （あれば）`wiki/index.html` に遊び方セクションを追加。
-5. `README.md` のゲーム一覧テーブルと構成ツリーを更新。
+3. `data/games.json` にゲームの `id`（フォルダ名）・`title`・`emoji`・`description`・`author`・`manual`（説明書のセクションID）を追加。
+4. `wiki/index.html` に同じIDの遊び方セクションを追加。説明書を省く場合は `manual: null` と理由の `manualNote` が必要。
+5. `npm run generate` を実行。トップページ・README・説明書の目次の `GENERATED` 範囲は直接編集しない。
+6. `tests/browser/run.cjs` に新しいゲームの起動・操作シナリオを追加し、`npm test` を実行。
+7. PRを作成。PRの自動チェックが通ったことを確認する。
 
 ---
 
@@ -88,8 +70,8 @@ kids-game/
 ## ✍️ 作者の表示を変えたいとき
 
 作者名は「ラベル（表示）」です。次の場所を直します:
-- `index.html` … 各ゲームカードの `desc`、フッターの「つくった人」
-- `README.md` … ゲーム一覧テーブル
+- `data/games.json` … `author` を変更して `npm run generate` を実行
+- `index.html` … フッターの「つくった人」（全体の紹介を変える場合）
 - `wiki/index.html` … 各ゲームの見出し
 
 ---
