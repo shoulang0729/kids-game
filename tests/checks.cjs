@@ -7,7 +7,7 @@ const assert = require('node:assert/strict');
 const root = path.resolve(__dirname, '..');
 const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'kids-checks-'));
 try {
-  for (const file of ['index.html', 'README.md', 'data', 'scripts', 'wiki', 'games', 'assets']) {
+  for (const file of ['index.html', 'README.md', 'data', 'scripts', 'wiki', 'games', 'assets', 'shared']) {
     fs.cpSync(path.join(root, file), path.join(fixture, file), { recursive: true });
   }
   fs.symlinkSync(path.join(root, 'node_modules'), path.join(fixture, 'node_modules'), 'dir');

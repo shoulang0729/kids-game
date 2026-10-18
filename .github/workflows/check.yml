@@ -20,6 +20,7 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run test:checks
+      - run: npm run test:rules
       - run: npm run test:arcade
   browser:
     needs: static

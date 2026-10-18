@@ -1,9 +1,5 @@
-// High-level improvements:
-// - Levels with changing grid size, speed, obstacles
-// - High-DPI canvas scaling, responsive centered layout
-// - Obstacles generation
-// - Time-based game loop with interpolation for smooth rendering
-// - Touch/swipe and button controls
+import { createSnakeGame } from "./rules.mjs";
+import { readBest, saveBest } from "../../shared/records.mjs";
 
 const cv = document.getElementById("cv");
 const ctx = cv.getContext("2d");
@@ -14,237 +10,78 @@ const ovTitle = document.getElementById("ovTitle");
 const startBtn = document.getElementById("startBtn");
 const levelEl = document.getElementById("level");
 const gridEl = document.getElementById("gridSize");
-
+const model = createSnakeGame();
+let best = readBest("snakeBest");
+let accumulator = 0,
+  lastTs = 0,
+  flashTimer = null;
 let DPR = Math.max(1, window.devicePixelRatio || 1);
 function resizeCanvas() {
-  const cssW = cv.clientWidth;
-  const cssH = cv.clientHeight;
-  cv.width = Math.round(cssW * DPR);
-  cv.height = Math.round(cssH * DPR);
+  cv.width = Math.round(cv.clientWidth * DPR);
+  cv.height = Math.round(cv.clientHeight * DPR);
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
 }
 window.addEventListener("resize", () => {
   DPR = Math.max(1, window.devicePixelRatio || 1);
-  resizeCanvas();
   draw();
 });
-resizeCanvas();
-
-// Level definitions: grid (cells per row), base speed (moves/sec), obstacles count
-const levels = [
-  { grid: 20, speed: 6, obstacles: 0 },
-  { grid: 18, speed: 7, obstacles: 2 },
-  { grid: 16, speed: 8, obstacles: 3 },
-  { grid: 14, speed: 9, obstacles: 5 },
-  { grid: 12, speed: 10, obstacles: 7 },
-  { grid: 10, speed: 12, obstacles: 9 },
-];
-let currentLevel = 0;
-let GRID = levels[0].grid;
-let CELL = 0; // set based on canvas size
-let snake = [],
-  dir = { x: 1, y: 0 },
-  nextDir = { x: 1, y: 0 },
-  food = null,
-  obstacles = [];
-let score = 0,
-  best = Number(localStorage.getItem("snakeBest") || 0);
-bestEl.textContent = "さいこう記録：" + best;
-let alive = false;
-
-// Timing
-let movesPerSec = levels[0].speed;
-let moveInterval = 1000 / movesPerSec; // ms per step
-let accumulator = 0; // for stepping
-let lastTs = 0;
-
-function applyLevel(n) {
-  currentLevel = Math.max(0, Math.min(levels.length - 1, n));
-  const lv = levels[currentLevel];
-  GRID = lv.grid;
-  movesPerSec = lv.speed;
-  moveInterval = 1000 / movesPerSec;
-  levelEl.textContent = currentLevel + 1;
-  gridEl.textContent = GRID;
-  fitSnakeToGrid();
-  generateObstacles(lv.obstacles);
+function updateHud() {
+  scoreEl.textContent = "てんすう：" + model.state.score;
+  bestEl.textContent = "さいこう記録：" + best;
+  levelEl.textContent = model.state.level + 1;
+  gridEl.textContent = model.state.grid;
 }
-
-// グリッドが縮んだときにヘビが盤外に出て理不尽に即ゲームオーバーに
-// ならないよう、はみ出す場合は中央に作り直す。
-function fitSnakeToGrid() {
-  if (!snake || snake.length === 0) return;
-  const tooBig = snake.some((s) => s.x < 0 || s.y < 0 || s.x >= GRID || s.y >= GRID);
-  if (tooBig) {
-    const c = Math.floor(GRID / 2);
-    snake = [
-      { x: c, y: c },
-      { x: c - 1, y: c },
-      { x: c - 2, y: c },
-    ];
-    dir = { x: 1, y: 0 };
-    nextDir = { x: 1, y: 0 };
-  }
-}
-
-function allCells() {
-  const cells = [];
-  for (let y = 0; y < GRID; y++) for (let x = 0; x < GRID; x++) cells.push({ x, y });
-  return cells;
-}
-
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-}
-
-function generateObstacles(count) {
-  obstacles = [];
-  // ヘビの頭の数マス前には障害物を置かない（避けられない死を防ぐ）
-  const head = snake && snake[0];
-  const safe = [];
-  if (head) {
-    for (let i = 1; i <= 3; i++) safe.push({ x: head.x + dir.x * i, y: head.y + dir.y * i });
-  }
-  const empties = allCells().filter(
-    (c) => !isOnSnake(c) && !isFood(c) && !safe.some((s) => s.x === c.x && s.y === c.y),
-  );
-  shuffle(empties);
-  obstacles = empties.slice(0, count);
-}
-
-function isOnSnake(cell) {
-  return snake.some((s) => s.x === cell.x && s.y === cell.y);
-}
-function isFood(cell) {
-  return food && food.x === cell.x && food.y === cell.y;
-}
-
-function placeFood() {
-  const empties = allCells().filter(
-    (c) => !isOnSnake(c) && !obstacles.some((o) => o.x === c.x && o.y === c.y),
-  );
-  if (empties.length === 0) {
-    food = null;
-    return;
-  }
-  food = empties[Math.floor(Math.random() * empties.length)];
-}
-
-function reset() {
-  GRID = levels[0].grid;
-  applyLevel(0);
-  snake = [
-    { x: Math.floor(GRID / 2), y: Math.floor(GRID / 2) },
-    { x: Math.floor(GRID / 2) - 1, y: Math.floor(GRID / 2) },
-    { x: Math.floor(GRID / 2) - 2, y: Math.floor(GRID / 2) },
-  ];
-  dir = { x: 1, y: 0 };
-  nextDir = { x: 1, y: 0 };
-  score = 0;
-  alive = false;
+function start() {
+  clearTimeout(flashTimer);
+  model.start();
   accumulator = 0;
   lastTs = 0;
-  placeFood();
-  scoreEl.textContent = "てんすう：" + score;
+  overlay.classList.add("hidden");
+  updateHud();
 }
-
-function start() {
-  if (!alive) {
-    alive = true;
-    overlay.classList.add("hidden");
-  }
-  reset();
-  alive = true;
-}
-
 function gameOver() {
-  alive = false;
-  overlay.classList.remove("hidden");
-  if (score > best) {
-    best = score;
-    localStorage.setItem("snakeBest", best);
-    bestEl.textContent = "さいこう記録：" + best;
+  clearTimeout(flashTimer);
+  model.stop();
+  if (model.state.score > best) {
+    best = model.state.score;
+    saveBest("snakeBest", best);
   }
-  ovTitle.textContent = "💥 おわり！ てんすう " + score;
+  updateHud();
+  overlay.classList.remove("hidden");
+  ovTitle.textContent = "💥 おわり！ てんすう " + model.state.score;
   startBtn.textContent = "▶ もういちど";
 }
-
-function setDir(x, y) {
-  // prevent reverse
-  if (dir.x === -x && dir.y === -y) return;
-  nextDir = { x, y };
-}
-
-function step() {
-  dir = nextDir;
-  const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
-  // wall
-  if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID) {
-    gameOver();
-    return;
-  }
-  // self
-  if (snake.some((s) => s.x === head.x && s.y === head.y)) {
-    gameOver();
-    return;
-  }
-  // obstacle
-  if (obstacles.some((o) => o.x === head.x && o.y === head.y)) {
-    gameOver();
-    return;
-  }
-
-  snake.unshift(head);
-  if (food && head.x === food.x && head.y === food.y) {
-    score += 10;
-    scoreEl.textContent = "てんすう：" + score;
-    // level up every 50 points
-    if (score % 50 === 0) {
-      applyLevel(currentLevel + 1);
-      flashLevel();
-    }
-    placeFood();
-    // slight speed up per food
-    movesPerSec = Math.min(24, movesPerSec + 0.25);
-    moveInterval = 1000 / movesPerSec;
-  } else {
-    snake.pop();
-  }
-}
-
 function flashLevel() {
-  // small visual flash on level up
-  const old = overlay.className;
+  clearTimeout(flashTimer);
   overlay.classList.remove("hidden");
-  ovTitle.textContent = "⚡ レベルアップ！ L" + (currentLevel + 1);
-  setTimeout(() => {
-    overlay.classList.add("hidden");
-    ovTitle.textContent = "🐍 へびゲーム";
+  ovTitle.textContent = "⚡ レベルアップ！ L" + (model.state.level + 1);
+  flashTimer = setTimeout(() => {
+    if (model.state.alive) {
+      overlay.classList.add("hidden");
+      ovTitle.textContent = "🐍 へびゲーム";
+    }
   }, 900);
 }
-
 function gameLoop(ts) {
   if (!lastTs) lastTs = ts;
   const dt = ts - lastTs;
   lastTs = ts;
-  if (!alive) {
-    draw();
-    requestAnimationFrame(gameLoop);
-    return;
+  if (model.state.alive) {
+    accumulator += dt;
+    while (model.state.alive && accumulator >= 1000 / model.state.speed) {
+      accumulator -= 1000 / model.state.speed;
+      const result = model.step();
+      updateHud();
+      if (result.ended) gameOver();
+      else if (result.levelChanged) flashLevel();
+    }
   }
-  accumulator += dt;
-  while (accumulator >= moveInterval) {
-    accumulator -= moveInterval;
-    step();
-  }
-  draw(accumulator / moveInterval); // pass alpha for interpolation (if needed)
+  draw();
   requestAnimationFrame(gameLoop);
 }
-
-function draw(alpha = 0) {
+function draw() {
+  const { grid: GRID, snake, food, obstacles } = model.state;
+  let CELL;
   resizeCanvas();
   const W = cv.clientWidth;
   const H = cv.clientHeight; // css px
@@ -303,12 +140,13 @@ function draw(alpha = 0) {
 // controls
 document.addEventListener("keydown", (e) => {
   const k = e.key;
-  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(k)) e.preventDefault();
-  if (k === "ArrowUp") setDir(0, -1);
-  if (k === "ArrowDown") setDir(0, 1);
-  if (k === "ArrowLeft") setDir(-1, 0);
-  if (k === "ArrowRight") setDir(1, 0);
-  if (k === " " && !alive) start();
+  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(k))
+    e.preventDefault();
+  if (k === "ArrowUp") model.setDirection(0, -1);
+  if (k === "ArrowDown") model.setDirection(0, 1);
+  if (k === "ArrowLeft") model.setDirection(-1, 0);
+  if (k === "ArrowRight") model.setDirection(1, 0);
+  if (k === " " && !model.state.alive) start();
 });
 
 // touch swipe
@@ -331,19 +169,15 @@ cv.addEventListener(
     const dx = t.clientX - sx,
       dy = t.clientY - sy;
     if (Math.abs(dx) + Math.abs(dy) < 18) return;
-    if (Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0);
-    else setDir(0, dy > 0 ? 1 : -1);
+    if (Math.abs(dx) > Math.abs(dy)) model.setDirection(dx > 0 ? 1 : -1, 0);
+    else model.setDirection(0, dy > 0 ? 1 : -1);
     sx = 0;
     sy = 0;
   },
   { passive: true },
 );
 
-// initialize
-reset();
+updateHud();
 draw();
 requestAnimationFrame(gameLoop);
-
-startBtn.onclick = () => {
-  start();
-};
+startBtn.onclick = start;
