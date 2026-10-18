@@ -14,11 +14,13 @@ try {
 if (
   !data ||
   typeof data !== "object" ||
-  !/^[0-9a-f]{64}$/.test(data.code || "")
+  (!/^[0-9a-f]{64}$/.test(data.code || "") &&
+    !(data.code === "" && data.name === ""))
 )
   data = { code: "", name: "", best: {}, pending: {} };
 data.best ||= {};
 data.pending ||= {};
+// An unnamed player may keep local results across pages before opting in.
 let timer, flushing;
 function save() {
   try {

@@ -25,14 +25,21 @@ const server = http.createServer((req, res) => {
 // change the game, instead of merely hiding a start screen.
 const scenarios = {
   async ranking(p) {
+    const base = new URL('../', p.url()).href;
+    // First-time play must survive navigation before a ranking name is registered.
+    await p.goto(base + 'games/planet-smash/index.html');
+    await p.evaluate(() => damagePlanet(planet.hp, 350, 200));
+    await p.reload();
+    await p.goto(base + 'ranking/index.html?game=planet-smash');
+    assert.equal(await p.evaluate(() => GameRecords.profile().pending), 1);
     await p.fill('#name', 'テスト');
     await p.click('#save');
     await p.waitForFunction(() => document.querySelector('#status').textContent.includes('送信が完了'));
+    assert.match(await p.locator('#own').innerText(), /1個/);
     await p.locator('summary').click();
     await p.click('#show-code');
     const code = await p.locator('#code').innerText();
     assert.match(code, /^[a-f0-9]{64}$/);
-    const base = new URL('../', p.url()).href;
     await p.goto(base + 'games/tap-circle/index.html');
     p.context().rankingsWritable = false;
     await p.clock.install();
