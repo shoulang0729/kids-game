@@ -6,6 +6,8 @@
 //   部屋（Durable Object）は合言葉ごとに1つずつ作られる。
 
 import { DurableObject } from "cloudflare:workers";
+import { rankingsRequest } from './leaderboard.js';
+export { Leaderboard } from './leaderboard.js';
 
 export { SnakeRoom } from "./snake-room.js";
 
@@ -19,6 +21,7 @@ const ROOM_CODE = /^[0-9A-Za-z_\-぀-ゟ゠-ヿ一-鿿]{1,20}$/;
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname.startsWith('/rankings/')) return rankingsRequest(request, env);
     const match = url.pathname.match(/^\/(room|snake)\/([^/]+)$/);
 
     if (!match) {

@@ -20,3 +20,11 @@ class_name = "SnakeRoom"
 [[migrations]]
 tag = "v2"
 new_sqlite_classes = ["SnakeRoom"]
+
+[[durable_objects.bindings]]
+name = "LEADERBOARDS"
+class_name = "Leaderboard"
+
+[[migrations]]
+tag = "v3"
+new_sqlite_classes = ["Leaderboard"]

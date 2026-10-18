@@ -262,6 +262,7 @@ function buyBomberRobot() {
 function start() {
   if (running) return;
   running = true;
+  globalThis.GameRecords?.record("base-defense", { wave });
   show("Wave " + wave + " 開始！");
 }
 document.onkeydown = (e) => {
@@ -613,6 +614,7 @@ function updateEnemyHpBar(e) {
 function nextWaveCheck() {
   if (running && enemiesLeft <= 0 && enemies.length === 0) {
     wave++;
+    globalThis.GameRecords?.record("base-defense", { wave });
     enemiesLeft = 6 + wave * 4;
     splitCount = 0;
     if (wave >= 20) {

@@ -48,6 +48,7 @@ let playing = false;
 let started = false;
 
 let gameOverShown = false;
+let roundBestMeters = 0;
 
 let finalDeathTime = null;
 
@@ -3558,6 +3559,7 @@ function findSafePlayerSpawn(preferredX, preferredY, radius) {
 }
 
 function createGame() {
+  roundBestMeters = 0;
   snakes.length = 0;
 
   sparkles.length = 0;
@@ -3786,6 +3788,7 @@ function showGameOver() {
   }
 
   gameOverShown = true;
+  if (players[0]) globalThis.GameRecords?.record("snake-battle", { meters: Math.round(Math.max(roundBestMeters, players[0].getMeters()) * 10) / 10, kills: players[0].kills + players[0].playerKills });
 
   playing = false;
 
@@ -3979,6 +3982,7 @@ function loop(time) {
     snake.update(dt);
   }
 
+  if (players[0]) roundBestMeters = Math.max(roundBestMeters, players[0].getMeters());
   collisions();
 
   respawnCPUs();

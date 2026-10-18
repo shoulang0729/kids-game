@@ -19,6 +19,7 @@ function moveTarget() {
 }
 function finish(result) {
   if (!result.finished) return;
+  globalThis.GameRecords?.record("tap-circle", { score: round.state.score });
   clearInterval(timer);
   target.style.display = "none";
   timeLabel.textContent = "0";

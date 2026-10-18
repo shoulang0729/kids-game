@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { parse as parseHTML } from 'parse5';
 import { parse as parseJS } from 'acorn';
+import { RANKINGS } from '../shared/leaderboard-policy.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const read = file => readFileSync(path.join(root, file), 'utf8');
@@ -16,6 +17,7 @@ for (const g of games) {
   assert.equal(typeof g.author, 'string');
   assert.ok(g.manual || g.manualNote, `${g.id}: manual or documented exception required`);
   if (g.manual) assert.match(g.manual, /^[a-z0-9-]+$/);
+  assert.ok(Object.hasOwn(RANKINGS, g.id) || g.id === 'online-demo', `${g.id}: ranking policy is missing`);
 }
 assert.deepEqual([...ids].sort(), readdirSync(path.join(root, 'games')).filter(id => existsSync(path.join(root, 'games', id, 'index.html'))).sort(), 'catalog must include every game');
 
@@ -38,7 +40,7 @@ function document(file) {
   documents.set(file, result);
   return result;
 }
-const files = ['index.html', 'wiki/index.html', ...games.map(g => `games/${g.id}/index.html`)];
+const files = ['index.html', 'wiki/index.html', 'ranking/index.html', ...games.map(g => `games/${g.id}/index.html`)];
 const checkedScripts = new Set();
 function checkScript(file, module = false) {
   if (checkedScripts.has(file)) return;

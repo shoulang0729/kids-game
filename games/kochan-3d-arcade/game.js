@@ -59,6 +59,7 @@ function tone(f, d = 0.12) {
 function updateUI() {
   const total = owned.reduce((a, b) => a + b, 0),
     unique = owned.filter(Boolean).length;
+  globalThis.GameRecords?.record("kochan-3d-arcade", { prizes: total, kinds: unique });
   $("#score").textContent = `GET ${total} / ${unique}種類`;
   $("#collectionStats").textContent =
     `${unique} / ${kinds.length}種類 · 合計${total}個 · ${tries}回プレイ`;

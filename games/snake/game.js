@@ -42,6 +42,7 @@ function start() {
 function gameOver() {
   clearTimeout(flashTimer);
   model.stop();
+  globalThis.GameRecords?.record("snake", { score: model.state.score });
   if (model.state.score > best) {
     best = model.state.score;
     saveBest("snakeBest", best);

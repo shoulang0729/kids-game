@@ -238,6 +238,10 @@ function connect(name, code) {
   myId = null;
   let full = false;
   ws = new WebSocket(url);
+  ws.onopen = () => {
+    const profile = globalThis.GameRecords?.profile();
+    if (profile?.code && profile.name) ws.send(JSON.stringify({ t: 'profile', code: profile.code }));
+  };
   ws.onmessage = (e) => {
     const m = JSON.parse(e.data);
     if (m.t === "welcome") myId = m.you;
