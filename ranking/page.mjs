@@ -8,6 +8,13 @@ import {
 const $ = (id) => document.getElementById(id);
 const games = await (await fetch("../data/games.json")).json();
 const params = new URLSearchParams(location.search);
+const localServer = params.get("server");
+function pageLink(href) {
+  // Match the client allowlist so local test records stay on the local API.
+  return /^(localhost|127\.0\.0\.1)(:\d+)?$/.test(localServer || "")
+    ? `${href}${href.includes("?") ? "&" : "?"}server=${encodeURIComponent(localServer)}`
+    : href;
+}
 const wanted = params.get("game");
 const game = games.find(g => g.id === wanted && Object.hasOwn(RANKINGS, g.id));
 const returned = games.find(g => g.id === params.get("return") && Object.hasOwn(RANKINGS, g.id));
@@ -20,17 +27,17 @@ if (wanted !== null) {
     $("board-panel").hidden = false;
     $("record-note").hidden = false;
     $("profile-link").hidden = false;
-    $("profile-link").href = `index.html?return=${encodeURIComponent(game.id)}`;
+    $("profile-link").href = pageLink(`index.html?return=${encodeURIComponent(game.id)}`);
     $("play-link").hidden = false;
     $("play-link").textContent = `${game.title}へ`;
-    $("play-link").href = `../games/${game.id}/${game.entry || "index.html"}`;
+    $("play-link").href = pageLink(`../games/${game.id}/${game.entry || "index.html"}`);
   } else {
     $("page-title").textContent = "ゲームが見つかりません";
     $("intro").textContent = "ゲームランドの一覧からランキングを選び直してください。";
   }
 } else if (returned) {
   $("return-link").hidden = false;
-  $("return-link").href = `index.html?game=${encodeURIComponent(returned.id)}`;
+  $("return-link").href = pageLink(`index.html?game=${encodeURIComponent(returned.id)}`);
   $("return-link").textContent = `${returned.title}のランキングへ戻る`;
 }
 $("name").value = profile().name;

@@ -50,11 +50,11 @@ update('README.md', 'tree', '```\nkids-game/\n├── index.html ← 入り口
 update('wiki/index.html', 'navigation', games.filter(g => g.manual).map(g => `<a href="#${escape(g.manual)}">${escape(g.emoji)} ${escape(g.title)}</a>`).join('\n'));
 update('README.md', 'rankings', '| ゲーム | 記録 |\n|---|---|\n' + games.filter(g => RANKINGS[g.id]).map(g => `| [${cell(g.title)}](https://shoulang0729.github.io/kids-game/ranking/index.html?game=${g.id}) | ${Object.values(RANKINGS[g.id]).map(m => cell(m.label)).join('・')} |`).join('\n'));
 const groups = arcadeCatalog(root);
-for (const g of games.filter(g => RANKINGS[g.id])) {
+for (const g of games.filter(g => g.manual || RANKINGS[g.id])) {
   const links = `<nav class="game-page-links" aria-label="ゲームの案内">
-  <a class="game-manual" href="../../wiki/index.html#${escape(g.manual)}">📖 説明書</a>
-  <a class="game-ranking" href="../../ranking/index.html?game=${escape(g.id)}">🏆 ランキング</a>
-</nav>`;
+  ${g.manual ? `<a class="game-manual" href="../../wiki/index.html#${escape(g.manual)}">📖 説明書</a>` : ''}
+  ${RANKINGS[g.id] ? `<a class="game-ranking" href="../../ranking/index.html?game=${escape(g.id)}">🏆 ランキング</a>` : ''}
+</nav>`.replace(/[ \t]+\n/g, '\n');
   const file = `games/${g.id}/index.html`;
   update(file, 'game-links', links);
   for (const name of ['battle-links', 'result-links', 'pause-links'])
