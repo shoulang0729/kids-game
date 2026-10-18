@@ -93,9 +93,14 @@ const scenarios = {
     assert.ok(await p.evaluate(() => running));
   },
   async cooking(p) {
+    await p.clock.install();
     await p.locator('button[onclick="startGame()"]').first().click();
     assert.ok(await p.evaluate(() => currentMission !== null));
     assert.ok(await p.locator('#foodButtons button').count() > 0);
+    await p.evaluate(() => { for (const food of currentMission.answer) addFood('🍴', food); });
+    await p.locator('button[onclick="mix()"]').click();
+    await p.clock.runFor(2100);
+    assert.match(await p.locator('#message').innerText(), /ミッション成功/);
     await p.click('#menuBtn');
     await p.locator('button[onclick="showScreen(\'bookScreen\')"]').click();
     assert.ok(await p.locator('#bookScreen').isVisible());
@@ -111,12 +116,22 @@ const scenarios = {
     const hp = await p.locator('#hp').innerText();
     await p.click('#c');
     assert.ok(Number(await p.locator('#hp').innerText()) < Number(hp));
+    await p.evaluate(() => damagePlanet(hp, 350, 200));
+    assert.match(await p.locator('#stageName').innerText(), /月/);
     await p.locator('button[onclick="resetGame()"]').click();
     assert.equal(await p.locator('#hp').innerText(), hp);
   },
   async 'chaos-ultra-x'(p) {
     await p.click('#startBtn');
     assert.ok(await p.evaluate(() => state === 'play' && p.hp === 100));
+    await p.evaluate(() => gainXP(35));
+    assert.equal(await p.locator('#choices button').count(), 3);
+    await p.locator('#choices button').first().click();
+    assert.ok(await p.evaluate(() => state === 'play' && p.level === 2));
+    assert.equal(await p.evaluate(() => {
+      const enemy = spawnEnemy('normal', p.x + 50, p.y);
+      damageEnemy(enemy, 9999, true, true); return enemy.hp;
+    }), 1);
     await p.click('#boom');
     assert.equal(await p.evaluate(() => boomCharges), 4);
     await p.click('#blackhole');

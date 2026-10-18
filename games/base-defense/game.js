@@ -126,7 +126,7 @@ function selectTool(m) {
 }
 
 function canBuild(x, y) {
-  return Math.abs(x - 9.5) <= buildRange && Math.abs(y - 6.5) <= buildRange;
+  return DefenseRules.canBuild(x, y, buildRange);
 }
 function show(text) {
   message.textContent = text;
@@ -594,7 +594,7 @@ function killEnemy(e) {
   e.dead = true;
   if (e.type === "splitter" && e.splitLevel > 0) spawnSplit(e.x, e.y, e.splitLevel);
   explosion(e.x, e.y);
-  money += e.type === "giantBoss" ? 1000 : e.type === "boss" ? 200 : 20 + wave * 4;
+  money += DefenseRules.enemyReward(e.type, wave);
   removeEnemy(e);
   updateHud();
 }

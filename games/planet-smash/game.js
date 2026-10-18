@@ -325,13 +325,9 @@ function useAttack(tx, ty) {
   }
 
   let a = attacks[selected];
-  let dmg = a.dmg;
+  let dmg = PlanetRules.attackDamage(a);
 
-  if (a.type === "rainbow") {
-    dmg = 3000 + Math.floor(Math.random() * 12000);
-  }
-
-  let reward = Math.max(1, Math.floor(dmg / 25));
+  let reward = PlanetRules.reward(dmg);
   money += reward;
 
   effects.push({ x: tx, y: ty, color: a.color, type: a.type, life: 28 });
@@ -348,7 +344,7 @@ function useAttack(tx, ty) {
       }
 
       let poisonDmg = 700;
-      let poisonReward = Math.max(1, Math.floor(poisonDmg / 40));
+      let poisonReward = PlanetRules.reward(poisonDmg, 40);
       hp -= poisonDmg;
       money += poisonReward;
       count++;
@@ -409,7 +405,7 @@ function clearStage() {
 
   let bonus = stages[stage].bonus;
   money += bonus;
-  stage++;
+  stage = PlanetRules.stageAfterClear(stage, stages.length);
   maxHp = stages[stage].hp;
   hp = maxHp;
   cracks = [];
