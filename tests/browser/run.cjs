@@ -131,6 +131,14 @@ const scenarios = {
     assert.equal(await p.locator('#score').innerText(), '0');
   },
   async snake(p) {
+    // Expose the shipped module's model only in this browser test, so a level-up
+    // can be reached deterministically without a production debug interface.
+    await p.route('**/games/snake/game.js', route => route.fulfill({
+      contentType: 'text/javascript',
+      body: fs.readFileSync(path.join(root, 'games/snake/game.js'), 'utf8') + '\nglobalThis.__snakeTest = model;',
+    }));
+    await p.addInitScript(() => { Math.random = () => 0.5; });
+    await p.reload();
     await p.clock.install();
     await p.click('#startBtn');
     assert.equal(await p.locator('#overlay').isVisible(), false);
@@ -140,6 +148,63 @@ const scenarios = {
     await p.click('#startBtn');
     assert.equal(await p.locator('#overlay').isVisible(), false);
     assert.match(await p.locator('#score').innerText(), /0$/);
+    const before = await p.locator('#cv').boundingBox();
+    await p.evaluate(() => {
+      const s = __snakeTest.state;
+      s.score = 40;
+      s.food = { x: s.snake[0].x + 1, y: s.snake[0].y };
+    });
+    await p.clock.runFor(200);
+    assert.equal(await p.locator('#level').innerText(), '2');
+    assert.match(await p.locator('#levelNotice').innerText(), /レベルアップ/);
+    assert.ok(await p.locator('#overlay').isHidden());
+    assert.deepEqual(await p.locator('#cv').boundingBox(), before, 'notice must not shift the board');
+    const notice = await p.locator('#levelNotice').boundingBox();
+    assert.ok(notice.y + notice.height <= before.y, 'notice stays outside the board');
+    const head = await p.evaluate(() => ({ ...__snakeTest.state.snake[0] }));
+    await p.clock.runFor(300);
+    assert.notDeepEqual(await p.evaluate(() => __snakeTest.state.snake[0]), head, 'movement continues visibly');
+    await p.screenshot({path:path.join(results, `snake-level-${p.viewportSize().width}.png`), fullPage:true});
+    await p.keyboard.press('ArrowUp');
+    await p.clock.runFor(700);
+    assert.equal(await p.locator('#levelNotice').innerText(), '');
+    assert.ok(await p.locator('#overlay').isHidden());
+    // Ending a round during a second notice must retain the game-over display.
+    await p.evaluate(() => {
+      const s = __snakeTest.state;
+      s.score = 90;
+      s.food = { x: s.snake[0].x, y: s.snake[0].y - 1 };
+    });
+    await p.clock.runFor(200);
+    assert.match(await p.locator('#levelNotice').innerText(), /レベルアップ/);
+    await p.evaluate(() => {
+      const s = __snakeTest.state;
+      s.snake = [{x:s.grid-1,y:5}];
+      s.dir = s.nextDir = {x:1,y:0};
+    });
+    await p.clock.runFor(200);
+    assert.ok(await p.locator('#overlay').isVisible());
+    assert.match(await p.locator('#ovTitle').innerText(), /おわり/);
+    assert.equal(await p.locator('#levelNotice').innerText(), '');
+    await p.clock.runFor(1000);
+    assert.ok(await p.locator('#overlay').isVisible());
+    await p.click('#startBtn');
+    assert.equal(await p.locator('#levelNotice').innerText(), '');
+    assert.ok(await p.locator('#overlay').isHidden());
+    const viewport = p.viewportSize();
+    for (const height of [320, 250]) {
+      await p.setViewportSize({width:568, height});
+      assert.ok((await p.locator('#cv').boundingBox()).width >= 224, 'short landscape board stays playable');
+      assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      assert.equal(await p.locator('body').evaluate(e=>getComputedStyle(e).touchAction), 'pan-y');
+      assert.equal(await p.locator('#cv').evaluate(e=>getComputedStyle(e).touchAction), 'none');
+      const link = p.locator('.game-page-links .game-ranking');
+      await link.scrollIntoViewIfNeeded();
+      const box = await link.boundingBox();
+      assert.ok(box.y >= 0 && box.y+box.height <= height);
+      await p.screenshot({path:path.join(results,`snake-landscape-${height}.png`),fullPage:true});
+    }
+    await p.setViewportSize(viewport);
   },
   async 'base-defense'(p) {
     const before = await p.evaluate(() => money);
