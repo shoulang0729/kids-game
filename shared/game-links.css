@@ -1,0 +1,23 @@
+.game-page-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 8px auto;
+  max-width: 100%;
+  touch-action: manipulation;
+}
+.game-page-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px solid #90bcd0;
+  border-radius: 999px;
+  background: #163750;
+  color: #fff;
+  font: 700 12px/1.5 system-ui, sans-serif;
+  text-decoration: none;
+}
+.game-page-links a:focus-visible { outline: 3px solid #ffdf79; outline-offset: 3px; }

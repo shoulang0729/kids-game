@@ -27,12 +27,16 @@ function update(file, name, content) {
   writeFileSync(filename, after);
 }
 
-update('index.html', 'cards', games.map(g => `<a class="card${g.entry ? ' portal' : ''}" href="games/${escape(g.id)}/${escape(g.entry || 'index.html')}">
+update('index.html', 'cards', games.map(g => `<article class="card${g.entry ? ' portal' : ''}" data-game="${escape(g.id)}">
   <div class="emoji">${escape(g.emoji)}</div>
   <h2>${escape(g.title)}</h2>
   <p>${escape(g.description + (g.author ? `（${g.author}作）` : ''))}</p>
-  <span class="badge">${g.id === 'online-demo' ? '接続テスト ▶' : g.entry ? '専用入口でゲームをえらぶ ▶' : 'あそぶ ▶'}</span>
-</a>`).join('\n'));
+  <div class="game-links">
+    <a class="badge play-link" href="games/${escape(g.id)}/${escape(g.entry || 'index.html')}">${g.id === 'online-demo' ? '接続テスト ▶' : g.entry ? 'ゲームをえらぶ ▶' : 'あそぶ ▶'}</a>
+    ${g.manual ? `<a class="game-manual" href="wiki/index.html#${escape(g.manual)}">📖 説明書</a>` : ''}
+    ${RANKINGS[g.id] ? `<a class="game-ranking" href="ranking/index.html?game=${escape(g.id)}">🏆 ランキング</a>` : ''}
+  </div>
+</article>`).join('\n').replace(/[ \t]+\n/g, '\n'));
 
 update('README.md', 'catalog', `公開トップページと同じ${games.length}件を、追加が古い順から新しい順に掲載しています（接続テスト用デモを含む）。
 
@@ -44,8 +48,18 @@ update('README.md', 'tree', '```\nkids-game/\n├── index.html ← 入り口
   games.map((g, i) => `│   ${i === games.length - 1 ? '└' : '├'}── ${g.id}/${g.entry || 'index.html'} ← ${g.title}${g.entry ? '（店内はindex.html）' : ''}`).join('\n') +
   '\n├── data/games.json ← ゲーム情報の正本\n├── wiki/index.html ← せつめいしょ（目次を生成）\n├── ranking/ ← ランキング・記録の引継ぎ\n├── shared/ ← 共通の記録保存・ランキング方針\n├── assets/ ← アイコン画像\n├── online-server/ ← オンライン対戦・ランキングサーバー\n├── scripts/ ← 生成・整合性検査\n├── tests/ ← ブラウザ・ゲームの回帰テスト\n├── docs/refactoring.md ← 段階的な整理の計画\n├── .github/workflows/ ← PR検査・オンラインサーバーの公開\n├── package.json ← 開発用コマンド\n├── CONTRIBUTING.md ← 修正・追加・PRのルール\n└── README.md\n```');
 update('wiki/index.html', 'navigation', games.filter(g => g.manual).map(g => `<a href="#${escape(g.manual)}">${escape(g.emoji)} ${escape(g.title)}</a>`).join('\n'));
-update('README.md', 'rankings', '| ゲーム | 記録 |\n|---|---|\n' + games.filter(g => RANKINGS[g.id]).map(g => `| ${cell(g.title)} | ${Object.values(RANKINGS[g.id]).map(m => cell(m.label)).join('・')} |`).join('\n'));
+update('README.md', 'rankings', '| ゲーム | 記録 |\n|---|---|\n' + games.filter(g => RANKINGS[g.id]).map(g => `| [${cell(g.title)}](https://shoulang0729.github.io/kids-game/ranking/index.html?game=${g.id}) | ${Object.values(RANKINGS[g.id]).map(m => cell(m.label)).join('・')} |`).join('\n'));
 const groups = arcadeCatalog(root);
+for (const g of games.filter(g => RANKINGS[g.id])) {
+  const links = `<nav class="game-page-links" aria-label="ゲームの案内">
+  <a class="game-manual" href="../../wiki/index.html#${escape(g.manual)}">📖 説明書</a>
+  <a class="game-ranking" href="../../ranking/index.html?game=${escape(g.id)}">🏆 ランキング</a>
+</nav>`;
+  const file = `games/${g.id}/index.html`;
+  update(file, 'game-links', links);
+  for (const name of ['battle-links', 'result-links', 'pause-links'])
+    if (readFileSync(path.join(root, file), 'utf8').includes(`<!-- BEGIN GENERATED: ${name} -->`)) update(file, name, links);
+}
 update('games/kochan-3d-arcade/lobby.html', 'arcade-lobby', groups.map(group => `<section id="${group.id}">
   <h2>${escape(group.name)} <small>${group.entries.length}種類</small></h2>
   <div class="cards">

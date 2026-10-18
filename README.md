@@ -11,28 +11,30 @@ GitHub Pages で公開しています：
 
 遊び方は [せつめいしょ](https://shoulang0729.github.io/kids-game/wiki/) を見てください。
 
-## 🏆 ランキングと記録の引継ぎ
+## 👤 名前・記録の設定とゲーム別ランキング
 
-[みんなのランキング](https://shoulang0729.github.io/kids-game/ranking/) で名前を登録すると、ゲーム別の最高記録をCloudflareへ保存します。引継ぎコードを自分の別端末に入力すると同じランキング記録を使えます。同じ名前でもコードが違えば別人として記録されます。ゲームの途中状態・所持品は引き継ぎません。
+[名前・記録の設定](https://shoulang0729.github.io/kids-game/ranking/) で名前を登録すると、ゲーム別の最高記録をCloudflareへ保存します。引継ぎコードを自分の別端末に入力すると同じランキング記録を使えます。同じ名前でもコードが違えば別人として記録されます。ゲームの途中状態・所持品は引き継ぎません。
+
+各ゲームのランキングは、公開トップの「あそぶ」「説明書」の横とゲーム画面から開けます。
 
 <!-- BEGIN GENERATED: rankings -->
 | ゲーム | 記録 |
 |---|---|
-| 地獄基地防衛 | 最高到達ウェーブ |
-| へびゲーム | 最高得点 |
-| ようちゃんバトル | 無限モード突破数・防衛クリア数・ストーリー進行 |
-| 惑星ぶっこわし3D | クリアした惑星 |
-| 料理ゲーム | 最高料理ポイント |
-| スネークバトル | 1Pの最長記録・1Pの最多撃破 |
-| スネークバトルオンライン | 通算優勝回数・オンライン最長記録 |
-| カオス世界大崩壊 ULTRA X INFINITE | 最高撃破数・最高到達WAVE |
-| こうちゃんの3Dゲームセンター | 景品獲得数・景品の種類 |
-| 丸をタップ！ | 20秒の最高得点 |
+| [地獄基地防衛](https://shoulang0729.github.io/kids-game/ranking/index.html?game=base-defense) | 最高到達ウェーブ |
+| [へびゲーム](https://shoulang0729.github.io/kids-game/ranking/index.html?game=snake) | 最高得点 |
+| [ようちゃんバトル](https://shoulang0729.github.io/kids-game/ranking/index.html?game=youchan-battle) | 無限モード突破数・防衛クリア数・ストーリー進行 |
+| [惑星ぶっこわし3D](https://shoulang0729.github.io/kids-game/ranking/index.html?game=planet-smash) | クリアした惑星 |
+| [料理ゲーム](https://shoulang0729.github.io/kids-game/ranking/index.html?game=cooking) | 最高料理ポイント |
+| [スネークバトル](https://shoulang0729.github.io/kids-game/ranking/index.html?game=snake-battle) | 1Pの最長記録・1Pの最多撃破 |
+| [スネークバトルオンライン](https://shoulang0729.github.io/kids-game/ranking/index.html?game=snake-battle-online) | 通算優勝回数・オンライン最長記録 |
+| [カオス世界大崩壊 ULTRA X INFINITE](https://shoulang0729.github.io/kids-game/ranking/index.html?game=chaos-ultra-x) | 最高撃破数・最高到達WAVE |
+| [こうちゃんの3Dゲームセンター](https://shoulang0729.github.io/kids-game/ranking/index.html?game=kochan-3d-arcade) | 景品獲得数・景品の種類 |
+| [丸をタップ！](https://shoulang0729.github.io/kids-game/ranking/index.html?game=tap-circle) | 20秒の最高得点 |
 <!-- END GENERATED: rankings -->
 
 オンラインの優勝回数・最長記録はサーバーの対戦結果から集計し、合言葉の部屋内の勝ち数も保存します。部屋内は従来どおり名前単位、全体ランキングは引継ぎコード単位です。プロフィールを登録する前のオンライン対戦は全体ランキングには入りません。ソロのランキングはゲーム画面から送信する自己記録で、厳密な競技用の不正対策を保証するものではありません。ローカル版スネークバトルは1Pの記録を登録します。得点のない接続テスト用デモは対象外です。
 
-通信に失敗したソロの記録はブラウザに残し、ランキング画面で再送できます。以前のブラウザ内最高記録（へび・丸をタップ・カオス・景品数）もプロフィール登録時に送信します。これまでメモリから失われたオンラインの勝ち数は復元できません。
+通信に失敗したソロの記録はブラウザに残し、名前・記録の設定画面で再送できます。以前のブラウザ内最高記録（へび・丸をタップ・カオス・景品数）もプロフィール登録時に送信します。これまでメモリから失われたオンラインの勝ち数は復元できません。
 
 ## 🕹️ ゲーム一覧
 
