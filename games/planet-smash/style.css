@@ -33,6 +33,7 @@ canvas {
   max-height: calc(100dvh - 190px);
   touch-action: none;
 }
+canvas:focus-visible { outline: 3px solid #ffff88; outline-offset: 3px; }
 button {
   font-size: 16px;
   padding: 11px;

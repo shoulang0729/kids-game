@@ -2,248 +2,16 @@ const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 const msg = document.getElementById("msg");
 
-const stages = [
-  {
-    name: "🌎 地球",
-    hp: 3000,
-    color1: "#88f5ff",
-    color2: "#1c8cff",
-    land: "#18b957",
-    bonus: 500,
-    ring: false,
-  },
-  {
-    name: "🌕 月",
-    hp: 7000,
-    color1: "#eeeeee",
-    color2: "#777777",
-    land: "#aaaaaa",
-    bonus: 1000,
-    ring: false,
-  },
-  {
-    name: "🔴 火星",
-    hp: 15000,
-    color1: "#ff9966",
-    color2: "#aa2200",
-    land: "#772200",
-    bonus: 2000,
-    ring: false,
-  },
-  {
-    name: "🟠 木星",
-    hp: 30000,
-    color1: "#ffcc88",
-    color2: "#cc6600",
-    land: "#aa5500",
-    bonus: 4000,
-    ring: false,
-  },
-  {
-    name: "🪐 土星",
-    hp: 50000,
-    color1: "#ffe08a",
-    color2: "#b8860b",
-    land: "#ccaa55",
-    bonus: 7000,
-    ring: true,
-  },
-  {
-    name: "🧊 天王星",
-    hp: 80000,
-    color1: "#99ffff",
-    color2: "#33cccc",
-    land: "#88ffff",
-    bonus: 10000,
-    ring: true,
-  },
-  {
-    name: "🌊 海王星",
-    hp: 120000,
-    color1: "#4488ff",
-    color2: "#0033aa",
-    land: "#77aaff",
-    bonus: 15000,
-    ring: false,
-  },
-  {
-    name: "🌋 マグマ惑星",
-    hp: 220000,
-    color1: "#ffcc44",
-    color2: "#aa0000",
-    land: "#ff3300",
-    bonus: 25000,
-    ring: false,
-  },
-  {
-    name: "🤖 ロボット惑星",
-    hp: 400000,
-    color1: "#dddddd",
-    color2: "#333333",
-    land: "#00ffcc",
-    bonus: 40000,
-    ring: false,
-  },
-  {
-    name: "🐉 ドラゴン星",
-    hp: 550000,
-    color1: "#ff8844",
-    color2: "#550000",
-    land: "#ffdd00",
-    bonus: 60000,
-    ring: false,
-  },
-  {
-    name: "☠️ SCP惑星",
-    hp: 700000,
-    color1: "#dddddd",
-    color2: "#111111",
-    land: "#ff0000",
-    bonus: 80000,
-    ring: false,
-  },
-  {
-    name: "🚂 シンカリオン星",
-    hp: 900000,
-    color1: "#99ccff",
-    color2: "#003366",
-    land: "#ffff00",
-    bonus: 100000,
-    ring: false,
-  },
-  {
-    name: "🏰 800砲台要塞星",
-    hp: 1200000,
-    color1: "#aaaaaa",
-    color2: "#222222",
-    land: "#ff9900",
-    bonus: 140000,
-    ring: true,
-  },
-  {
-    name: "☀️ 太陽",
-    hp: 1600000,
-    color1: "#ffff66",
-    color2: "#ff5500",
-    land: "#ff9900",
-    bonus: 200000,
-    ring: false,
-  },
-  {
-    name: "🕳️ ブラックホール",
-    hp: 2500000,
-    color1: "#5555ff",
-    color2: "#000000",
-    land: "#9900ff",
-    bonus: 300000,
-    ring: true,
-  },
-  {
-    name: "🌌 銀河",
-    hp: 4000000,
-    color1: "#ff99ff",
-    color2: "#3333ff",
-    land: "#ffffff",
-    bonus: 450000,
-    ring: true,
-  },
-  {
-    name: "♾️ 宇宙",
-    hp: 7000000,
-    color1: "#ffffff",
-    color2: "#000022",
-    land: "#99ffff",
-    bonus: 700000,
-    ring: true,
-  },
-  {
-    name: "👑 宇宙皇帝ゼログ",
-    hp: 12000000,
-    color1: "#ff0000",
-    color2: "#220000",
-    land: "#ffd700",
-    bonus: 0,
-    ring: true,
-  },
-];
+const planetGame = PlanetState.createGame(PlanetData);
+const planet = planetGame.state;
+const { stages } = PlanetData;
+const { attacks } = planet;
 
-const attacks = [
-  { name: "🔴 レッドレーザー", cost: 0, dmg: 20, color: "red", type: "beam", unlocked: true },
-  { name: "🪨 隕石", cost: 500, dmg: 80, color: "gray", type: "meteor", unlocked: false },
-  { name: "🔵 ブルービーム", cost: 1000, dmg: 100, color: "cyan", type: "beam", unlocked: false },
-  { name: "🌋 火山噴火", cost: 2500, dmg: 250, color: "orange", type: "blast", unlocked: false },
-  {
-    name: "🟡 サンダービーム",
-    cost: 4500,
-    dmg: 400,
-    color: "yellow",
-    type: "beam",
-    unlocked: false,
-  },
-  { name: "🌊 超巨大津波", cost: 8000, dmg: 700, color: "blue", type: "wave", unlocked: false },
-  {
-    name: "🟣 ダークビーム",
-    cost: 13000,
-    dmg: 1000,
-    color: "purple",
-    type: "beam",
-    unlocked: false,
-  },
-  { name: "☄️ 小惑星", cost: 22000, dmg: 1800, color: "brown", type: "meteor", unlocked: false },
-  { name: "🟢 毒ビーム", cost: 35000, dmg: 1200, color: "lime", type: "poison", unlocked: false },
-  {
-    name: "🌈 レインボービーム",
-    cost: 60000,
-    dmg: 0,
-    color: "white",
-    type: "rainbow",
-    unlocked: false,
-  },
-  {
-    name: "🕳️ ブラックホールビーム",
-    cost: 120000,
-    dmg: 8000,
-    color: "black",
-    type: "blackhole",
-    unlocked: false,
-  },
-  {
-    name: "🏰 800砲台一斉射撃",
-    cost: 300000,
-    dmg: 20000,
-    color: "gold",
-    type: "turret",
-    unlocked: false,
-  },
-  {
-    name: "♾️ 宇宙破壊砲",
-    cost: 900000,
-    dmg: 80000,
-    color: "white",
-    type: "beam",
-    unlocked: false,
-  },
-  {
-    name: "👑 ゼログビーム",
-    cost: 2000000,
-    dmg: 200000,
-    color: "red",
-    type: "beam",
-    unlocked: false,
-  },
-];
-
-let stage = 0;
-let money = 0;
-let hp = stages[0].hp;
-let maxHp = stages[0].hp;
-let selected = 0;
 let rot = 0;
 let shake = 0;
 let boom = 0;
 let cracks = [];
 let effects = [];
-let cleared = false;
 let poisonTimers = [];
 
 function stopPoison(timer) {
@@ -273,11 +41,15 @@ function updateButtons() {
   attacks.forEach((a, i) => {
     let btn = document.getElementById("atk" + i);
     btn.className = "";
-    if (i === selected) btn.classList.add("selected");
+    if (i === planet.selected) btn.classList.add("selected");
     if (!a.unlocked) btn.classList.add("locked");
 
     if (a.unlocked) {
-      btn.textContent = a.name + " / " + a.dmg + "ダメージ";
+      btn.textContent =
+        a.name +
+        " / " +
+        (a.type === "rainbow" ? "3000〜14999" : a.dmg) +
+        "ダメージ";
     } else {
       btn.textContent = "🔒 解放 " + a.cost + "円： " + a.name;
     }
@@ -285,70 +57,94 @@ function updateButtons() {
 }
 
 function attackButton(i) {
-  let a = attacks[i];
-
-  if (a.unlocked) {
-    selected = i;
-    msg.textContent = a.name + " を選択！惑星をタッチ！";
-    updateText();
-    updateButtons();
-    return;
-  }
-
-  if (money < a.cost) {
-    msg.textContent = "お金が足りない！必要：" + a.cost + "円";
-    return;
-  }
-
-  money -= a.cost;
-  a.unlocked = true;
-  selected = i;
-  msg.textContent = a.name + " を解放！これから無料で使える！";
+  const result = planetGame.chooseAttack(i);
+  if (!result) return;
+  const a = result.attack;
+  msg.textContent =
+    result.status === "insufficient"
+      ? "お金が足りない！必要：" + a.cost + "円"
+      : result.status === "unlocked"
+        ? a.name + " を解放！これから無料で使える！"
+        : a.name + " を選択！惑星をタッチ！";
   updateText();
   updateButtons();
 }
 
 function updateText() {
-  document.getElementById("stageName").textContent = stages[stage].name;
-  document.getElementById("money").textContent = Math.floor(money);
-  document.getElementById("hp").textContent = Math.max(0, Math.floor(hp));
-  document.getElementById("maxHp").textContent = maxHp;
-  document.getElementById("attackName").textContent = attacks[selected].name;
-  let damage = Math.floor((1 - hp / maxHp) * 100);
-  document.getElementById("damage").textContent = Math.min(100, Math.max(0, damage));
+  document.getElementById("stageName").textContent = stages[planet.stage].name;
+  document.getElementById("money").textContent = Math.floor(planet.money);
+  document.getElementById("hp").textContent = Math.max(
+    0,
+    Math.floor(planet.hp),
+  );
+  document.getElementById("maxHp").textContent = planet.maxHp;
+  document.getElementById("attackName").textContent =
+    attacks[planet.selected].name;
+  let damage = Math.floor((1 - planet.hp / planet.maxHp) * 100);
+  document.getElementById("damage").textContent = Math.min(
+    100,
+    Math.max(0, damage),
+  );
+}
+
+function hitVisual(tx, ty) {
+  shake = 18;
+  boom = 25;
+  cracks.push({
+    a: Math.random() * Math.PI * 2,
+    len: 25 + Math.random() * 90,
+    x: tx - 350,
+    y: ty - 200,
+  });
+}
+
+function showTransition(transition) {
+  if (!transition) return false;
+  clearAllPoison();
+  globalThis.GameRecords?.record("planet-smash", {
+    stages: transition.completed,
+  });
+  if (transition.cleared) {
+    msg.textContent = "🏆 完全クリア！宇宙皇帝ゼログを破壊した！";
+  } else {
+    cracks = [];
+    boom = 40;
+    shake = 25;
+    msg.textContent =
+      "ステージクリア！ +" +
+      transition.bonus +
+      "円！ 次は " +
+      stages[planet.stage].name;
+  }
+  return true;
 }
 
 function useAttack(tx, ty) {
-  if (cleared) {
+  const result = planetGame.attack();
+  if (!result) {
     msg.textContent = "完全クリア済み！もう一回で最初から！";
     return;
   }
-
-  let a = attacks[selected];
-  let dmg = PlanetRules.attackDamage(a);
-
-  let reward = PlanetRules.reward(dmg);
-  money += reward;
-
+  const a = result.attack;
   effects.push({ x: tx, y: ty, color: a.color, type: a.type, life: 28 });
-  damagePlanet(dmg, tx, ty);
-
-  if (a.type === "poison") {
-    msg.textContent = a.name + "！ " + dmg + "ダメージ！ +" + reward + "円！毒追加！";
-
-    let count = 0;
-    let timer = setInterval(() => {
-      if (cleared) {
+  hitVisual(tx, ty);
+  if (!showTransition(result.transition)) {
+    msg.textContent =
+      a.name +
+      "！ " +
+      result.damage +
+      "ダメージ！ +" +
+      result.reward +
+      "円！" +
+      (result.poison ? "毒追加！" : "");
+  }
+  if (result.poison) {
+    const timer = setInterval(() => {
+      const tick = planetGame.tickPoison(result.poison);
+      if (!tick) {
         stopPoison(timer);
         return;
       }
-
-      let poisonDmg = 700;
-      let poisonReward = PlanetRules.reward(poisonDmg, 40);
-      hp -= poisonDmg;
-      money += poisonReward;
-      count++;
-
       effects.push({ x: tx, y: ty, color: "lime", type: "poison", life: 16 });
       cracks.push({
         a: Math.random() * Math.PI * 2,
@@ -356,105 +152,50 @@ function useAttack(tx, ty) {
         x: tx - 350,
         y: ty - 200,
       });
-
-      if (hp <= 0) {
-        hp = 0;
-        clearStage();
-        stopPoison(timer);
-      }
-
-      if (count >= 5) stopPoison(timer);
+      showTransition(tick.transition);
+      if (!tick.active) stopPoison(timer);
       updateText();
       updateButtons();
     }, 600);
     poisonTimers.push(timer);
-  } else {
-    msg.textContent = a.name + "！ " + dmg + "ダメージ！ +" + reward + "円！";
   }
-
   updateText();
   updateButtons();
 }
 
 function damagePlanet(dmg, tx, ty) {
-  hp -= dmg;
-  shake = 18;
-  boom = 25;
-
-  cracks.push({
-    a: Math.random() * Math.PI * 2,
-    len: 25 + Math.random() * 90,
-    x: tx - 350,
-    y: ty - 200,
-  });
-
-  if (hp <= 0) {
-    hp = 0;
-    clearStage();
-  }
-}
-
-function clearStage() {
-  globalThis.GameRecords?.record("planet-smash", { stages: stage + 1 });
-  clearAllPoison();
-  if (stage >= stages.length - 1) {
-    cleared = true;
-    msg.textContent = "🏆 完全クリア！宇宙皇帝ゼログを破壊した！";
-    return;
-  }
-
-  let bonus = stages[stage].bonus;
-  money += bonus;
-  stage = PlanetRules.stageAfterClear(stage, stages.length);
-  maxHp = stages[stage].hp;
-  hp = maxHp;
-  cracks = [];
-  boom = 40;
-  shake = 25;
-  msg.textContent = "ステージクリア！ +" + bonus + "円！ 次は " + stages[stage].name;
+  const result = planetGame.damage(Number(dmg));
+  if (!result) return;
+  hitVisual(tx, ty);
+  showTransition(result.transition);
   updateText();
   updateButtons();
 }
 
 function resetGame() {
   clearAllPoison();
-  stage = 0;
-  money = 0;
-  maxHp = stages[0].hp;
-  hp = maxHp;
-  selected = 0;
-  rot = 0;
-  shake = 0;
-  boom = 0;
+  planetGame.reset();
+  rot = shake = boom = 0;
   cracks = [];
   effects = [];
-  cleared = false;
-
-  attacks.forEach((a, i) => (a.unlocked = i === 0));
-
   msg.textContent = "🔄 もう一回スタート！地球が復活した！";
   updateText();
   updateButtons();
 }
 
-canvas.addEventListener("click", function (e) {
-  let rect = canvas.getBoundingClientRect();
-  let x = (e.clientX - rect.left) * (canvas.width / rect.width);
-  let y = (e.clientY - rect.top) * (canvas.height / rect.height);
-  useAttack(x, y);
+// A touch generates a click too: listen once so one tap means one attack.
+canvas.addEventListener("click", function (event) {
+  const rect = canvas.getBoundingClientRect();
+  useAttack(
+    (event.clientX - rect.left) * (canvas.width / rect.width),
+    (event.clientY - rect.top) * (canvas.height / rect.height),
+  );
 });
-
-canvas.addEventListener(
-  "touchstart",
-  function (e) {
-    let t = e.touches[0];
-    let rect = canvas.getBoundingClientRect();
-    let x = (t.clientX - rect.left) * (canvas.width / rect.width);
-    let y = (t.clientY - rect.top) * (canvas.height / rect.height);
-    useAttack(x, y);
-  },
-  { passive: true },
-);
+canvas.addEventListener("keydown", function (event) {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
+  if (!event.repeat) useAttack(canvas.width / 2, canvas.height / 2);
+});
 
 function drawStars() {
   ctx.fillStyle = "white";
@@ -469,7 +210,7 @@ function drawStars() {
 }
 
 function drawPlanet() {
-  let st = stages[stage];
+  let st = stages[planet.stage];
   let cx = 350 + (Math.random() * shake - shake / 2);
   let cy = 200 + (Math.random() * shake - shake / 2);
   let r = 115;
@@ -513,7 +254,10 @@ function drawPlanet() {
     let y = cy + cr.y;
     ctx.moveTo(x, y);
     ctx.lineTo(x + Math.cos(cr.a) * cr.len, y + Math.sin(cr.a) * cr.len);
-    ctx.lineTo(x + (Math.cos(cr.a + 0.8) * cr.len) / 2, y + (Math.sin(cr.a + 0.8) * cr.len) / 2);
+    ctx.lineTo(
+      x + (Math.cos(cr.a + 0.8) * cr.len) / 2,
+      y + (Math.sin(cr.a + 0.8) * cr.len) / 2,
+    );
     ctx.stroke();
   });
 
@@ -541,7 +285,7 @@ function drawPlanet() {
     boom--;
   }
 
-  if (cleared) {
+  if (planet.cleared) {
     ctx.fillStyle = "rgba(255,80,0,.9)";
     ctx.beginPath();
     ctx.arc(cx, cy, 170 + Math.sin(rot * 8) * 20, 0, Math.PI * 2);
@@ -568,7 +312,9 @@ function drawEffects() {
       ctx.lineWidth = 8;
       ctx.strokeStyle =
         e.type === "rainbow"
-          ? ["red", "orange", "yellow", "lime", "cyan", "blue", "purple"][e.life % 7]
+          ? ["red", "orange", "yellow", "lime", "cyan", "blue", "purple"][
+              e.life % 7
+            ]
           : e.color;
       ctx.beginPath();
       ctx.moveTo(80, 70);

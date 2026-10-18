@@ -165,13 +165,69 @@ const scenarios = {
     assert.ok(await p.evaluate(() => enemyHp) < hp);
   },
   async 'planet-smash'(p) {
-    const hp = await p.locator('#hp').innerText();
-    await p.click('#c');
-    assert.ok(Number(await p.locator('#hp').innerText()) < Number(hp));
-    await p.evaluate(() => damagePlanet(hp, 350, 200));
+    await p.clock.install();
+    const hit = () => p.viewportSize().width === 390 ? p.tap('#c') : p.click('#c');
+    await hit();
+    assert.equal(await p.locator('#hp').innerText(), '2980', 'one touch/click means one attack');
+    assert.equal(await p.locator('#money').innerText(), '1');
+    await p.locator('#c').focus();
+    await p.keyboard.press('Enter');
+    await p.keyboard.press('Space');
+    assert.equal(await p.locator('#hp').innerText(), '2940');
+    await p.click('#atk1');
+    assert.match(await p.locator('#msg').innerText(), /お金が足りない/);
+    assert.equal(await p.evaluate(() => planet.selected), 0);
+    // Exercise normal attacks to earn the first unlock, including the stage bonus.
+    await p.evaluate(() => { while (planet.stage === 0) useAttack(350, 200); });
     assert.match(await p.locator('#stageName').innerText(), /月/);
+    assert.match(await p.locator('#msg').innerText(), /ステージクリア/);
+    assert.equal(await p.locator('#money').innerText(), '650');
+    await p.click('#atk1');
+    assert.equal(await p.locator('#money').innerText(), '150');
+    await p.click('#atk0');
+    await p.click('#atk1');
+    assert.equal(await p.locator('#money').innerText(), '150', 'already unlocked attacks are free');
+    await hit();
+    assert.equal(await p.locator('#hp').innerText(), '6920');
+    // Use the real damage/clear path to reach and test the later poison mechanic.
+    await p.evaluate(() => { while (planet.stage < 8) damagePlanet(planet.hp, 350, 200); });
+    await p.click('#atk8');
+    await hit();
+    const directHP = Number(await p.locator('#hp').innerText());
+    await p.clock.runFor(3100);
+    assert.equal(Number(await p.locator('#hp').innerText()), directHP - 700 * 5);
+    assert.equal(await p.evaluate(() => poisonTimers.length), 0);
+    await p.evaluate(() => damagePlanet(planet.hp - 100, 350, 200));
+    await hit(); // The direct poison hit clears the planet: no new timer may survive.
+    assert.match(await p.locator('#msg').innerText(), /ステージクリア/);
+    assert.equal(await p.evaluate(() => poisonTimers.length), 0);
+    const nextHP = await p.locator('#hp').innerText();
+    await p.clock.runFor(3600);
+    assert.equal(await p.locator('#hp').innerText(), nextHP);
+    await hit();
+    await p.evaluate(() => damagePlanet(planet.hp - 500, 350, 200));
+    await p.clock.runFor(700); // A poison tick also ends all poison on stage clear.
+    assert.match(await p.locator('#msg').innerText(), /ステージクリア/);
+    assert.equal(await p.evaluate(() => poisonTimers.length), 0);
+    await hit();
     await p.locator('button[onclick="resetGame()"]').click();
-    assert.equal(await p.locator('#hp').innerText(), hp);
+    await p.clock.runFor(3100);
+    assert.equal(await p.locator('#hp').innerText(), '3000');
+    assert.equal(await p.locator('#money').innerText(), '0');
+    assert.equal(await p.evaluate(() => planet.selected), 0);
+    assert.equal(await p.evaluate(() => attacks.filter(a => a.unlocked).length), 1);
+    await p.evaluate(() => { while (!planet.cleared) damagePlanet(planet.hp, 350, 200); });
+    assert.match(await p.locator('#msg').innerText(), /完全クリア/);
+    assert.equal(await p.locator('#hp').innerText(), '0');
+    assert.equal(await p.evaluate(() => planet.completed), 18);
+    await p.clock.runFor(100);
+    await p.evaluate(() => scrollTo(0, 0));
+    await p.screenshot({path: path.join(results, 'planet-clear-' + p.viewportSize().width + '.png')});
+    const finalMoney = await p.locator('#money').innerText();
+    await hit();
+    assert.equal(await p.locator('#money').innerText(), finalMoney);
+    await p.locator('button[onclick="resetGame()"]').click();
+    assert.equal(await p.locator('#hp').innerText(), '3000');
   },
   async 'chaos-ultra-x'(p) {
     await p.click('#startBtn');
