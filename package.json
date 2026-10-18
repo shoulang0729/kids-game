@@ -5,9 +5,10 @@
     "generate": "node scripts/generate.mjs",
     "check": "node scripts/generate.mjs --check && node scripts/check.mjs",
     "test:checks": "node tests/checks.cjs",
+    "test:rules": "node --test tests/*.test.mjs",
     "test:arcade": "node tests/kochan-3d-arcade/fields.cjs && node tests/kochan-3d-arcade/videogames.cjs && node tests/kochan-3d-arcade/regression.cjs",
     "test:browser": "node tests/browser/run.cjs",
-    "test": "npm run check && npm run test:checks && npm run test:arcade && npm run test:browser"
+    "test": "npm run check && npm run test:checks && npm run test:rules && npm run test:arcade && npm run test:browser"
   },
   "devDependencies": {
     "acorn": "8.15.0",

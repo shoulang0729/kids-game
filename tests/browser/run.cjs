@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '../..');
 const games = JSON.parse(fs.readFileSync(path.join(root, 'data/games.json'), 'utf8'));
 const results = path.join(root, 'test-results');
 fs.mkdirSync(results, { recursive: true });
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png' };
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png' };
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
   if (!url.pathname.startsWith('/kids-game/')) { res.writeHead(404).end(); return; }
@@ -35,14 +35,15 @@ const scenarios = {
     assert.equal(await p.locator('#score').innerText(), '0');
   },
   async snake(p) {
+    await p.clock.install();
     await p.click('#startBtn');
-    assert.ok(await p.evaluate(() => alive));
+    assert.equal(await p.locator('#overlay').isVisible(), false);
     await p.keyboard.press('ArrowUp');
-    assert.deepEqual(await p.evaluate(() => nextDir), { x: 0, y: -1 });
-    await p.evaluate(() => { gameOver(); });
+    await p.clock.runFor(3000);
     assert.ok(await p.locator('#overlay').isVisible());
     await p.click('#startBtn');
-    assert.ok(await p.evaluate(() => alive && score === 0));
+    assert.equal(await p.locator('#overlay').isVisible(), false);
+    assert.match(await p.locator('#score').innerText(), /0$/);
   },
   async 'base-defense'(p) {
     const before = await p.evaluate(() => money);

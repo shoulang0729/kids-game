@@ -39,14 +39,27 @@ function document(file) {
   return result;
 }
 const files = ['index.html', 'wiki/index.html', ...games.map(g => `games/${g.id}/index.html`)];
+const checkedScripts = new Set();
+function checkScript(file, module = false) {
+  if (checkedScripts.has(file)) return;
+  checkedScripts.add(file);
+  const ast = parseJS(read(file), { ecmaVersion: 'latest', sourceType: module ? 'module' : 'script' });
+  for (const item of ast.body) {
+    if (!['ImportDeclaration', 'ExportNamedDeclaration', 'ExportAllDeclaration'].includes(item.type) || !item.source) continue;
+    const specifier = item.source.value;
+    assert.ok(specifier.startsWith('.'), `${file}: browser imports must use local paths`);
+    const target = path.posix.normalize(path.posix.join(path.posix.dirname(file), specifier));
+    assert.ok(!target.startsWith('../') && existsSync(path.join(root, target)), `${file}: missing import ${specifier}`);
+    checkScript(target, true);
+  }
+}
 for (const file of files) {
   visit(document(file).tree, node => {
     const attrs = Object.fromEntries((node.attrs || []).map(a => [a.name, a.value]));
     const code = node.childNodes?.filter(c => c.nodeName === '#text').map(c => c.value).join('') || '';
     if (node.tagName === 'script' && (!attrs.type || ['module', 'text/javascript', 'application/javascript'].includes(attrs.type))) {
-      const source = attrs.src && !/^(?:https?:)?\/\//.test(attrs.src)
-        ? read(path.posix.join(path.posix.dirname(file), attrs.src)) : code;
-      parseJS(source, { ecmaVersion: 'latest', sourceType: attrs.type === 'module' ? 'module' : 'script' });
+      if (attrs.src && !/^(?:https?:)?\/\//.test(attrs.src)) checkScript(path.posix.join(path.posix.dirname(file), attrs.src), attrs.type === 'module');
+      else parseJS(code, { ecmaVersion: 'latest', sourceType: attrs.type === 'module' ? 'module' : 'script' });
     }
     for (const [name, value] of Object.entries(attrs)) {
       if (/^on[a-z]+$/.test(name)) parseJS(`function handler(event) {\n${value}\n}`, { ecmaVersion: 'latest' });

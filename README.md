@@ -119,6 +119,7 @@ LinuxでブラウザのOS依存ライブラリがない場合は `npx playwright
 
 - `npm run generate`: 一覧・README・説明書の目次を生成
 - `npm run check`: 生成漏れ、JavaScript構文、ゲーム登録漏れ、リンク・アンカー切れ、ID重複を検査
+- `npm run test:rules`: 小さいゲームの時間・得点・衝突・再開始・保存互換を検査
 - `npm run test:arcade`: 3Dゲームセンターの既存の詳細テスト
 - `npm run test:browser`: 全ゲームの起動・代表操作をスマホ幅390pxとPC幅1280pxで確認
 
