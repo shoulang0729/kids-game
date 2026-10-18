@@ -17,6 +17,10 @@ for (const g of games) {
   assert.equal(typeof g.author, 'string');
   assert.ok(g.manual || g.manualNote, `${g.id}: manual or documented exception required`);
   if (g.manual) assert.match(g.manual, /^[a-z0-9-]+$/);
+  if (g.entry) {
+    assert.match(g.entry, /^[a-z0-9-]+\.html$/, `${g.id}: invalid entry`);
+    assert.ok(existsSync(path.join(root, 'games', g.id, g.entry)), `${g.id}: missing entry ${g.entry}`);
+  }
   assert.ok(Object.hasOwn(RANKINGS, g.id) || g.id === 'online-demo', `${g.id}: ranking policy is missing`);
 }
 assert.deepEqual([...ids].sort(), readdirSync(path.join(root, 'games')).filter(id => existsSync(path.join(root, 'games', id, 'index.html'))).sort(), 'catalog must include every game');
@@ -40,7 +44,7 @@ function document(file) {
   documents.set(file, result);
   return result;
 }
-const files = ['index.html', 'wiki/index.html', 'ranking/index.html', ...games.map(g => `games/${g.id}/index.html`)];
+const files = ['index.html', 'wiki/index.html', 'ranking/index.html', ...games.flatMap(g => [`games/${g.id}/index.html`, ...(g.entry ? [`games/${g.id}/${g.entry}`] : [])])];
 const checkedScripts = new Set();
 function checkScript(file, module = false) {
   if (checkedScripts.has(file)) return;

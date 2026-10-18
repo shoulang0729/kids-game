@@ -1,4 +1,4 @@
-/* Three arcade games with independent clocks and world-space interactions. */
+/* Five arcade games with independent clocks and world-space interactions. */
 window.createArcadeGames = function (scene, msg, tone) {
   const $ = (s) => document.querySelector(s),
     clamp = (v, a, b) => Math.max(a, Math.min(b, v));

@@ -844,29 +844,38 @@ function nearest() {
   return machines.reduce((a, b) => (scene.distance(a.offset) < scene.distance(b.offset) ? a : b));
 }
 const catalogList = $("#catalogList");
-function catalogEntry(name, hint, offset) {
+const destinations = new Map();
+function visitGame(id) {
+  const destination = destinations.get(id);
+  if (!destination) return false;
+  stopInputs();
+  scene.player.x = destination.offset;
+  scene.player.z = 6;
+  scene.player.yaw = 0;
+  scene.player.pitch = -0.3;
+  $("#catalogModal").hidden = true;
+  modal = false;
+  ensureHall();
+  msg(destination.name + "の前へ移動したよ。台やボタンに触って遊ぼう！");
+  return true;
+}
+function catalogEntry(name, hint, offset, id) {
+  destinations.set(id, { name, offset });
   const b = document.createElement("button");
+  b.dataset.game = id;
   b.innerHTML = name + "<small>" + hint + "</small>";
   b.onclick = () => {
-    stopInputs();
-    scene.player.x = offset;
-    scene.player.z = 6;
-    scene.player.yaw = 0;
-    scene.player.pitch = -0.3;
-    $("#catalogModal").hidden = true;
-    modal = false;
-    ensureHall();
-    msg(name + "の前へ移動したよ。台のボタンで遊ぼう！");
+    visitGame(id);
   };
   catalogList.appendChild(b);
 }
-for (const cfg of configs) catalogEntry("🧸 " + cfg.name, cfg.hint, cfg.offset);
-for (const d of sports.templates) catalogEntry(d.name, d.hint, d.offset);
+for (const cfg of configs) catalogEntry("🧸 " + cfg.name, cfg.hint, cfg.offset, "crane-" + cfg.type);
+for (const d of sports.templates) catalogEntry(d.name, d.hint, d.offset, d.type);
 for (let i = 0; i < cabinets.catalog.length; i++) {
   const d = cabinets.catalog[i];
-  catalogEntry(d.icon + " " + d.name, d.hint, 68 + i * 8);
+  catalogEntry(d.icon + " " + d.name, d.hint, 68 + i * 8, d.id);
 }
-for (const d of fields.templates) catalogEntry("⚽ " + d.name, d.hint, d.offset);
+for (const d of fields.templates) catalogEntry("⚽ " + d.name, d.hint, d.offset, d.id);
 $("#catalogOpen").onclick = () => openModal("catalogModal");
 function openModal(id) {
   stopInputs();
@@ -981,4 +990,9 @@ function frame(t) {
   requestAnimationFrame(frame);
 }
 updateUI();
+// Only known game IDs select destinations; old URLs still enter the hall normally.
+if (globalThis.location?.search) {
+  const requested = new URLSearchParams(location.search).get("game");
+  if (requested && !visitGame(requested)) msg("そのゲームは見つからなかったよ。「ゲームを選び直す」からえらんでね。");
+}
 requestAnimationFrame(frame);

@@ -6,7 +6,7 @@ const http = require('node:http');
 
 const root = path.resolve(__dirname, '../..');
 const games = JSON.parse(fs.readFileSync(path.join(root, 'data/games.json'), 'utf8'));
-const entries = [{ id: 'home', url: 'index.html' }, { id: 'manual', url: 'wiki/index.html' }, { id: 'ranking', url: 'ranking/index.html' }, ...games.map(g => ({ ...g, url: `games/${g.id}/index.html` }))];
+const entries = [{ id: 'home', url: 'index.html' }, { id: 'manual', url: 'wiki/index.html' }, { id: 'ranking', url: 'ranking/index.html' }, { id: 'arcade-lobby', url: 'games/kochan-3d-arcade/lobby.html' }, ...games.map(g => ({ ...g, url: `games/${g.id}/index.html` }))];
 const targets = process.env.BROWSER_GAME ? entries.filter(g => g.id === process.env.BROWSER_GAME) : entries;
 if (!targets.length) throw Error('Unknown BROWSER_GAME: ' + process.env.BROWSER_GAME);
 const results = path.join(root, 'test-results');
@@ -202,6 +202,68 @@ const scenarios = {
     await p.waitForFunction(() => playing);
     assert.ok(await p.locator('canvas').first().isVisible());
   },
+  async 'arcade-lobby'(p) {
+    const { arcadeCatalog } = await import('../../scripts/arcade-catalog.mjs');
+    const groups = arcadeCatalog(root), all = groups.flatMap(g => g.entries);
+    const lobby = p.url();
+    assert.equal(await p.locator('.game-card').count(), 37);
+    assert.deepEqual(await p.locator('.game-card h3').allTextContents(), all.map(e => e.name));
+    assert.deepEqual(await p.locator('.game-card').evaluateAll(cards => cards.map(c => c.getAttribute('href'))), all.map(e => `index.html?game=${e.id}`));
+    assert.deepEqual(await p.locator('script[src]').evaluateAll(scripts => scripts.map(s => s.getAttribute('src'))), ['lobby.js']);
+    assert.equal(await p.locator('canvas').count(), 0);
+    await p.fill('#search', 'ゴルフ');
+    assert.equal(await p.locator('.game-card:visible').count(), 1);
+    await p.fill('#search', 'ないゲーム123');
+    assert.ok(await p.locator('#empty').isVisible());
+    await p.locator('nav a[href="#cranes"]').click();
+    assert.equal(await p.locator('.game-card:visible').count(), 37);
+    assert.equal(await p.locator('#search').inputValue(), '');
+    assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+    await p.evaluate(() => scrollTo(0, 0));
+    await p.screenshot({path: path.join(results, 'arcade-lobby-' + p.viewportSize().width + '.png'), fullPage: false});
+    const noJS = await p.context().browser().newContext({ javaScriptEnabled: false });
+    try {
+      const fallback = await noJS.newPage();
+      await fallback.goto(lobby);
+      assert.equal(await fallback.locator('.game-card').count(), 37);
+    } finally { await noJS.close(); }
+    await p.evaluate(() => localStorage.setItem('kochan-claw-v1', JSON.stringify({ owned: [2, ...Array(19).fill(0)], tries: 3 })));
+    // One actual URL entry per category; WebGL must load at the chosen station.
+    for (const group of groups) {
+      await p.goto(lobby);
+      const entry = group.entries[0];
+      await p.locator(`.game-card[href="index.html?game=${entry.id}"]`).click();
+      await p.waitForFunction(x => typeof scene !== 'undefined' && scene.player.x === x, entry.offset);
+      assert.equal(await p.evaluate(() => scene.player.z), 6);
+      assert.ok(await p.locator('#game').isVisible());
+      assert.equal(new URL(p.url()).searchParams.get('game'), entry.id);
+      assert.ok(await p.locator('.lobby-link').evaluate(e => e.getBoundingClientRect().right <= innerWidth));
+      assert.ok(await p.evaluate(() => {
+        const title = document.querySelector('.top h1').getBoundingClientRect();
+        const link = document.querySelector('.lobby-link').getBoundingClientRect();
+        return title.bottom <= link.top || title.right <= link.left;
+      }), 'header title and return link must not overlap');
+      assert.match(await p.locator('#score').innerText(), /GET 2 \/ 1種類/);
+      if (entry.id === 'race') {
+        await p.getByRole('button', { name: 'ネオンレース START', exact: true }).click();
+        assert.equal(await p.evaluate(() => cabinets.games.find(g => g.id === 'race').engine.state), 'playing');
+        await p.screenshot({path: path.join(results, 'arcade-selected-' + p.viewportSize().width + '.png')});
+      }
+    }
+    const links = await p.evaluate(() => [...destinations].map(([id, d]) => ({ id, offset: d.offset })));
+    assert.deepEqual(links.sort((a,b) => a.id.localeCompare(b.id)), all.map(({id,offset}) => ({id,offset})).sort((a,b) => a.id.localeCompare(b.id)));
+    // Every generated target exists and can be selected, including the farthest.
+    for (const entry of all) {
+      assert.equal(await p.evaluate(id => visitGame(id), entry.id), true);
+      assert.equal(await p.evaluate(() => scene.player.x), entry.offset);
+    }
+    await p.goto(new URL('index.html?game=unknown', lobby).href);
+    await p.waitForFunction(() => document.querySelector('#message').textContent.includes('見つからなかった'));
+    assert.equal(await p.evaluate(() => scene.player.x), 0);
+    await p.locator('.lobby-link').click();
+    assert.equal(new URL(p.url()).pathname, new URL(lobby).pathname);
+    assert.equal(await p.locator('.game-card').count(), 37);
+  },
   async 'kochan-3d-arcade'(p) {
     await p.click('#catalogOpen');
     assert.ok(await p.locator('#catalogModal').isVisible());
@@ -280,7 +342,7 @@ async function mockRankings(context, store = new Map()) {
         const page = await context.newPage();
         // Software WebGL on CI is slower than a desktop GPU. Keep ordinary
         // pages fast while allowing the real arcade scene time to render.
-        page.setDefaultTimeout(game.id === 'kochan-3d-arcade' ? 30000 : 8000);
+        page.setDefaultTimeout(['kochan-3d-arcade', 'arcade-lobby'].includes(game.id) ? 30000 : 8000);
         const errors = [];
         page.on('pageerror', e => errors.push(e.message));
         page.on('response', r => { if (r.url().startsWith(base) && r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
@@ -292,6 +354,7 @@ async function mockRankings(context, store = new Map()) {
           if (game.id === 'home') {
             assert.equal(await page.locator('#grid .card').count(), games.length);
             assert.deepEqual(await page.locator('#grid h2').allTextContents(), games.map(g => g.title));
+            assert.deepEqual(await page.locator('#grid .card').evaluateAll(cards => cards.map(c => c.getAttribute('href'))), games.map(g => `games/${g.id}/${g.entry || 'index.html'}`));
             assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
             // Navigation must work with scripts disabled as well.
             const noJS = await browser.newContext({ javaScriptEnabled: false });
