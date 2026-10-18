@@ -1,6 +1,5 @@
-// Validate the exact inline scripts shipped in the standalone game HTML.
-const arcadeHTML=require('fs').readFileSync(require('path').join(__dirname,'../../games/kochan-3d-arcade/index.html'),'utf8');
-function readSource(name){const prefix='<script data-source="'+name+'">\n',start=arcadeHTML.indexOf(prefix);if(start<0)throw Error('Missing source '+name);const end=arcadeHTML.indexOf('\n</script>',start);if(end<0)throw Error('Missing script end');return arcadeHTML.slice(start+prefix.length,end)}
+// Validate the scripts actually loaded by the shipped game page.
+const readSource = require('./read-source.cjs');
 const fs=require('fs'),vm=require('vm'),assert=require('assert');let calls=0,matrices=0;
 const gl=new Proxy({getShaderParameter(){return true},getProgramParameter(){return true},createShader(){return {}},createProgram(){return {}},createBuffer(){return {}},createTexture(){return {}},getUniformLocation(){return {}},getAttribLocation(){return 1},drawArrays(){calls++},uniformMatrix4fv(l,t,v){assert(v.every(Number.isFinite));matrices++},uniformMatrix3fv(l,t,v){assert(v.every(Number.isFinite))}},{get(t,p){return p in t?t[p]:()=>{}}});
 const c2=new Proxy({},{get(t,p){if(p==='createLinearGradient'||p==='createRadialGradient')return ()=>({addColorStop(){}});return p in t?t[p]:(...a)=>{for(const v of a)if(typeof v==='number')assert(Number.isFinite(v),'bad 2D '+p)}},set(t,p,v){t[p]=v;return true}});const winHandlers={};

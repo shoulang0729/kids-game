@@ -1,95 +1,21 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>丸をタップ！ - とみよこゲームランド</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#10172b;color:white;font-family:sans-serif;text-align:center;user-select:none;-webkit-user-select:none}
-h1{margin:18px 0 8px;font-size:28px}
-#info{font-size:22px;margin:12px}
-#field{position:relative;width:min(92vw,600px);height:min(55vh,450px);margin:16px auto;overflow:hidden;background:#1c2947;border:3px solid #536dba;border-radius:20px;touch-action:manipulation}
-#target{position:absolute;width:70px;height:70px;padding:0;border:4px solid #fff;border-radius:50%;background:#ff5478;box-shadow:0 0 22px #ff547880;cursor:pointer;touch-action:manipulation;display:none}
-#target:active{background:#ffce55}
-#message{position:absolute;inset:0;display:grid;place-items:center;padding:20px;font-size:24px;pointer-events:none}
-#start{background:#75efb8;color:#102333;border:0;border-radius:14px;padding:14px 32px;font-size:23px;font-weight:bold;cursor:pointer;touch-action:manipulation}
-#best{color:#b8c7ed;margin:14px}
-.back{display:inline-block;color:#b8c7ed;padding:12px;margin:4px}
-</style>
-</head>
-<body>
-<h1>🎯 丸をタップ！</h1>
-<div id="info">残り <span id="time">20</span>秒 ／ 得点 <span id="score">0</span></div>
-<div id="field">
-<button id="target" aria-label="丸をタップ"></button>
-<div id="message" role="status">丸をたくさん押そう！</div>
-</div>
-<button id="start">スタート！</button>
-<div id="best">最高記録：0点</div>
-<a class="back" href="../../index.html">← ゲームランドにもどる</a>
-<script>
-"use strict";
-const field = document.getElementById("field");
-const target = document.getElementById("target");
-const message = document.getElementById("message");
-const start = document.getElementById("start");
-const timeLabel = document.getElementById("time");
-const scoreLabel = document.getElementById("score");
-const bestLabel = document.getElementById("best");
-let score = 0, best = 0, playing = false, endTime = 0, timer = null;
-try { best = Number(localStorage.getItem("tapBest")) || 0; } catch (e) {}
-bestLabel.textContent = "最高記録：" + best + "点";
-function moveTarget() {
- const maxX = Math.max(0, field.clientWidth - target.offsetWidth);
- const maxY = Math.max(0, field.clientHeight - target.offsetHeight);
- target.style.left = Math.random() * maxX + "px";
- target.style.top = Math.random() * maxY + "px";
-}
-function finish() {
- playing = false;
- clearInterval(timer);
- target.style.display = "none";
- timeLabel.textContent = "0";
- message.textContent = "終了！ " + score + "点！ 🎉";
- start.disabled = false;
- start.textContent = "もう一回！";
- if (score > best) {
-  best = score;
-  bestLabel.textContent = "最高記録：" + best + "点";
-  message.textContent = "最高記録！ " + score + "点！ 🏆";
-  try { localStorage.setItem("tapBest", String(best)); } catch (e) {}
- }
-}
-function updateTime() {
- const remaining = endTime - performance.now();
- timeLabel.textContent = Math.max(0, Math.ceil(remaining / 1000));
- if (remaining <= 0) finish();
-}
-start.addEventListener("click", function () {
- if (playing) return;
- score = 0;
- playing = true;
- scoreLabel.textContent = "0";
- timeLabel.textContent = "20";
- message.textContent = "";
- start.disabled = true;
- start.textContent = "プレイ中！";
- target.style.display = "block";
- moveTarget();
- endTime = performance.now() + 20000;
- clearInterval(timer);
- timer = setInterval(updateTime, 50);
-});
-target.addEventListener("pointerdown", function (event) {
- event.preventDefault();
- if (!playing) return;
- if (performance.now() >= endTime) { finish(); return; }
- score++;
- scoreLabel.textContent = score;
- moveTarget();
-});
-window.addEventListener("resize", function () { if (playing) moveTarget(); });
-</script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>丸をタップ！ - とみよこゲームランド</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>🎯 丸をタップ！</h1>
+    <div id="info">残り <span id="time">20</span>秒 ／ 得点 <span id="score">0</span></div>
+    <div id="field">
+      <button id="target" aria-label="丸をタップ"></button>
+      <div id="message" role="status">丸をたくさん押そう！</div>
+    </div>
+    <button id="start">スタート！</button>
+    <div id="best">最高記録：0点</div>
+    <a class="back" href="../../index.html">← ゲームランドにもどる</a>
+    <script src="game.js"></script>
+  </body>
 </html>
