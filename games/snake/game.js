@@ -8,6 +8,7 @@ const bestEl = document.getElementById("best");
 const overlay = document.getElementById("overlay");
 const ovTitle = document.getElementById("ovTitle");
 const startBtn = document.getElementById("startBtn");
+const levelNotice = document.getElementById("levelNotice");
 const levelEl = document.getElementById("level");
 const gridEl = document.getElementById("gridSize");
 const model = createSnakeGame();
@@ -33,6 +34,7 @@ function updateHud() {
 }
 function start() {
   clearTimeout(flashTimer);
+  levelNotice.textContent = "";
   model.start();
   accumulator = 0;
   lastTs = 0;
@@ -41,6 +43,7 @@ function start() {
 }
 function gameOver() {
   clearTimeout(flashTimer);
+  levelNotice.textContent = "";
   model.stop();
   globalThis.GameRecords?.record("snake", { score: model.state.score });
   if (model.state.score > best) {
@@ -54,15 +57,13 @@ function gameOver() {
 }
 function flashLevel() {
   clearTimeout(flashTimer);
-  overlay.classList.remove("hidden");
-  ovTitle.textContent = "⚡ レベルアップ！ L" + (model.state.level + 1);
+  // Keep the moving board visible; the notice has its own reserved space.
+  levelNotice.textContent = "⚡ レベルアップ！ L" + (model.state.level + 1);
   flashTimer = setTimeout(() => {
-    if (model.state.alive) {
-      overlay.classList.add("hidden");
-      ovTitle.textContent = "🐍 へびゲーム";
-    }
+    levelNotice.textContent = "";
   }, 900);
 }
+
 function gameLoop(ts) {
   if (!lastTs) lastTs = ts;
   const dt = ts - lastTs;
