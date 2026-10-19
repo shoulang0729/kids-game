@@ -138,6 +138,8 @@ button {
   touch-action: none;
 }
 #game {
+  /* Keep the 900x600 world inside the frame; fitGame includes its 5px borders. */
+  box-sizing: content-box;
   width: 900px;
   height: 600px;
   margin: 0;
