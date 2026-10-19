@@ -24,7 +24,7 @@ try {
   }
   rejects('games/snake/game.js', s => 'const broken = [{a: 1} {b: 2}];\n' + s, 'check.mjs', /SyntaxError/);
   rejects('index.html', s => s.replace('games/snake/index.html', 'games/missing/index.html'), 'check.mjs', /missing games\/missing/);
-  rejects('wiki/index.html', s => s.replace('id="chaos-ultra-x"', 'id="missing-chaos"'), 'check.mjs', /missing anchor/);
+  rejects('wiki/chaos-ultra-x.html', s => s.replace('id="chaos-ultra-x"', 'id="missing-chaos"'), 'check.mjs', /missing anchor/);
   rejects('index.html', s => s.replace('<header>', '<header id="grid">'), 'check.mjs', /duplicate id grid/);
   rejects('data/games.json', s => { const data = JSON.parse(s); data.pop(); return JSON.stringify(data); }, 'check.mjs', /catalog must include every game/);
   rejects('data/games.json', s => { const data = JSON.parse(s); data[0].title = '変更'; return JSON.stringify(data); }, 'generate.mjs', /out of date/);

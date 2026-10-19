@@ -33,26 +33,37 @@ update('index.html', 'cards', games.map(g => `<article class="card${g.entry ? ' 
   <p>${escape(g.description + (g.author ? `（${g.author}作）` : ''))}</p>
   <div class="game-links">
     <a class="badge play-link" href="games/${escape(g.id)}/${escape(g.entry || 'index.html')}">${g.id === 'online-demo' ? '接続テスト ▶' : g.entry ? 'ゲームをえらぶ ▶' : 'あそぶ ▶'}</a>
-    ${g.manual ? `<a class="game-manual" href="wiki/index.html#${escape(g.manual)}">📖 説明書</a>` : ''}
+    ${g.manual ? `<a class="game-manual" href="wiki/${escape(g.manual)}.html">📖 説明書</a>` : ''}
     ${RANKINGS[g.id] ? `<a class="game-ranking" href="ranking/index.html?game=${escape(g.id)}">🏆 ランキング</a>` : ''}
   </div>
 </article>`).join('\n').replace(/[ \t]+\n/g, '\n'));
 
-update('README.md', 'catalog', `公開トップページと同じ${games.length}件を、追加が古い順から新しい順に掲載しています（接続テスト用デモを含む）。
+update('README.md', 'catalog', `公開トップページと同じ${games.length}件を、追加が新しい順から古い順に掲載しています（接続テスト用デモを含む）。
 
-| ゲーム | せつめい | 作った人 | フォルダ |
-|--------|----------|----------|----------|
-${games.map(g => `| ${cell(g.emoji)} [${cell(g.title)}](https://shoulang0729.github.io/kids-game/games/${g.id}/${g.entry || 'index.html'}) | ${cell(g.description)} | ${cell(g.author || '—')} | \`games/${g.id}/\` |`).join('\n')}`);
+| ゲーム | せつめい | 作った人 | フォルダ | 説明書 |
+|--------|----------|----------|----------|--------|
+${games.map(g => `| ${cell(g.emoji)} [${cell(g.title)}](https://shoulang0729.github.io/kids-game/games/${g.id}/${g.entry || 'index.html'}) | ${cell(g.description)} | ${cell(g.author || '—')} | \`games/${g.id}/\` | ${g.manual ? `[説明書](https://shoulang0729.github.io/kids-game/wiki/${g.manual}.html)` : '—'} |`).join('\n')}`);
 
 update('README.md', 'tree', '```\nkids-game/\n├── index.html ← 入り口ページ（生成）\n├── games/\n' +
   games.map((g, i) => `│   ${i === games.length - 1 ? '└' : '├'}── ${g.id}/${g.entry || 'index.html'} ← ${g.title}${g.entry ? '（店内はindex.html）' : ''}`).join('\n') +
-  '\n├── data/games.json ← ゲーム情報の正本\n├── wiki/index.html ← せつめいしょ（目次を生成）\n├── ranking/ ← ランキング・記録の引継ぎ\n├── shared/ ← 共通の記録保存・ランキング方針\n├── assets/ ← アイコン画像\n├── online-server/ ← オンライン対戦・ランキングサーバー\n├── scripts/ ← 生成・整合性検査\n├── tests/ ← ブラウザ・ゲームの回帰テスト\n├── docs/refactoring.md ← 段階的な整理の計画\n├── .github/workflows/ ← PR検査・オンラインサーバーの公開\n├── package.json ← 開発用コマンド\n├── CONTRIBUTING.md ← 修正・追加・PRのルール\n└── README.md\n```');
-update('wiki/index.html', 'navigation', games.filter(g => g.manual).map(g => `<a href="#${escape(g.manual)}">${escape(g.emoji)} ${escape(g.title)}</a>`).join('\n'));
+  '\n├── data/games.json ← ゲーム情報の正本\n├── wiki/ ← ゲーム別のせつめいしょ・共通の案内\n├── ranking/ ← ランキング・記録の引継ぎ\n├── shared/ ← 共通の記録保存・ランキング方針\n├── assets/ ← アイコン画像\n├── online-server/ ← オンライン対戦・ランキングサーバー\n├── scripts/ ← 生成・整合性検査\n├── tests/ ← ブラウザ・ゲームの回帰テスト\n├── docs/refactoring.md ← 段階的な整理の計画\n├── .github/workflows/ ← PR検査・オンラインサーバーの公開\n├── package.json ← 開発用コマンド\n├── CONTRIBUTING.md ← 修正・追加・PRのルール\n└── README.md\n```');
+update('wiki/index.html', 'navigation', games.filter(g => g.manual).map(g => `<a id="${escape(g.manual)}" data-manual href="${escape(g.manual)}.html#${escape(g.manual)}">${escape(g.emoji)} ${escape(g.title)}</a>`).join('\n'));
 update('README.md', 'rankings', '| ゲーム | 記録 |\n|---|---|\n' + games.filter(g => RANKINGS[g.id]).map(g => `| [${cell(g.title)}](https://shoulang0729.github.io/kids-game/ranking/index.html?game=${g.id}) | ${Object.values(RANKINGS[g.id]).map(m => cell(m.label)).join('・')} |`).join('\n'));
+for (const g of games.filter(g => g.manual)) {
+  update(`wiki/${g.manual}.html`, 'manual-title', `<title>${escape(g.title)}のせつめいしょ - とみよこゲームランド</title>`);
+  update(`wiki/${g.manual}.html`, 'manual-header', `<header><h1>${escape(g.emoji)} ${escape(g.title)}のせつめいしょ</h1>
+<p class="sub">${escape(g.author)}作</p></header>
+<nav aria-label="ゲームの案内">
+<a href="../index.html">🏠 トップ</a>
+<a class="play-link" href="../games/${escape(g.id)}/${escape(g.entry || 'index.html')}">${g.id === 'online-demo' ? '🧪 接続テスト' : '▶ あそぶ'}</a>
+${RANKINGS[g.id] ? `<a href="../ranking/index.html?game=${escape(g.id)}">🏆 ランキング</a>` : ''}
+<a href="../ranking/index.html">👤 名前・記録の引継ぎ</a>
+</nav>`);
+}
 const groups = arcadeCatalog(root);
 for (const g of games.filter(g => g.manual || RANKINGS[g.id])) {
   const links = `<nav class="game-page-links" aria-label="ゲームの案内">
-  ${g.manual ? `<a class="game-manual" href="../../wiki/index.html#${escape(g.manual)}">📖 説明書</a>` : ''}
+  ${g.manual ? `<a class="game-manual" href="../../wiki/${escape(g.manual)}.html">📖 説明書</a>` : ''}
   ${RANKINGS[g.id] ? `<a class="game-ranking" href="../../ranking/index.html?game=${escape(g.id)}">🏆 ランキング</a>` : ''}
 </nav>`.replace(/[ \t]+\n/g, '\n');
   const file = `games/${g.id}/index.html`;
@@ -69,4 +80,4 @@ ${group.entries.map(e => `<a class="game-card" href="index.html?game=${e.id}">
   </a>`).join('\n')}
   </div>
 </section>`).join('\n'));
-console.log(check ? 'PASS: generated catalog is up to date' : 'Generated homepage, README, manual navigation and 3D lobby');
+console.log(check ? 'PASS: generated catalog is up to date' : 'Generated homepage, README, individual manual navigation and 3D lobby');

@@ -3,89 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>📖 せつめいしょ - とみよこゲームランド</title>
 <link rel="icon" type="image/png" href="../assets/icon.png">
 <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
-<style>
-*{box-sizing:border-box}
-body{
-margin:0;color:#222;line-height:1.8;
-font-family:"Hiragino Maru Gothic Pro","Yu Gothic",sans-serif;
-background:#f4f1ff;
-overflow-x:hidden;
-}
-header{
-background:linear-gradient(160deg,#1b1b3a,#5a1b3a);
-color:#fff;text-align:center;padding:34px 16px;
-}
-header h1{margin:0;font-size:clamp(26px,5vw,42px);text-shadow:2px 2px 0 #000}
-header .logo{width:clamp(72px,14vw,110px);height:auto;display:block;margin:0 auto 8px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.4))}
-header .sub{opacity:.85;margin-top:8px}
-nav{
-position:sticky;top:0;z-index:10;
-background:#2a1b4a;padding:10px;text-align:center;
-box-shadow:0 2px 10px rgba(0,0,0,.3);
-}
-nav a{color:#ffd1fb;text-decoration:none;margin:0 10px;font-weight:bold;white-space:nowrap}
-nav a:hover{color:#fff;text-decoration:underline}
-main{max-width:820px;margin:0 auto;padding:24px 18px 70px}
-section{
-background:#fff;border-radius:18px;padding:22px 24px;margin:22px 0;
-box-shadow:0 4px 14px rgba(60,20,90,.12);
-}
-h2{color:#7a1b9a;border-bottom:3px solid #ffd1fb;padding-bottom:6px;margin-top:0}
-h3{color:#3a1b6a;margin-top:22px}
-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:15px;display:block;overflow-x:auto}
-th,td{border:1px solid #e0d6f5;padding:8px 10px;text-align:left}
-th{background:#f0e6ff}
-.emoji{font-size:20px}
-.tip{background:#fff7d6;border-left:6px solid #ffcc00;padding:12px 16px;border-radius:8px;margin:14px 0}
-.back{display:inline-block;margin:10px 0;color:#7a1b9a;font-weight:bold;text-decoration:none}
-.back:hover{text-decoration:underline}
-.btn{
-display:inline-block;background:#ff4cf0;color:#111;font-weight:bold;
-padding:10px 22px;border-radius:999px;text-decoration:none;margin-top:8px;
-}
-.btn:hover{background:#ff7cf5}
-footer{text-align:center;padding:20px;color:#888;font-size:13px}
-@media(max-width:600px){
-nav{overflow-x:auto;white-space:nowrap}
-section{padding:18px 16px}
-}
-</style>
+<link rel="stylesheet" href="style.css">
+<title>📖 共通の案内とせつめいしょ - とみよこゲームランド</title>
+<script src="navigation.js" defer></script>
 </head>
 <body>
 <header>
-<img class="logo" src="../assets/icon.png" alt="ゲームパッドのイラスト" width="512" height="512">
-<h1>📖 せつめいしょ</h1>
-<div class="sub">とみよこゲームランド あそびかたガイド</div>
+<h1>📖 共通の案内とせつめいしょ</h1>
 </header>
-
-<nav>
+<nav aria-label="共通の案内">
 <a href="../index.html">🏠 トップ</a>
-<a href="#rankings">🏆 ランキング・引継ぎ</a>
-<a href="#start">▶ はじめかた</a>
-<!-- BEGIN GENERATED: navigation -->
-<a href="#defense">☠️ 地獄基地防衛</a>
-<a href="#snake">🐍 へびゲーム</a>
-<a href="#battle">⚔️ ようちゃんバトル</a>
-<a href="#planet">🌌 惑星ぶっこわし3D</a>
-<a href="#cooking">🍳 料理ゲーム</a>
-<a href="#snake-battle">🐲 スネークバトル</a>
-<a href="#online-demo">🧪 オンラインちびデモ</a>
-<a href="#snake-online">🌐 スネークバトルオンライン</a>
-<a href="#chaos-ultra-x">🌌 カオス世界大崩壊 ULTRA X INFINITE</a>
-<a href="#kochan-arcade">🕹️ こうちゃんの3Dゲームセンター</a>
-<a href="#tap-circle">🎯 丸をタップ！</a>
-<!-- END GENERATED: navigation -->
-<a href="#controls">🎮 基地防衛のそうさ</a>
-<a href="#weapons">🔫 基地防衛のぶき</a>
-<a href="#enemies">👾 基地防衛のてき</a>
-<a href="#tips">💡 基地防衛のコツ</a>
+<a href="../ranking/index.html">👤 名前・記録の引継ぎ</a>
+<a href="#manuals">📖 ゲーム別のせつめいしょ</a>
 </nav>
-
 <main>
-
 <section id="rankings">
 <h2>🏆 ランキングと記録の引継ぎ</h2>
 <p><a href="../ranking/index.html">名前・記録の設定画面</a>で名前を登録すると、そのブラウザで遊んだ最高記録をゲームごとに保存できます。へび・丸をタップは得点、カオスは撃破数とWAVEなど、ゲームごとに違う記録です。</p>
@@ -94,397 +27,33 @@ section{padding:18px 16px}
 <p>オンラインの優勝回数と最長記録は、名前を登録してから入った対戦の結果をサーバーが集計します。同じ合言葉の部屋の勝ち数も、後日まで保存されます（部屋内は名前ごとの集計です）。</p>
 <p>ソロの記録はゲーム画面から送った自己記録です。通信に失敗してもゲームは続けられ、名前・記録の設定画面の「未送信の記録を再送」から送れます。接続テスト用デモはランキングなし、ローカルのスネークバトルは1Pの記録です。</p>
 </section>
-
-<section id="start">
-<h2>▶ はじめかた</h2>
-<p>このサイトはブラウザだけであそべます。インストールはいりません。</p>
-<ol>
-<li>トップページであそびたいゲームのカードをタップ／クリック</li>
-<li>ゲームがひらいたら、まず基地のまわりにぶきや壁をおく</li>
-<li><b>▶️ スタート</b>ボタンをおすと、てきがせめてくる！</li>
-</ol>
-<a class="btn" href="../games/base-defense/index.html">☠️ 地獄基地防衛であそぶ</a>
+<section id="manuals">
+<h2>📖 ゲーム別のせつめいしょ</h2>
+<p>知りたいゲームをえらぶと、そのゲームだけのせつめいしょがひらきます。</p>
+<div class="manual-list">
+<!-- BEGIN GENERATED: navigation -->
+<a id="tap-circle" data-manual href="tap-circle.html#tap-circle">🎯 丸をタップ！</a>
+<a id="kochan-arcade" data-manual href="kochan-arcade.html#kochan-arcade">🕹️ こうちゃんの3Dゲームセンター</a>
+<a id="chaos-ultra-x" data-manual href="chaos-ultra-x.html#chaos-ultra-x">🌌 カオス世界大崩壊 ULTRA X INFINITE</a>
+<a id="snake-online" data-manual href="snake-online.html#snake-online">🌐 スネークバトルオンライン</a>
+<a id="online-demo" data-manual href="online-demo.html#online-demo">🧪 オンラインちびデモ</a>
+<a id="snake-battle" data-manual href="snake-battle.html#snake-battle">🐲 スネークバトル</a>
+<a id="planet" data-manual href="planet.html#planet">🌌 惑星ぶっこわし3D</a>
+<a id="cooking" data-manual href="cooking.html#cooking">🍳 料理ゲーム</a>
+<a id="battle" data-manual href="battle.html#battle">⚔️ ようちゃんバトル</a>
+<a id="snake" data-manual href="snake.html#snake">🐍 へびゲーム</a>
+<a id="defense" data-manual href="defense.html#defense">☠️ 地獄基地防衛</a>
+<!-- END GENERATED: navigation -->
+</div>
 </section>
-
-<section id="defense">
-<h2>☠️ 地獄基地防衛</h2>
-<p>
-まんなかにある <span class="emoji">❤️</span> <b>コア</b> をてきからまもるゲームです。
-コアがこわされるとゲームオーバー。<span class="emoji">😎</span> プレイヤーをうごかして
-自分でもたたかえます。てきをたおすと <span class="emoji">💰</span> お金がもらえて、
-そのお金で新しいぶきや壁をかえます。
-</p>
-<p>
-<b>Wave（ウェーブ）</b>がすすむほどてきが強くなります。
-5の倍数のWaveで <span class="emoji">👑</span> ボス、10の倍数で <span class="emoji">👹</span> 巨大ボスが出てきます。
-Wave 20からは「☠️ 地獄Wave」でてきがどっとふえます！
-</p>
-</section>
-
-<section id="controls">
-<h2>🎮 そうさ</h2>
-<h3>キーボード（パソコン）</h3>
-<table>
-<tr><th>キー</th><th>うごき</th></tr>
-<tr><td>↑ ↓ ← →（やじるし）</td><td>プレイヤーがうごく</td></tr>
-<tr><td>スペースキー</td><td>いちばん近いてきをうつ</td></tr>
-<tr><td>タイルをクリック</td><td>えらんだぶき・壁をおく</td></tr>
-</table>
-<h3>スマホ・タブレット</h3>
-<table>
-<tr><th>ボタン</th><th>うごき</th></tr>
-<tr><td>↑ ↓ ← → ボタン</td><td>プレイヤーがうごく</td></tr>
-<tr><td>「撃つ」ボタン</td><td>てきをうつ</td></tr>
-<tr><td>マスをタップ</td><td>ぶき・壁をおく</td></tr>
-</table>
-<div class="tip">💡 青く光っているマスにだけぶきをおけます。おけるはんいは「⬜ 基地拡張」でひろげられます。</div>
-</section>
-
-<section id="weapons">
-<h2>🔫 ぶき・たてもの</h2>
-<p>ボタンでえらんでから、青いマスをタップしておきます。電力（⚡）が足りないとおけません。</p>
-<table>
-<tr><th>なまえ</th><th>ねだん</th><th>電力</th><th>とくちょう</th></tr>
-<tr><td>🔫 銃</td><td>50</td><td>1</td><td>近いてきを早うちする基本のぶき</td></tr>
-<tr><td>⚡ レーザー</td><td>120</td><td>3</td><td>とおく（320）までつよい一発</td></tr>
-<tr><td>💥 爆発砲</td><td>150</td><td>4</td><td>あたると まわりのてきもまとめてダメージ</td></tr>
-<tr><td>🕳️ ブラックホール</td><td>250</td><td>5</td><td>てきを すいこんで じわじわダメージ</td></tr>
-<tr><td>🪵 壁</td><td>25</td><td>-</td><td>てきの足どめ。HP120でじょうぶ</td></tr>
-<tr><td>🔺 トゲ</td><td>40</td><td>-</td><td>のったてきにダメージ</td></tr>
-<tr><td>💣 地雷</td><td>60</td><td>-</td><td>てきがのると大ばくはつ（1回きり）</td></tr>
-</table>
-<h3>つよくする・なかま</h3>
-<table>
-<tr><th>なまえ</th><th>ねだん</th><th>こうか</th></tr>
-<tr><td>⬜ 基地拡張</td><td>100</td><td>おけるはんい＋1、コアの最大HP＋5</td></tr>
-<tr><td>⚡ 発電強化</td><td>120</td><td>つかえる電力＋3</td></tr>
-<tr><td>🤖 ロボ</td><td>180</td><td>自分でうごいて てきをうつ なかま</td></tr>
-<tr><td>💣 自爆ロボ</td><td>220</td><td>てきにとっこうして大ばくはつ</td></tr>
-<tr><td>🔧 修理</td><td>80</td><td>コアとプレイヤーのHPをかいふく</td></tr>
-</table>
-</section>
-
-<section id="enemies">
-<h2>👾 てきのしゅるい</h2>
-<table>
-<tr><th>てき</th><th>とくちょう</th></tr>
-<tr><td>👾 ふつう</td><td>まっすぐコアをめざす</td></tr>
-<tr><td>🟠 はやい (fast)</td><td>HPは少ないけど とてもはやい</td></tr>
-<tr><td>🟣 タンク (tank)</td><td>HPが4ばい。おそいけどタフ</td></tr>
-<tr><td>⬛ ばくだん (bomber)</td><td>壁にぶつかると ばくはつしてこわす</td></tr>
-<tr><td>🟦 そら (fly)</td><td>だんだんスピードアップ</td></tr>
-<tr><td>🟪 レーザー (laserEnemy)</td><td>ぶきをねらってくる</td></tr>
-<tr><td>🟢 ぶんれつ (splitter)</td><td>たおすと2ひきにわかれる！ふやしすぎ注意</td></tr>
-<tr><td>🟫 こわし屋 (breaker)</td><td>壁をはやくこわす</td></tr>
-<tr><td>👑 ボス</td><td>HPがすごく多い（5の倍数Wave）</td></tr>
-<tr><td>👹 巨大ボス</td><td>レーザーをうち、なかまのボスを召喚（10の倍数Wave）</td></tr>
-</table>
-<div class="tip">⚠️ 🟢ぶんれつは ふえすぎると画面いっぱいに！ HUDの「🟢分裂」の数を見ながら、はやめにたおそう。</div>
-</section>
-
-<section id="tips">
-<h2>💡 かちかたのコツ</h2>
-<ul>
-<li>さいしょは <b>壁</b> でかこって、すきまに <b>🔫 銃</b> をならべる</li>
-<li>お金がたまったら <b>⚡ 発電強化</b> → つよいぶきをおけるようになる</li>
-<li><b>💥 爆発砲</b> はてきがかたまるところに置くと大かつやく</li>
-<li>ボスWaveのまえに <b>🔧 修理</b> でコアをまんたんに</li>
-<li>あぶなくなったら <span class="emoji">😎</span> プレイヤーで てきをうって時間をかせぐ</li>
-<li>Wave 6からは <span class="emoji">🌙</span> 夜モードで画面がくらくなる。あわてずに！</li>
-</ul>
-<a class="btn" href="../games/base-defense/index.html">▶ ゲームにもどってあそぶ</a>
-</section>
-
-<section id="snake">
-<h2>🐍 へびゲーム（としくん作）</h2>
-<p>レベルアップのお知らせは盤面の上に出ます。へびはそのまま動き続けます。</p>
-<p>
-りんご <span class="emoji">🍎</span> を食べると へびが のびて てんすうが ふえます。
-かべや 自分の からだに ぶつかると おわりです。長くのばすほど むずかしい！
-</p>
-<h3>そうさ</h3>
-<table>
-<tr><th>そうさ</th><th>うごき</th></tr>
-<tr><td>やじるしキー（↑↓←→）</td><td>へびの むき をかえる（パソコン）</td></tr>
-<tr><td>画面をスワイプ</td><td>すべらせた むきに まがる（スマホ・タブレット）</td></tr>
-<tr><td>スペースキー</td><td>もういちど はじめる</td></tr>
-</table>
-<div class="tip">💡 はんたいむきには まがれません。食べるたびに すこしずつ はやくなるよ！「さいこう記録」はじどうで ほぞんされます。</div>
-<a class="btn" href="../games/snake/index.html">🐍 へびゲームであそぶ</a>
-</section>
-
-<section id="battle">
-<h2>⚔️ ようちゃんバトル（ようちゃん作）</h2>
-<p>
-コマンドをえらんでたたかう RPG バトルゲームです。ひらいたら すぐに
-モードをえらんで スタート！
-</p>
-<h3>3つのモード</h3>
-<table>
-<tr><th>モード</th><th>あそびかた</th></tr>
-<tr><td>📖 ストーリー</td><td>マップを すすんで ボスをたおす。宝箱や 回復の泉も あるよ</td></tr>
-<tr><td>♾️ 無限モード</td><td>どんどん 強くなる てきと エンドレスバトル！</td></tr>
-<tr><td>🏰 防衛モード</td><td>Wave 1〜50。プレイヤーと 基地HP をまもりきろう</td></tr>
-</table>
-<h3>たたかいかた（ボタン）</h3>
-<table>
-<tr><th>ボタン</th><th>こうか</th></tr>
-<tr><td>⚔️ 攻撃</td><td>クールダウンなし。きほんの こうげき</td></tr>
-<tr><td>🔥 ファイヤー / ⚡ サンダー</td><td>強いこうげき（つかうと すこし やすみ）</td></tr>
-<tr><td>🌈 必殺技</td><td>いちばん つよい！ クールダウン長め</td></tr>
-<tr><td>💚 回復</td><td>HP を かいふく</td></tr>
-<tr><td>🛡️ 防御</td><td>つぎに うける ダメージが はんぶんに</td></tr>
-</table>
-<p>クールダウンは こうげき・かいふく・ぼうぎょで 1ターン進むと 減ります。待っているだけでは 減りません。新しくモードを はじめると リセットされます。基地HPが 敗北に関係するのは 防衛モードだけです。</p>
-<h3>ショップ（💰コインでかう）</h3>
-<table>
-<tr><th>しゅるい</th><th>ないよう</th></tr>
-<tr><td>⚔️ 武器</td><td>炎ソード→雷神剣→宇宙剣→GOD剣 の順に つよい</td></tr>
-<tr><td>❤️/⚔️ 強化</td><td>HPや こうげき力を アップ</td></tr>
-<tr><td>🤖 ロボ兵 / 🔫 砲台</td><td>こうげきの ダメージが ふえる なかま</td></tr>
-</table>
-<div class="tip">💡 てきを たおすと コインと EXP がもらえる。レベルが上がると HP も こうげきも 強くなるよ。10%で 💥クリティカル（ダメージ2ばい）！</div>
-<a class="btn" href="../games/youchan-battle/index.html">⚔️ ようちゃんバトルであそぶ</a>
-</section>
-
-<section id="planet">
-<h2>🌌 惑星ぶっこわし3D</h2>
-<p>
-惑星を タッチ（クリック）して こうげきし、HP を 0 にすると ステージクリア！
-こうげきするたびに 少しずつ お金がもらえます。お金で 新しい つよい こうげきを
-解放しよう。🌎 地球から 👑 宇宙皇帝ゼログまで、ぜんぶで 18 ステージ。
-</p>
-<h3>あそびかた</h3>
-<table>
-<tr><th>そうさ</th><th>うごき</th></tr>
-<tr><td>惑星を タッチ／クリック</td><td>えらんでいる こうげきで ダメージ＋お金ゲット</td></tr>
-<tr><td>惑星に キーボードで フォーカス → Enter／スペース</td><td>タッチと 同じく 1回 こうげき</td></tr>
-<tr><td>下の こうげきボタン</td><td>こうげきを えらぶ。🔒 は お金で解放（一度かえば ずっと無料）</td></tr>
-<tr><td>🔄 もう一回</td><td>地球から さいしょ やりなおし</td></tr>
-</table>
-<div class="tip">💡 つよい こうげきほど もらえる お金も 多い。🟢毒ビームは あとから じわじわ ダメージ、🌈レインボービームは ダメージが ランダムで 大きい！</div>
-<p>毒は 0.6秒ごとに 700ダメージを 5回。倒したら 毒も おわり、次の惑星へは 持ちこしません。「もう一回」で 進行・お金・解放した攻撃を リセットします。ランキングの最高記録は 残ります。</p>
-<a class="btn" href="../games/planet-smash/index.html">🌌 惑星ぶっこわし3Dであそぶ</a>
-</section>
-
-<section id="cooking">
-<h2>🍳 料理ゲーム（こうちゃん作）</h2>
-<p>
-ミッションで でた 料理を 作る ゲームです。食材を えらんで、切ったり 焼いたり してから
-🌀混ぜると 料理の できあがり！ ぴったりの 材料だけで 作ると ⭐⭐⭐ パーフェクト。
-</p>
-<h3>あそびかた</h3>
-<table>
-<tr><th>そうさ</th><th>うごき</th></tr>
-<tr><td>▶️ スタート</td><td>ミッション（作る料理）が きまる</td></tr>
-<tr><td>食材ボタン</td><td>えらぶと「切る・焼く」などの ちょうり を 選べる</td></tr>
-<tr><td>🌀 混ぜる！</td><td>ボウルの 中身で 料理が 完成。ミッションと あっていれば 成功</td></tr>
-<tr><td>❌（食材の下）</td><td>まちがえて 入れた 食材を けす</td></tr>
-<tr><td>⏩ パス</td><td>一度 作ったことがある 料理だけ パスできる（報酬30%）</td></tr>
-<tr><td>➡️ 次のミッション</td><td>料理が 終わったら 次へ。報酬は 1つの ミッションで 1回だけ</td></tr>
-<tr><td>☰ メニュー</td><td>🛒ショップ / 📖図鑑 / 🏆実績 を ひらく</td></tr>
-</table>
-<p>混ぜている あいだは 食材を かえられません。途中で ▶️スタートを 押すと、その料理は 取り消して 新しい ミッションを はじめます。</p>
-<div class="tip">💡 もらった お金は 🛒ショップで 新しい 食材を 買うのに つかえる。食材が ふえると 作れる 料理も ふえるよ。たまに ✨レアミッション（王様カレー・神様のフルコース）も でる！</div>
-<a class="btn" href="../games/cooking/index.html">🍳 料理ゲームであそぶ</a>
-</section>
-
-<section id="snake-battle">
-<h2>🐲 スネークバトル（こうちゃん作）</h2>
-<p>
-ヘビを うごかして、光るエサ <span class="emoji">✨</span> を 食べて どんどん 長く・太く なろう！
-ほかの ヘビ（CPU や となりの プレイヤー）の からだに あたまが ぶつかると おわり。
-ぎゃくに、あいての あたまを 自分の からだに ぶつけさせると <span class="emoji">💥</span> 撃破！
-いちばん 長い ヘビが <span class="emoji">👑</span> 1位です。<b>ひとりでも、最大4人でも</b> あそべます。
-</p>
-
-<h3>あそびかた</h3>
-<ol>
-<li><b>プレイ人数</b>（1〜4人）を えらぶ</li>
-<li>名前・色・むずかしさ などを きめる（そのままでも OK）</li>
-<li><b>▶ スタート！</b> を おす</li>
-</ol>
-
-<h3>そうさ</h3>
-<table>
-<tr><th>そうさ</th><th>うごき</th></tr>
-<tr><td>画面を スワイプ / 🕹️ スティック</td><td>ヘビの むきを かえる（スマホ・タブレット）</td></tr>
-<tr><td>⚡ ボタン（おしっぱなし）</td><td>ダッシュ！ はやく なるけど ポイントが へる</td></tr>
-<tr><td>🌍 全体表示ボタン</td><td>マップ全体を みる／もとの画面に もどす</td></tr>
-<tr><td>1P：WASD ／ 2P：やじるしキー</td><td>ヘビを うごかす（パソコン）</td></tr>
-<tr><td>1P：スペース ／ 2P：Enter</td><td>ダッシュ（パソコン）</td></tr>
-</table>
-
-<h3>じぶんで つくれる！</h3>
-<table>
-<tr><th>きのう</th><th>ないよう</th></tr>
-<tr><td>🎨 絵を描く</td><td>ヘビの顔を お絵描きできる。「🙂 普通」と「😠 怒り（ダッシュ中の顔）」の 2まい</td></tr>
-<tr><td>🖌️ ステージを描く</td><td>ステージの 外わく の形や、中の 🧱 かべ を 自分で 描ける</td></tr>
-<tr><td>🤖 CPU設定</td><td>CPU（コンピュータのヘビ）の 数・むずかしさ・長さを かえられる</td></tr>
-<tr><td>💾 設定保存欄</td><td>お気に入りの 設定を 名前をつけて ほぞん／よびだし できる</td></tr>
-</table>
-
-<div class="tip">💡 ダッシュは にげる・おいかける ときに べんり。でも つかいすぎると ポイントが へって 小さくなるよ。あいての 前に からだを ぶつけて かべを つくると、あいてが ぶつかって 撃破できる！</div>
-<a class="btn" href="../games/snake-battle/index.html">🐲 スネークバトルであそぶ</a>
-</section>
-
-<section id="online-demo">
-<h2>🧪 オンラインちびデモ（としくん作・接続テスト用）</h2>
-<p>オンライン通信が つながるか 確認するための テスト機能です。同じ合言葉で 部屋に入ると、最大4人で 四角を いっしょに 動かせます。</p>
-<ol>
-<li>それぞれの端末で 名前と 同じ合言葉を 入れ、「部屋に入る」を 押す</li>
-<li>画面を 指やマウスで なぞって、自分の四角を 動かす</li>
-<li>別の端末にも 動きが 見えるか 確認する。終わったら「出る」を 押す</li>
-</ol>
-<p>接続テスト用のため、得点や ランキングは ありません。</p>
-<a class="btn" href="../games/online-demo/index.html">🧪 接続テストをひらく</a>
-</section>
-
-<section id="snake-online">
-<h2>🌐 スネークバトルオンライン（こうちゃん&amp;としくん作）</h2>
-<p>
-ちがう iPad やスマホから、<b>同じ「合言葉」</b>を入れた人どうしで対戦できるオンライン版です（4人まで）。
-足りないぶんは <span class="emoji">🤖</span> CPU が入って、いつも 10匹でバトル！ 1人でも遊べます。
-</p>
-
-<h3>あそびかた</h3>
-<ol>
-<li>なまえと <b>合言葉</b>（例：ねこ123）を入れて <b>▶ 部屋に入る</b></li>
-<li>ロビーで <b>色</b> と <b>そうさ</b> をえらんで <b>準備OK</b></li>
-<li>さいしょに入った人が <span class="emoji">👑</span> <b>リーダー</b>。ルールを決めて <b>▶ スタート!</b></li>
-</ol>
-<div class="tip">💡 ゲームの途中で入った人は <b>観戦</b> して、つぎのゲームから参加できるよ。</div>
-
-<h3>2つのルール（リーダーがえらぶ）</h3>
-<table>
-<tr><th>ルール</th><th>勝ち方</th></tr>
-<tr><td>⏱ 時間制バトル</td><td>時間（1〜5分）がきたとき、いちばん長いヘビの勝ち。やられても <b>5秒で復活</b></td></tr>
-<tr><td>💀 サバイバル</td><td>復活なし。最後まで生きのこったヘビの勝ち（5分たったら いちばん長いヘビ）</td></tr>
-</table>
-<p>ほかにも <b>ステージの広さ（小・中・大）</b>、<b>光る岩 あり/なし</b>、<b>CPUの強さ</b> をえらべます。</p>
-
-<h3>そうさ</h3>
-<table>
-<tr><th>そうさ</th><th>うごき</th></tr>
-<tr><td>🕹️ スティック</td><td>左手のスティックで向きをかえる</td></tr>
-<tr><td>👆 なぞる</td><td>行きたい方向を指でなぞる</td></tr>
-<tr><td>⚡ ボタン（おしっぱなし）</td><td>ダッシュ！ はやくなるけど、少しずつ短くなる</td></tr>
-<tr><td>やじるし / WASD ・ スペース</td><td>向き・ダッシュ（パソコン）</td></tr>
-</table>
-
-<h3>🎁 パワーアップアイテム</h3>
-<table>
-<tr><th>アイテム</th><th>こうか</th></tr>
-<tr><td>⚡ スピード</td><td>5秒間、ダッシュし放題（短くならない）</td></tr>
-<tr><td>🛡️ シールド</td><td>1回だけ、ぶつかっても平気</td></tr>
-<tr><td>🧲 マグネット</td><td>8秒間、近くのエサを吸い寄せる</td></tr>
-<tr><td>👻 すりぬけ</td><td>5秒間、ヘビと岩をすりぬける（外枠はダメ）</td></tr>
-<tr><td>🍎 大きいエサ</td><td>一気にぐーんと長くなる</td></tr>
-</table>
-
-<h3>ゲームのあと</h3>
-<p>
-🏆 <b>表彰台</b>で1〜3位を発表！ <b>⚔️撃破王・🎁アイテム名人・⚡ダッシュ王・🐢しぶとい賞・📏いちばん長くなった</b> の
-<b>称号</b> もあるので、1位じゃなくても何かもらえるかも。同じ部屋で遊んだ <b>📊 勝ち数</b> も記録されます。
-<b>🔄 同じメンバーでもう一回</b> で、すぐ次の勝負！
-</p>
-<div class="tip">💡 ほかのヘビの <b>からだ</b> に頭がぶつかるとアウト。頭どうしは <b>長いほうの勝ち</b>。あいての前に回りこんで、ぶつけさせよう！ 📱 iPad・スマホは <b>横向き</b> がおすすめ。</div>
-<a class="btn" href="../games/snake-battle-online/index.html">🌐 スネークバトルオンラインであそぶ</a>
-</section>
-
-<section id="chaos-ultra-x">
-<h2>🌌 カオス世界大崩壊 ULTRA X INFINITE（ようちゃん作）</h2>
-<p>つぎつぎに せまってくる てきを たおして、生きのこる <b>サバイバルバトル</b>！ 自分は じどうで てきを うつので、うごいて てきの こうげきを よけよう。HPが0になると ゲームオーバーです。</p>
-
-<h3>▶ はじめかた</h3>
-<ol>
-<li><b>🚀 ゲーム開始！</b> をおす</li>
-<li>左下の スティック（パソコンなら WASD・やじるしキー）で うごく。こうげきは じどう！</li>
-<li>てきを たおして <b>💎 経験値</b> をあつめ、レベルアップしたら 3つの強化から 1つえらぶ</li>
-<li><b>🌀 吸収</b> がふえると すがたが変わる。ぜんぶで <b>20形態</b>！</li>
-</ol>
-
-<h3>🎮 そうさ</h3>
-<table>
-<tr><th>スマホ・iPad</th><th>パソコン</th><th>こうか</th></tr>
-<tr><td>🕹️ 左スティック</td><td>WASD / やじるしキー</td><td>プレイヤーを うごかす</td></tr>
-<tr><td>🎯 ロック / てきをタップ</td><td>L</td><td>ねらう てきを きめる</td></tr>
-<tr><td>⚡ ダッシュ</td><td>Shift</td><td>すばやく うごく（4秒で再使用）</td></tr>
-<tr><td>💥 超爆破</td><td>スペース</td><td>広いはんいに大ダメージ。てきのHPは1のこる。最初は5回分、使うと12秒の待ち時間</td></tr>
-<tr><td>🕳️ ブラックホール</td><td>B</td><td>8秒間 てきを すいよせる。30秒で再使用できる</td></tr>
-<tr><td>⏸ 停止</td><td>Esc</td><td>一時停止・再開</td></tr>
-</table>
-
-<h3>💎 経験値と強化</h3>
-<p>てきを たおすと 水色の 💎 経験値が出ます。近づけば ひろえて、とおいところにある経験値も <b>約6秒たつと 自動で よってくる</b> しくみです。画面左上の <b>XP</b> を見よう。レベルアップ時には、こうげき力・連射・HP・ドローン・経験値磁石などから 1つえらべます。まれに <b>🌈 伝説強化</b> も登場！</p>
-<div class="tip">💡 <b>経験値が画面に見えないとき</b>も、遠くの敵が落とした経験値は少したつと近づいてくるよ。左上の XP の数字を確認しよう。</div>
-
-<h3>🤖 ドローンと巨大戦艦</h3>
-<table>
-<tr><th>数</th><th>どうなる？</th></tr>
-<tr><td>🤖 ドローン +1</td><td>レベルアップで強化すると なかまがふえる。上限なし！</td></tr>
-<tr><td>🚀 6機ごと</td><td>合体砲台 1基ぶんの レーザー火力になる</td></tr>
-<tr><td>🛸 60機ごと</td><td>巨大戦艦 1隻が登場する。合体砲台の火力は のこる</td></tr>
-</table>
-<p>ドローンや砲台の数が とても多くなっても、おもくなりにくいように 表示する数を しぼっています。</p>
-
-<h3>👑 ボスとWAVE</h3>
-<table>
-<tr><th>WAVE</th><th>イベント</th></tr>
-<tr><td>5・25・35など</td><td>👑 ボス1体</td></tr>
-<tr><td>10・20・40など</td><td>👑👑 ダブルボス（2体）</td></tr>
-<tr><td>15・30・45など</td><td>👑👑👑 トリプルボス（3体）</td></tr>
-<tr><td>100</td><td>🌟 ボスをたおすと究極勝利のメッセージ！ そのあとも続けてあそべる</td></tr>
-</table>
-<p>ときどき <b>🚨 敵の大群</b> も来るので、逃げ道に気をつけよう。</p>
-<div class="tip">💡 おすすめは、まず <b>連射・HP・ドローン</b> を強化すること。ボスの弾をダッシュでよけて、ブラックホールで てきを まとめてみよう！</div>
-<a class="btn" href="../games/chaos-ultra-x/index.html">🌌 カオス世界大崩壊であそぶ</a>
-</section>
-
-<section id="kochan-arcade">
-<h2>🕹️ こうちゃんの3Dゲームセンター（こうちゃん作）</h2>
-<p>専用入口で全37種類をジャンル別に選べます。好きなゲームを押すと3Dの店内が開き、その台の前から始められます。「店内を自由に歩く」から探検することもできます。</p>
-<p>入口では名前や説明のことばで検索できます。店内の「ゲームを選び直す」で専用入口へ戻れます。選んだだけではプレイ時間は始まりません。台のボタンや、コース・ボールへのタッチで開始します。</p>
-<table>
-<tr><th>そうさ</th><th>うごき</th></tr>
-<tr><td>左下のスティック</td><td>歩く（PCはWASD）</td></tr>
-<tr><td>画面をスライド</td><td>見回す。空いている通路や壁をなぞろう</td></tr>
-<tr><td>⚡を長押ししながら歩く</td><td>ダッシュ（PCはShift）</td></tr>
-<tr><td>クレーン・ビデオゲームの台の下のボタン</td><td>開始・操作。別の画面へ切り替わらず店内で遊べます</td></tr>
-</table>
-<h3>ボタンなしの立体スポーツ8種類</h3>
-<p>コースやボールを直接触ると開始！ 終了後も同じ場所を触るともう一度遊べます。</p>
-<ul>
-<li>⛳ ミニゴルフ：グリーンを触って狙う方向へスワイプし、離して打つ。12打以内に3ホール！</li>
-<li>🎳 ボウリング：レーンで位置を決め、奥へスワイプして転がす。5フレームで35本。</li>
-<li>⚽ PKサッカー：芝生で狙うコースを決め、スワイプしてキック。5本中3ゴール！</li>
-<li>🏹 アーチェリー：的を押して指で狙いを動かし、長押しして弓を引いて離す。6本で30点。</li>
-<li>⭕ 輪投げ：狙う棒の方向へスワイプ。長く動かすほど遠くへ投げます。6投で3回成功！</li>
-<li>⚾ バッティング：ケージを触って開始し、球が白い線に来たらタップ／スワイプ。6球で30点。</li>
-<li>🏀 バスケ：ボールを触って奥へスワイプし、離してシュート。長いスワイプほど強くなります。</li>
-<li>🏒 エアホッケー：台の手前を触り、青いマレットを直接ドラッグ。先に5点で勝ち！</li>
-</ul>
-<p>ほかにクレーン6種類、モグラたたき、宝石すくい、ストップライト、レースや宇宙シューティングなど20種類のビデオゲームもあります。</p>
-<div class="tip">💡 景品や各台の自己ベストはこのブラウザに自動保存され、専用入口から入っても続きが使えます。ランキングの名前を登録すると景品獲得数・種類数を送信でき、引継ぎコードで別端末でもランキング記録を見られます。景品そのものや各台の進行は引き継がれません。</div>
-<a class="btn" href="../games/kochan-3d-arcade/lobby.html">🕹️ 専用入口でゲームをえらぶ</a>
-</section>
-
-<section id="tap-circle">
-<h2>🎯 丸をタップ！（ようちゃん作）</h2>
-<p>出てくる丸をタップ／クリックするだけ！20秒で何点とれるか挑戦しよう。</p>
-<ol>
-<li>「スタート！」をおす</li>
-<li>ピンクの丸をおすと1点。丸はべつの場所にうごくよ</li>
-<li>20秒で終了。「もう一回！」ですぐにやりなおせる</li>
-</ol>
-<div class="tip">💡 最高記録は同じ端末・ブラウザに保存されるよ。別の端末とは共有されません。</div>
-<a class="btn" href="../games/tap-circle/index.html">🎯 丸をタップ！であそぶ</a>
-</section>
-
-<a class="back" href="../index.html">← トップにもどる</a>
+<div hidden>
+<a id="start" data-manual href="defense.html#start">基地防衛の案内</a>
+<a id="controls" data-manual href="defense.html#controls">基地防衛の案内</a>
+<a id="weapons" data-manual href="defense.html#weapons">基地防衛の案内</a>
+<a id="enemies" data-manual href="defense.html#enemies">基地防衛の案内</a>
+<a id="tips" data-manual href="defense.html#tips">基地防衛の案内</a>
+</div>
 </main>
-
-<footer>とみよこゲームランド 📖 せつめいしょ</footer>
+<footer>とみよこゲームランド</footer>
 </body>
 </html>
-

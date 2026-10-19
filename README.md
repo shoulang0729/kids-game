@@ -9,7 +9,7 @@ GitHub Pages で公開しています：
 
 **https://shoulang0729.github.io/kids-game/**
 
-遊び方は [せつめいしょ](https://shoulang0729.github.io/kids-game/wiki/) を見てください。
+各ゲームの遊び方はトップの「あそぶ」の隣の「説明書」から開けます。[共通の案内と説明書の入口](https://shoulang0729.github.io/kids-game/wiki/) も利用できます。
 
 ## 👤 名前・記録の設定とゲーム別ランキング
 
@@ -20,16 +20,16 @@ GitHub Pages で公開しています：
 <!-- BEGIN GENERATED: rankings -->
 | ゲーム | 記録 |
 |---|---|
-| [地獄基地防衛](https://shoulang0729.github.io/kids-game/ranking/index.html?game=base-defense) | 最高到達ウェーブ |
-| [へびゲーム](https://shoulang0729.github.io/kids-game/ranking/index.html?game=snake) | 最高得点 |
-| [ようちゃんバトル](https://shoulang0729.github.io/kids-game/ranking/index.html?game=youchan-battle) | 無限モード突破数・防衛クリア数・ストーリー進行 |
+| [丸をタップ！](https://shoulang0729.github.io/kids-game/ranking/index.html?game=tap-circle) | 20秒の最高得点 |
+| [こうちゃんの3Dゲームセンター](https://shoulang0729.github.io/kids-game/ranking/index.html?game=kochan-3d-arcade) | 景品獲得数・景品の種類 |
+| [カオス世界大崩壊 ULTRA X INFINITE](https://shoulang0729.github.io/kids-game/ranking/index.html?game=chaos-ultra-x) | 最高撃破数・最高到達WAVE |
+| [スネークバトルオンライン](https://shoulang0729.github.io/kids-game/ranking/index.html?game=snake-battle-online) | 通算優勝回数・オンライン最長記録 |
+| [スネークバトル](https://shoulang0729.github.io/kids-game/ranking/index.html?game=snake-battle) | 1Pの最長記録・1Pの最多撃破 |
 | [惑星ぶっこわし3D](https://shoulang0729.github.io/kids-game/ranking/index.html?game=planet-smash) | クリアした惑星 |
 | [料理ゲーム](https://shoulang0729.github.io/kids-game/ranking/index.html?game=cooking) | 最高料理ポイント |
-| [スネークバトル](https://shoulang0729.github.io/kids-game/ranking/index.html?game=snake-battle) | 1Pの最長記録・1Pの最多撃破 |
-| [スネークバトルオンライン](https://shoulang0729.github.io/kids-game/ranking/index.html?game=snake-battle-online) | 通算優勝回数・オンライン最長記録 |
-| [カオス世界大崩壊 ULTRA X INFINITE](https://shoulang0729.github.io/kids-game/ranking/index.html?game=chaos-ultra-x) | 最高撃破数・最高到達WAVE |
-| [こうちゃんの3Dゲームセンター](https://shoulang0729.github.io/kids-game/ranking/index.html?game=kochan-3d-arcade) | 景品獲得数・景品の種類 |
-| [丸をタップ！](https://shoulang0729.github.io/kids-game/ranking/index.html?game=tap-circle) | 20秒の最高得点 |
+| [ようちゃんバトル](https://shoulang0729.github.io/kids-game/ranking/index.html?game=youchan-battle) | 無限モード突破数・防衛クリア数・ストーリー進行 |
+| [へびゲーム](https://shoulang0729.github.io/kids-game/ranking/index.html?game=snake) | 最高得点 |
+| [地獄基地防衛](https://shoulang0729.github.io/kids-game/ranking/index.html?game=base-defense) | 最高到達ウェーブ |
 <!-- END GENERATED: rankings -->
 
 オンラインの優勝回数・最長記録はサーバーの対戦結果から集計し、合言葉の部屋内の勝ち数も保存します。部屋内は従来どおり名前単位、全体ランキングは引継ぎコード単位です。プロフィールを登録する前のオンライン対戦は全体ランキングには入りません。ソロのランキングはゲーム画面から送信する自己記録で、厳密な競技用の不正対策を保証するものではありません。ローカル版スネークバトルは1Pの記録を登録します。得点のない接続テスト用デモは対象外です。
@@ -39,21 +39,21 @@ GitHub Pages で公開しています：
 ## 🕹️ ゲーム一覧
 
 <!-- BEGIN GENERATED: catalog -->
-公開トップページと同じ11件を、追加が古い順から新しい順に掲載しています（接続テスト用デモを含む）。
+公開トップページと同じ11件を、追加が新しい順から古い順に掲載しています（接続テスト用デモを含む）。
 
-| ゲーム | せつめい | 作った人 | フォルダ |
-|--------|----------|----------|----------|
-| ☠️ [地獄基地防衛](https://shoulang0729.github.io/kids-game/games/base-defense/index.html) | 基地をつくって、せめてくるてきからコアをまもれ！ | こうちゃん | `games/base-defense/` |
-| 🐍 [へびゲーム](https://shoulang0729.github.io/kids-game/games/snake/index.html) | りんごを食べてへびをのばそう！かべと自分に気をつけて | としくん | `games/snake/` |
-| ⚔️ [ようちゃんバトル](https://shoulang0729.github.io/kids-game/games/youchan-battle/index.html) | ストーリー・無限・防衛モードのRPGバトル！武器を強くして魔王をたおせ | ようちゃん | `games/youchan-battle/` |
-| 🌌 [惑星ぶっこわし3D](https://shoulang0729.github.io/kids-game/games/planet-smash/index.html) | 惑星をタッチしてこわそう！お金をためて強い攻撃を解放。地球から宇宙皇帝まで18ステージ | ようちゃん | `games/planet-smash/` |
-| 🍳 [料理ゲーム](https://shoulang0729.github.io/kids-game/games/cooking/index.html) | ミッションの料理を作ろう！食材を切ったり焼いたり。ショップ・図鑑・実績つき | こうちゃん | `games/cooking/` |
-| 🐲 [スネークバトル](https://shoulang0729.github.io/kids-game/games/snake-battle/index.html) | 最大4人＆CPUと対戦するスネーク！顔やステージも自分で描ける本格バトル | こうちゃん | `games/snake-battle/` |
-| 🧪 [オンラインちびデモ](https://shoulang0729.github.io/kids-game/games/online-demo/index.html) | 接続テスト用の機能です。同じ合言葉で別の端末と四角を動かして通信を確認（4人まで） | としくん | `games/online-demo/` |
-| 🌐 [スネークバトルオンライン](https://shoulang0729.github.io/kids-game/games/snake-battle-online/index.html) | 合言葉で友だちとオンライン対戦！CPUもまざって10匹でバトル。アイテムで逆転をねらえ | こうちゃん&としくん | `games/snake-battle-online/` |
-| 🌌 [カオス世界大崩壊 ULTRA X INFINITE](https://shoulang0729.github.io/kids-game/games/chaos-ultra-x/index.html) | 20形態に進化！ブラックホール・トリプルボス・無限ドローン・巨大戦艦で生き残れ！ | ようちゃん | `games/chaos-ultra-x/` |
-| 🕹️ [こうちゃんの3Dゲームセンター](https://shoulang0729.github.io/kids-game/games/kochan-3d-arcade/lobby.html) | 専用入口で全37種類から選ぼう！クレーン・立体スポーツ・レースなど。店内を歩いて探すこともできる | こうちゃん | `games/kochan-3d-arcade/` |
-| 🎯 [丸をタップ！](https://shoulang0729.github.io/kids-game/games/tap-circle/index.html) | 出てくる丸をタップ！20秒で何点とれるかな？最高記録に挑戦しよう | ようちゃん | `games/tap-circle/` |
+| ゲーム | せつめい | 作った人 | フォルダ | 説明書 |
+|--------|----------|----------|----------|--------|
+| 🎯 [丸をタップ！](https://shoulang0729.github.io/kids-game/games/tap-circle/index.html) | 出てくる丸をタップ！20秒で何点とれるかな？最高記録に挑戦しよう | ようちゃん | `games/tap-circle/` | [説明書](https://shoulang0729.github.io/kids-game/wiki/tap-circle.html) |
+| 🕹️ [こうちゃんの3Dゲームセンター](https://shoulang0729.github.io/kids-game/games/kochan-3d-arcade/lobby.html) | 専用入口で全37種類から選ぼう！クレーン・立体スポーツ・レースなど。店内を歩いて探すこともできる | こうちゃん | `games/kochan-3d-arcade/` | [説明書](https://shoulang0729.github.io/kids-game/wiki/kochan-arcade.html) |
+| 🌌 [カオス世界大崩壊 ULTRA X INFINITE](https://shoulang0729.github.io/kids-game/games/chaos-ultra-x/index.html) | 20形態に進化！ブラックホール・トリプルボス・無限ドローン・巨大戦艦で生き残れ！ | ようちゃん | `games/chaos-ultra-x/` | [説明書](https://shoulang0729.github.io/kids-game/wiki/chaos-ultra-x.html) |
+| 🌐 [スネークバトルオンライン](https://shoulang0729.github.io/kids-game/games/snake-battle-online/index.html) | 合言葉で友だちとオンライン対戦！CPUもまざって10匹でバトル。アイテムで逆転をねらえ | こうちゃん&としくん | `games/snake-battle-online/` | [説明書](https://shoulang0729.github.io/kids-game/wiki/snake-online.html) |
+| 🧪 [オンラインちびデモ](https://shoulang0729.github.io/kids-game/games/online-demo/index.html) | 接続テスト用の機能です。同じ合言葉で別の端末と四角を動かして通信を確認（4人まで） | としくん | `games/online-demo/` | [説明書](https://shoulang0729.github.io/kids-game/wiki/online-demo.html) |
+| 🐲 [スネークバトル](https://shoulang0729.github.io/kids-game/games/snake-battle/index.html) | 最大4人＆CPUと対戦するスネーク！顔やステージも自分で描ける本格バトル | こうちゃん | `games/snake-battle/` | [説明書](https://shoulang0729.github.io/kids-game/wiki/snake-battle.html) |
+| 🌌 [惑星ぶっこわし3D](https://shoulang0729.github.io/kids-game/games/planet-smash/index.html) | 惑星をタッチしてこわそう！お金をためて強い攻撃を解放。地球から宇宙皇帝まで18ステージ | ようちゃん | `games/planet-smash/` | [説明書](https://shoulang0729.github.io/kids-game/wiki/planet.html) |
+| 🍳 [料理ゲーム](https://shoulang0729.github.io/kids-game/games/cooking/index.html) | ミッションの料理を作ろう！食材を切ったり焼いたり。ショップ・図鑑・実績つき | こうちゃん | `games/cooking/` | [説明書](https://shoulang0729.github.io/kids-game/wiki/cooking.html) |
+| ⚔️ [ようちゃんバトル](https://shoulang0729.github.io/kids-game/games/youchan-battle/index.html) | ストーリー・無限・防衛モードのRPGバトル！武器を強くして魔王をたおせ | ようちゃん | `games/youchan-battle/` | [説明書](https://shoulang0729.github.io/kids-game/wiki/battle.html) |
+| 🐍 [へびゲーム](https://shoulang0729.github.io/kids-game/games/snake/index.html) | りんごを食べてへびをのばそう！かべと自分に気をつけて | としくん | `games/snake/` | [説明書](https://shoulang0729.github.io/kids-game/wiki/snake.html) |
+| ☠️ [地獄基地防衛](https://shoulang0729.github.io/kids-game/games/base-defense/index.html) | 基地をつくって、せめてくるてきからコアをまもれ！ | こうちゃん | `games/base-defense/` | [説明書](https://shoulang0729.github.io/kids-game/wiki/defense.html) |
 <!-- END GENERATED: catalog -->
 
 - 3Dゲームセンターの遊び方：左下のスティックで歩く、画面をスライドして見回す、⚡長押しでダッシュ。
@@ -67,19 +67,19 @@ GitHub Pages で公開しています：
 kids-game/
 ├── index.html ← 入り口ページ（生成）
 ├── games/
-│   ├── base-defense/index.html ← 地獄基地防衛
-│   ├── snake/index.html ← へびゲーム
-│   ├── youchan-battle/index.html ← ようちゃんバトル
+│   ├── tap-circle/index.html ← 丸をタップ！
+│   ├── kochan-3d-arcade/lobby.html ← こうちゃんの3Dゲームセンター（店内はindex.html）
+│   ├── chaos-ultra-x/index.html ← カオス世界大崩壊 ULTRA X INFINITE
+│   ├── snake-battle-online/index.html ← スネークバトルオンライン
+│   ├── online-demo/index.html ← オンラインちびデモ
+│   ├── snake-battle/index.html ← スネークバトル
 │   ├── planet-smash/index.html ← 惑星ぶっこわし3D
 │   ├── cooking/index.html ← 料理ゲーム
-│   ├── snake-battle/index.html ← スネークバトル
-│   ├── online-demo/index.html ← オンラインちびデモ
-│   ├── snake-battle-online/index.html ← スネークバトルオンライン
-│   ├── chaos-ultra-x/index.html ← カオス世界大崩壊 ULTRA X INFINITE
-│   ├── kochan-3d-arcade/lobby.html ← こうちゃんの3Dゲームセンター（店内はindex.html）
-│   └── tap-circle/index.html ← 丸をタップ！
+│   ├── youchan-battle/index.html ← ようちゃんバトル
+│   ├── snake/index.html ← へびゲーム
+│   └── base-defense/index.html ← 地獄基地防衛
 ├── data/games.json ← ゲーム情報の正本
-├── wiki/index.html ← せつめいしょ（目次を生成）
+├── wiki/ ← ゲーム別のせつめいしょ・共通の案内
 ├── ranking/ ← ランキング・記録の引継ぎ
 ├── shared/ ← 共通の記録保存・ランキング方針
 ├── assets/ ← アイコン画像
@@ -105,7 +105,7 @@ kids-game/
 
 1. `games/<ゲーム名>/` に `index.html`・`style.css`・`game.js` を用意する。
 2. `data/games.json` にタイトル・絵文字・説明・作者・説明書のセクションIDを追加する。
-3. `wiki/index.html` に遊び方を追加する。接続テスト用デモなど説明書を省く場合は、`manual: null` と `manualNote` に理由を書く。
+3. `wiki/<manual>.html` にそのゲームだけの遊び方を追加する。接続テスト用デモなど説明書を省く場合は、`manual: null` と `manualNote` に理由を書く。
 4. `npm run generate` でトップページ・README・説明書の目次を更新する。`GENERATED` で囲まれた範囲は直接編集しない。
 5. `npm test` を実行し、PRを作成する。新しいゲームには `tests/browser/run.cjs` に操作シナリオも追加する。
 

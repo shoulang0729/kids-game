@@ -596,7 +596,7 @@ async function mockRankings(context, store = new Map(), api = 'https://tomiyoko-
             assert.equal(await page.locator('#grid .card').count(), games.length);
             assert.deepEqual(await page.locator('#grid h2').allTextContents(), games.map(g => g.title));
             assert.deepEqual(await page.locator('#grid .play-link').evaluateAll(links => links.map(a => a.getAttribute('href'))), games.map(g => `games/${g.id}/${g.entry || 'index.html'}`));
-            assert.deepEqual(await page.locator('#grid .game-manual').evaluateAll(links => links.map(a => a.getAttribute('href'))), games.map(g => `wiki/index.html#${g.manual}`));
+            assert.deepEqual(await page.locator('#grid .game-manual').evaluateAll(links => links.map(a => a.getAttribute('href'))), games.map(g => `wiki/${g.manual}.html`));
             assert.deepEqual(await page.locator('#grid .game-ranking').evaluateAll(links => links.map(a => a.getAttribute('href'))), games.filter(g => g.id !== 'online-demo').map(g => `ranking/index.html?game=${g.id}`));
             assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
             // Navigation must work with scripts disabled as well.
@@ -604,14 +604,41 @@ async function mockRankings(context, store = new Map(), api = 'https://tomiyoko-
             const fallback = await noJS.newPage(); await fallback.goto(base);
             assert.equal(await fallback.locator('#grid .play-link').count(), games.length); await noJS.close();
           } else if (game.id === 'manual') {
-            for (const g of games.filter(g => g.manual)) assert.equal(await page.locator(`section#${g.manual}`).count(), 1);
+            const manualGames = games.filter(g => g.manual);
+            assert.deepEqual(await page.locator('.manual-list a').allTextContents(), manualGames.map(g=>`${g.emoji} ${g.title}`));
+            // A manual must contain only its own game, even without JavaScript.
+            const noJS = await browser.newContext({javaScriptEnabled:false,viewport:{width,height:844}});
+            try {
+              const document = await noJS.newPage();
+              for (const g of manualGames) {
+                await document.goto(base+`wiki/${g.manual}.html`);
+                assert.equal(await document.locator('h1').innerText(), `${g.emoji} ${g.title}のせつめいしょ`);
+                assert.equal(await document.locator(`section#${g.manual}`).count(),1);
+                for (const other of manualGames.filter(other=>other.id!==g.id))
+                  assert.equal(await document.locator(`section#${other.manual}`).count(),0, `${g.id} must not show ${other.id}'s manual`);
+                assert.equal(await document.locator('nav .play-link').getAttribute('href'), `../games/${g.id}/${g.entry || 'index.html'}`);
+                assert.ok(await document.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+                await document.screenshot({path:path.join(results,`manual-${g.id}-${width}.png`),fullPage:true});
+              }
+            } finally {await noJS.close();}
+            // Old bookmarks, including base-defense subsections, still open the right manual.
+            for (const g of manualGames) {
+              await page.goto(base+`wiki/index.html#${g.manual}`);
+              await page.waitForURL(base+`wiki/${g.manual}.html#${g.manual}`);
+              assert.equal(await page.locator('h1').innerText(), `${g.emoji} ${g.title}のせつめいしょ`);
+            }
+            await page.goto(base+'wiki/index.html#weapons');
+            await page.waitForURL(base+'wiki/defense.html#weapons');
+            assert.ok(await page.locator('#weapons').isVisible());
+            await page.goto(base+'wiki/index.html#rankings');
+            assert.ok(await page.locator('#rankings').isVisible());
             assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
           } else {
             assert.ok(scenarios[game.id], `missing scenario for ${game.id}`);
             await scenarios[game.id](page);
           }
           if (games.some(g => g.id === game.id)) {
-            assert.equal(await page.locator('.game-page-links .game-manual').first().getAttribute('href'), `../../wiki/index.html#${game.manual}`);
+            assert.equal(await page.locator('.game-page-links .game-manual').first().getAttribute('href'), `../../wiki/${game.manual}.html`);
             const links = await page.locator('.game-page-links .game-ranking').evaluateAll(a => a.map(e => e.getAttribute('href')));
             assert.equal(links.length > 0, game.id !== 'online-demo');
             assert.ok(links.every(href => href === `../../ranking/index.html?game=${game.id}`));
