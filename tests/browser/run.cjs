@@ -234,6 +234,36 @@ const scenarios = {
     await p.locator('.tile.buildable').first().click();
     assert.ok(await p.evaluate(() => towers.length === 1));
     assert.equal(await p.evaluate(() => money), before - 50);
+    // Check the complete board, not only document overflow: the border-box
+    // regression clipped the rightmost tile in every row inside overflow:hidden.
+    const viewport = p.viewportSize();
+    for (const [width,height] of [[768,1024],[1024,768],[820,1180],[1180,820],[1024,1366],[1366,1024]]) {
+      await p.setViewportSize({width,height});
+      await p.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      await p.locator('#stage').scrollIntoViewIfNeeded();
+      const bounds = await p.evaluate(() => {
+        const board = document.getElementById('game'), stage = document.getElementById('stage');
+        const rect = board.getBoundingClientRect(), container = stage.getBoundingClientRect();
+        const scale = rect.width / board.offsetWidth;
+        const border = parseFloat(getComputedStyle(board).borderRightWidth) * scale;
+        const clipped = [...board.querySelectorAll('.tile')].filter(tile => {
+          const t = tile.getBoundingClientRect();
+          return t.right > rect.right-border+.5 || t.bottom > rect.bottom-border+.5;
+        }).length;
+        return {world:[board.clientWidth,board.clientHeight],clipped,x:rect.x,y:rect.y,right:rect.right,bottom:rect.bottom,width:rect.width,height:rect.height,stageWidth:container.width,stageHeight:container.height,scroll:document.documentElement.scrollWidth};
+      });
+      assert.deepEqual(bounds.world,[900,600], 'the world size excludes the frame');
+      assert.equal(bounds.clipped,0, 'all 20 columns and 13 rows must be visible');
+      assert.ok(bounds.x>=-.5 && bounds.right<=width+.5 && bounds.y>=-.5 && bounds.bottom<=height+.5);
+      assert.ok(bounds.width<=bounds.stageWidth+.5 && bounds.height<=bounds.stageHeight+.5);
+      assert.ok(bounds.scroll<=width);
+    }
+    // A real click after rotating still builds at the visible square.
+    const moneyBefore = await p.evaluate(() => money), towersBefore = await p.evaluate(() => towers.length);
+    await p.locator('.tile.buildable').last().click();
+    assert.equal(await p.evaluate(() => towers.length), towersBefore+1);
+    assert.equal(await p.evaluate(() => money), moneyBefore-50);
+    await p.setViewportSize(viewport);
     await p.locator('button[onclick="start()"]').click();
     assert.ok(await p.evaluate(() => running));
   },
