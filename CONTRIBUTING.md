@@ -40,11 +40,11 @@
      ```html
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
      ```
-3. `data/games.json` にゲームの `id`（フォルダ名）・`title`・`emoji`・`description`・`author`・`manual`（説明書のセクションID）を追加。
-   - 一覧はリポジトリへ追加した古い順→新しい順です。新作は配列の末尾へ追加し、既存作品の更新だけでは順番を変えません。同時に追加した作品はそのときの並びを維持します。
+3. `data/games.json` にゲームの `id`（フォルダ名）・`title`・`emoji`・`description`・`author`・`manual`（説明書のファイル名と主セクションID）を追加。
+   - 一覧はリポジトリへ追加した新しい順→古い順です。新作は配列の先頭へ追加し、既存作品の更新だけでは順番を変えません。同時に追加した作品はそのときの並びを維持します。
    - 専用の選択画面がある場合は `entry` に同じフォルダ内のHTML名を指定できます。3Dゲームセンターの入口一覧はゲーム本体の定義から生成するため、`lobby.html` の生成範囲は直接編集しません。
-4. `wiki/index.html` に同じIDの遊び方セクションを追加。説明書を省く場合は `manual: null` と理由の `manualNote` が必要。
-5. `npm run generate` を実行。トップページ・README・説明書の目次・各ゲーム内の案内リンクの `GENERATED` 範囲は直接編集しない。
+4. `wiki/<manual>.html` にそのゲームだけの遊び方を追加（`manual` はファイル名と主セクションID）。説明書を省く場合は `manual: null` と理由の `manualNote` が必要。
+5. `npm run generate` を実行。トップページ・README・説明書の目次・各ゲーム内の案内リンク・個別説明書のヘッダーの `GENERATED` 範囲は直接編集しない。
 6. `tests/browser/run.cjs` に新しいゲームの起動・操作シナリオを追加し、`npm test` を実行。
 7. PRを作成。PRの自動チェックが通ったことを確認する。
 
@@ -74,7 +74,7 @@
 作者名は「ラベル（表示）」です。次の場所を直します:
 - `data/games.json` … `author` を変更して `npm run generate` を実行
 - `index.html` … フッターの「つくった人」（全体の紹介を変える場合）
-- `wiki/index.html` … 各ゲームの見出し
+- `wiki/<manual>.html` … そのゲームの説明本文、`wiki/index.html` … 共通の案内
 
 ---
 

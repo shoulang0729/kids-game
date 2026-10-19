@@ -1,27 +1,52 @@
 [
   {
-    "id": "base-defense",
-    "title": "地獄基地防衛",
-    "emoji": "☠️",
-    "description": "基地をつくって、せめてくるてきからコアをまもれ！",
-    "author": "こうちゃん",
-    "manual": "defense"
-  },
-  {
-    "id": "snake",
-    "title": "へびゲーム",
-    "emoji": "🐍",
-    "description": "りんごを食べてへびをのばそう！かべと自分に気をつけて",
-    "author": "としくん",
-    "manual": "snake"
-  },
-  {
-    "id": "youchan-battle",
-    "title": "ようちゃんバトル",
-    "emoji": "⚔️",
-    "description": "ストーリー・無限・防衛モードのRPGバトル！武器を強くして魔王をたおせ",
+    "id": "tap-circle",
+    "title": "丸をタップ！",
+    "emoji": "🎯",
+    "description": "出てくる丸をタップ！20秒で何点とれるかな？最高記録に挑戦しよう",
     "author": "ようちゃん",
-    "manual": "battle"
+    "manual": "tap-circle"
+  },
+  {
+    "id": "kochan-3d-arcade",
+    "title": "こうちゃんの3Dゲームセンター",
+    "emoji": "🕹️",
+    "description": "専用入口で全37種類から選ぼう！クレーン・立体スポーツ・レースなど。店内を歩いて探すこともできる",
+    "author": "こうちゃん",
+    "manual": "kochan-arcade",
+    "entry": "lobby.html"
+  },
+  {
+    "id": "chaos-ultra-x",
+    "title": "カオス世界大崩壊 ULTRA X INFINITE",
+    "emoji": "🌌",
+    "description": "20形態に進化！ブラックホール・トリプルボス・無限ドローン・巨大戦艦で生き残れ！",
+    "author": "ようちゃん",
+    "manual": "chaos-ultra-x"
+  },
+  {
+    "id": "snake-battle-online",
+    "title": "スネークバトルオンライン",
+    "emoji": "🌐",
+    "description": "合言葉で友だちとオンライン対戦！CPUもまざって10匹でバトル。アイテムで逆転をねらえ",
+    "author": "こうちゃん&としくん",
+    "manual": "snake-online"
+  },
+  {
+    "id": "online-demo",
+    "title": "オンラインちびデモ",
+    "emoji": "🧪",
+    "description": "接続テスト用の機能です。同じ合言葉で別の端末と四角を動かして通信を確認（4人まで）",
+    "author": "としくん",
+    "manual": "online-demo"
+  },
+  {
+    "id": "snake-battle",
+    "title": "スネークバトル",
+    "emoji": "🐲",
+    "description": "最大4人＆CPUと対戦するスネーク！顔やステージも自分で描ける本格バトル",
+    "author": "こうちゃん",
+    "manual": "snake-battle"
   },
   {
     "id": "planet-smash",
@@ -40,52 +65,27 @@
     "manual": "cooking"
   },
   {
-    "id": "snake-battle",
-    "title": "スネークバトル",
-    "emoji": "🐲",
-    "description": "最大4人＆CPUと対戦するスネーク！顔やステージも自分で描ける本格バトル",
-    "author": "こうちゃん",
-    "manual": "snake-battle"
+    "id": "youchan-battle",
+    "title": "ようちゃんバトル",
+    "emoji": "⚔️",
+    "description": "ストーリー・無限・防衛モードのRPGバトル！武器を強くして魔王をたおせ",
+    "author": "ようちゃん",
+    "manual": "battle"
   },
   {
-    "id": "online-demo",
-    "title": "オンラインちびデモ",
-    "emoji": "🧪",
-    "description": "接続テスト用の機能です。同じ合言葉で別の端末と四角を動かして通信を確認（4人まで）",
+    "id": "snake",
+    "title": "へびゲーム",
+    "emoji": "🐍",
+    "description": "りんごを食べてへびをのばそう！かべと自分に気をつけて",
     "author": "としくん",
-    "manual": "online-demo"
+    "manual": "snake"
   },
   {
-    "id": "snake-battle-online",
-    "title": "スネークバトルオンライン",
-    "emoji": "🌐",
-    "description": "合言葉で友だちとオンライン対戦！CPUもまざって10匹でバトル。アイテムで逆転をねらえ",
-    "author": "こうちゃん&としくん",
-    "manual": "snake-online"
-  },
-  {
-    "id": "chaos-ultra-x",
-    "title": "カオス世界大崩壊 ULTRA X INFINITE",
-    "emoji": "🌌",
-    "description": "20形態に進化！ブラックホール・トリプルボス・無限ドローン・巨大戦艦で生き残れ！",
-    "author": "ようちゃん",
-    "manual": "chaos-ultra-x"
-  },
-  {
-    "id": "kochan-3d-arcade",
-    "title": "こうちゃんの3Dゲームセンター",
-    "emoji": "🕹️",
-    "description": "専用入口で全37種類から選ぼう！クレーン・立体スポーツ・レースなど。店内を歩いて探すこともできる",
+    "id": "base-defense",
+    "title": "地獄基地防衛",
+    "emoji": "☠️",
+    "description": "基地をつくって、せめてくるてきからコアをまもれ！",
     "author": "こうちゃん",
-    "manual": "kochan-arcade",
-    "entry": "lobby.html"
-  },
-  {
-    "id": "tap-circle",
-    "title": "丸をタップ！",
-    "emoji": "🎯",
-    "description": "出てくる丸をタップ！20秒で何点とれるかな？最高記録に挑戦しよう",
-    "author": "ようちゃん",
-    "manual": "tap-circle"
+    "manual": "defense"
   }
 ]

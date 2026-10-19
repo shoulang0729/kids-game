@@ -44,7 +44,7 @@ function document(file) {
   documents.set(file, result);
   return result;
 }
-const files = ['index.html', 'wiki/index.html', 'ranking/index.html', ...games.flatMap(g => [`games/${g.id}/index.html`, ...(g.entry ? [`games/${g.id}/${g.entry}`] : [])])];
+const files = ['index.html', 'wiki/index.html', 'ranking/index.html', ...games.filter(g => g.manual).map(g => `wiki/${g.manual}.html`), ...games.flatMap(g => [`games/${g.id}/index.html`, ...(g.entry ? [`games/${g.id}/${g.entry}`] : [])])];
 const checkedScripts = new Set();
 function checkScript(file, module = false) {
   if (checkedScripts.has(file)) return;
@@ -80,5 +80,5 @@ for (const file of files) {
     }
   });
 }
-for (const g of games.filter(g => g.manual)) assert.ok(document('wiki/index.html').ids.has(g.manual), `${g.id}: missing manual section`);
+for (const g of games.filter(g => g.manual)) assert.ok(document(`wiki/${g.manual}.html`).ids.has(g.manual), `${g.id}: missing manual section`);
 console.log(`PASS: ${games.length} catalog entries; HTML/JS syntax, local links, anchors and unique IDs`);
