@@ -15,7 +15,7 @@ const post=(game,e,origin='https://shoulang0729.github.io')=>mf.dispatchFetch('h
  await post('tap-circle',e);assert.equal((await(await get()).json()).total,4,'event IDs deduplicate across games too');
  await Promise.all(Array.from({length:6},()=>post('snake',event(5))));assert.equal((await(await get()).json()).total,5,'concurrent retries count once');
  for(const game of ['online-demo','missing','__proto__']) assert.equal((await post(game,event(6))).status,400);
- for(const e of [{id:'bad',startedAt:Date.now()},{...event(7),startedAt:0},{...event(8),startedAt:Date.now()+120000},null]) assert.equal((await post('snake',e)).status,400);
+ for(const e of [{id:'bad',startedAt:Date.now()},{id:[event(7).id],startedAt:Date.now()},{...event(7),startedAt:0},{...event(8),startedAt:Date.now()+120000},null]) assert.equal((await post('snake',e)).status,400);
  assert.equal((await post('snake',event(9),'https://other.invalid')).status,403);
  assert.equal((await mf.dispatchFetch('https://test/plays/snake',{method:'POST',body:'x'.repeat(1000)})).status,400);
  const cors=await mf.dispatchFetch('https://test/plays/snake',{method:'OPTIONS',headers:{Origin:'https://shoulang0729.github.io'}});assert.equal(cors.status,204);assert.equal(cors.headers.get('Access-Control-Allow-Origin'),'https://shoulang0729.github.io');

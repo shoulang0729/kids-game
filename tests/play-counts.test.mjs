@@ -15,7 +15,7 @@ test('play counts: policy excludes test demo and gives zero, sole leader or tied
  assert.deepEqual(playSummary([]).leaders,[]);
  assert.deepEqual(playSummary([{game:'snake',plays:5},{game:'tap-circle',plays:5}]).leaders,['snake','tap-circle']);
  assert.equal(playSummary([{game:'snake',plays:5},{game:'tap-circle',plays:4}]).total,9);
- const e={id:'00000000-0000-4000-8000-000000000001',startedAt:Date.now()};assert(validPlay('snake',e));assert(!validPlay('snake',{...e,startedAt:Date.now()-EVENT_AGE-1000}));assert(!validPlay('__proto__',e));
+ const e={id:'00000000-0000-4000-8000-000000000001',startedAt:Date.now()};assert(validPlay('snake',e));assert(!validPlay('snake',{...e,startedAt:Date.now()-EVENT_AGE-1000}));assert(!validPlay('__proto__',e));assert(!validPlay('snake',{...e,id:[e.id]}));
 });
 test('play counts: opening the module sends no start, actual starts send anonymous distinct events',async()=>{
  const c=client();await c.run('flushPlays()');assert.equal(c.requests.length,0);

@@ -2,7 +2,7 @@ import { RANKINGS } from './leaderboard-policy.mjs';
 export const PLAY_GAMES = Object.freeze(Object.keys(RANKINGS));
 export const EVENT_AGE = 7 * 24 * 60 * 60 * 1000;
 export function validPlay(game, event, now = Date.now()) {
-  return PLAY_GAMES.includes(game) && event &&
+  return PLAY_GAMES.includes(game) && event && typeof event.id === 'string' &&
     /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(event.id || '') &&
     Number.isSafeInteger(event.startedAt) && event.startedAt >= now - EVENT_AGE && event.startedAt <= now + 60000;
 }

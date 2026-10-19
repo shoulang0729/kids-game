@@ -29,12 +29,16 @@ const scenarios = {
     assert.ok(await p.locator('#profile-panel').isVisible());
     assert.ok(await p.locator('#board-panel').isHidden());
     assert.equal(await p.locator('#game').count(), 0);
+    assert.equal(await p.locator('#game-list .game-card').count(), games.filter(g => g.id !== 'online-demo').length);
+    assert.match(await p.locator('#sync-status').innerText(), /登録はいりません/);
     // First-time play must survive navigation before a ranking name is registered.
     await p.goto(base + 'games/planet-smash/index.html');
     await p.evaluate(() => damagePlanet(planet.hp, 350, 200));
     await p.reload();
     await p.goto(base + 'ranking/index.html?game=planet-smash');
     assert.equal(await p.evaluate(() => GameRecords.profile().pending), 1);
+    assert.match(await p.locator('#sync-status').innerText(), /1ゲーム分/);
+    assert.ok(await p.locator('#setup-link').isVisible());
     assert.ok(await p.locator('#profile-panel').isHidden());
     await p.click('#profile-link');
     await p.fill('#name', 'テスト');
@@ -44,10 +48,17 @@ const scenarios = {
     await p.click('#show-code');
     const code = await p.locator('#code').innerText();
     assert.match(code, /^[a-f0-9]{64}$/);
+    await p.click('#hide-code');
+    assert.ok(await p.locator('#code-panel').isHidden());
+    assert.equal(await p.locator('#code').innerText(), '');
+    await p.click('#show-code');
+    assert.equal(await p.locator('#code').innerText(), code);
     p.context().rankingReadDelay = 150;
     await p.click('#return-link');
     await p.waitForFunction(() => document.querySelector('#own').textContent.includes('1個'));
     p.context().rankingReadDelay = 0;
+    assert.equal(await p.locator('#rows tr.is-you').count(), 1);
+    assert.match(await p.locator('#own-rank').innerText(), /1位/);
     await p.goto(base + 'games/tap-circle/index.html');
     p.context().rankingsWritable = false;
     await p.clock.install();
@@ -75,6 +86,9 @@ const scenarios = {
       await device.click('#profile-link');
       await device.fill('#name', 'テスト');
       await device.locator('details').evaluate(e => { e.open = true; });
+      await device.fill('#import-code', 'bad');
+      await device.click('#import');
+      await device.waitForFunction(() => document.querySelector('#status').textContent.includes('64文字'));
       await device.fill('#import-code', code);
       await device.click('#import');
       await device.waitForFunction(() => document.querySelector('#status').textContent.includes('送信が完了'));
@@ -112,6 +126,14 @@ const scenarios = {
     assert.ok(requests.some(r=>r.method==='POST'));
     assert.ok(requests.every(r=>r.url.startsWith('http://localhost:8787/')), 'local test must not contact the production API');
     p.off('request', collect);
+    await p.goto(base+'ranking/index.html?game=base-defense');
+    await p.waitForFunction(() => document.querySelector('#board-status').textContent.includes('参加者がいません'));
+    assert.match(await p.locator('#own').innerText(), /まだ記録がありません/);
+    await p.selectOption('#game-choice', 'chaos-ultra-x');
+    await p.waitForURL('**/ranking/index.html?game=chaos-ultra-x');
+    await p.selectOption('#metric', 'wave');
+    await p.waitForFunction(() => document.querySelector('#metric-hint').textContent.includes('最高到達WAVE'));
+    assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await p.goto(base+'ranking/index.html?return=snake&server=example.com');
     await p.waitForFunction(()=>!document.querySelector('#settings').disabled);
     assert.equal(await p.locator('#return-link').getAttribute('href'),'index.html?game=snake');
@@ -580,7 +602,9 @@ async function mockRankings(context, store = new Map(), api = 'https://tomiyoko-
     if (context.rankingReadDelay) await new Promise(resolve => setTimeout(resolve, context.rankingReadDelay));
     const metric = url.searchParams.get('metric') || 'score';
     const rows = [...store.values()].filter(r => r.game === game && r.metric === metric).sort((a,b) => b.score-a.score);
-    return route.fulfill({json:{rows,own:rows.find(r => r.code === code) || null}});
+    const publicRows = rows.slice(0,20).map(r => ({player: require('node:crypto').createHash('sha256').update(r.code.replace(/^Bearer /, '')).digest('hex'),name:r.name,score:r.score}));
+    const own = rows.find(r => r.code === code);
+    return route.fulfill({json:{rows:publicRows,own:own ? {name:own.name,score:own.score} : null}});
   });
 }
 
@@ -695,3 +719,4 @@ async function mockRankings(context, store = new Map(), api = 'https://tomiyoko-
   }
   if (failures) process.exitCode = 1;
 })().catch(error => { console.error(error); server.close(); process.exitCode = 1; });
+
