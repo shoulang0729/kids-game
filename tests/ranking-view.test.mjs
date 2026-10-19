@@ -52,7 +52,9 @@ async function page({search='?game=snake',initial={name:'',code:'',pending:0},bo
     navigator:{clipboard:{writeText:async code=>{if(copyError)throw Error('blocked');calls.copies.push(code)}}}
   });
   await vm.runInContext('(async()=>{'+source+'})()',context);
-  await new Promise(r=>setImmediate(r));
+  // WebCrypto runs on the worker pool: wait for rendering, not one event-loop tick.
+  for (let i=0;i<200 && nodes.get('board-panel').attrs['aria-busy']==='true';i++) await new Promise(r=>setTimeout(r,5));
+  assert.notEqual(nodes.get('board-panel').attrs['aria-busy'],'true','board rendering timed out');
   return {get:id=>nodes.get(id),calls,context,p};
 }
 test('ranking page: first-time player can find every ranking and register without revealing a code',async()=>{
