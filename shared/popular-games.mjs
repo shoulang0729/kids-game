@@ -6,7 +6,8 @@ async function refresh() {
   button.disabled = true; status.textContent = 'みんなのプレイ回数を調べています…';
   try {
     if (!catalog) {const response = await fetch('data/games.json');if (!response.ok) throw Error('ゲーム一覧を読み込めませんでした。');catalog = await response.json();}
-    try {await flushPlays();} catch { /* still show counts already on the server */ }
+    // Sending an offline queue must not hold up the public count display.
+    void flushPlays().catch(() => {});
     const result = await loadPlays();
     if (!result.counts || Object.values(result.counts).some(n => !Number.isSafeInteger(n) || n<0)) throw Error('回数を読み込めませんでした。');
     const summary = playSummary(Object.entries(result.counts).map(([game,plays]) => ({game,plays})));
