@@ -99,3 +99,10 @@ test('ranking page: network failures show retry guidance without inventing a sco
   assert.match(p.get('board-help').textContent,/もう一度/);
   assert.equal(p.get('board-panel').attrs['aria-busy'],'false');
 });
+
+test('ranking page: registration anchor keeps the local API query before its fragment',async()=>{
+  const p=await page({search:'?server=localhost:8787'});
+  const target=new URL(p.get('setup-link').href,'http://127.0.0.1/kids-game/ranking/index.html');
+  assert.equal(target.searchParams.get('server'),'localhost:8787');
+  assert.equal(target.hash,'#profile-panel');
+});

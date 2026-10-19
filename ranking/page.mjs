@@ -5,8 +5,9 @@ const $ = id => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 const localServer = params.get("server");
 function pageLink(href) {
-  return /^(localhost|127\.0\.0\.1)(:\d+)?$/.test(localServer || "")
-    ? `${href}${href.includes("?") ? "&" : "?"}server=${encodeURIComponent(localServer)}` : href;
+  if (!/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(localServer || "")) return href;
+  const [target, fragment] = href.split("#");
+  return `${target}${target.includes("?") ? "&" : "?"}server=${encodeURIComponent(localServer)}${fragment === undefined ? "" : `#${fragment}`}`;
 }
 let games = [];
 try {
