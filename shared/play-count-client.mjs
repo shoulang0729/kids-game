@@ -22,6 +22,8 @@ export async function flushPlays() {
       if (!validPlay(event.game,event)) { pending.delete(id); try { localStorage.removeItem(prefix+id); } catch {} continue; }
       const response = await fetch(`${PLAYS_API}/plays/${event.game}`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,startedAt:event.startedAt}),keepalive:true,signal:AbortSignal.timeout(10000)});
       if (!response.ok) throw Error('プレイ回数を送れませんでした');
+      const acknowledgement = await response.json();
+      if (typeof acknowledgement.counted !== 'boolean') throw Error('集計サーバーを確認できませんでした');
       pending.delete(id);
       try { localStorage.removeItem(prefix+id); } catch { /* server deduplicates if retry survives */ }
     }

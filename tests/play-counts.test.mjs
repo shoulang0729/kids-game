@@ -7,7 +7,7 @@ import {PLAY_GAMES,validPlay,playSummary,EVENT_AGE} from '../shared/play-policy.
 const source=readFileSync(new URL('../shared/play-count-client.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace(/^export /gm,'');
 function client(store=new Map(),{fail=false,storageFails=false,search=''}={}){
  const requests=[];const ls={get length(){return store.size},key:i=>[...store.keys()][i],getItem:k=>store.get(k)||null,setItem:(k,v)=>{if(storageFails)throw Error('denied');store.set(k,v)},removeItem:k=>store.delete(k)};
- const sb={PLAY_GAMES,validPlay,URLSearchParams,AbortSignal,crypto:webcrypto,location:{search},localStorage:ls,addEventListener(){},fetch:async(url,init)=>{requests.push({url,...init});if(fail)throw Error('offline');return {ok:true,json:async()=>({})};}};
+ const sb={PLAY_GAMES,validPlay,URLSearchParams,AbortSignal,crypto:webcrypto,location:{search},localStorage:ls,addEventListener(){},fetch:async(url,init)=>{requests.push({url,...init});if(fail)throw Error('offline');return {ok:true,json:async()=>({counted:true})};}};
  const ctx=vm.createContext(sb);vm.runInContext(source,ctx);return {store,requests,run:code=>vm.runInContext(code,ctx)};
 }
 test('play counts: policy excludes test demo and gives zero, sole leader or tied leaders',()=>{
@@ -34,4 +34,10 @@ test('play counts: separate tabs retain each others pending event, blocked stora
 });
 test('play counts: only loopback server overrides are accepted',async()=>{
  for(const [server,url] of [['localhost:8787','http://localhost:8787'],['example.com','https://tomiyoko-online.shoulang.workers.dev']]){const c=client(new Map(),{search:'?server='+server});c.run('recordPlay("snake")');await c.run('flushPlays()');assert.equal(c.requests[0].url,url+'/plays/snake');}
+});
+
+test('play counts: an old server returning an unrelated HTTP 200 must not discard the queued play',async()=>{
+ const c=client();await c.run('flushPlays()');
+ c.run("fetch=async()=>({ok:true,json:async()=>({message:'old server'})});recordPlay('snake')");
+ await c.run('flushPlays().catch(()=>{})');assert.equal(c.store.size,1);
 });
