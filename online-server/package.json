@@ -5,10 +5,11 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "test": "wrangler deploy --dry-run --outdir .wrangler/test-bundle && node test/leaderboard.cjs"
+    "test": "wrangler deploy --dry-run --outdir .wrangler/test-bundle && node test/leaderboard.cjs && node test/play-counts.cjs"
   },
   "devDependencies": {
     "wrangler": "^4.147.0"
   },
   "type": "module"
 }
+

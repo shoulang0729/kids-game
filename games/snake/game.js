@@ -36,6 +36,7 @@ function start() {
   clearTimeout(flashTimer);
   levelNotice.textContent = "";
   model.start();
+  globalThis.GamePlays?.record("snake");
   accumulator = 0;
   lastTs = 0;
   overlay.classList.add("hidden");
@@ -183,3 +184,4 @@ updateHud();
 draw();
 requestAnimationFrame(gameLoop);
 startBtn.onclick = start;
+

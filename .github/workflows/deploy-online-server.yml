@@ -9,6 +9,7 @@ on:
     paths:
       - "online-server/**"
       - "shared/leaderboard-policy.mjs"
+      - "shared/play-policy.mjs"
       - ".github/workflows/deploy-online-server.yml"
   workflow_dispatch:
 
@@ -47,3 +48,4 @@ jobs:
             sleep 10
           done
           echo "server did not respond"; exit 1
+

@@ -1,0 +1,26 @@
+const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),assert=require('node:assert/strict');
+const {Miniflare,convertV4MiniflareOptions}=require('miniflare');
+const persist=fs.mkdtempSync(path.join(os.tmpdir(),'kids-plays-'));
+const options=convertV4MiniflareOptions({modules:true,script:fs.readFileSync(path.join(__dirname,'../.wrangler/test-bundle/index.js'),'utf8'),compatibilityDate:'2025-09-01',resourcePersistencePath:persist,durableObjects:Object.fromEntries([['ROOMS','Room'],['SNAKE_ROOMS','SnakeRoom'],['LEADERBOARDS','Leaderboard'],['PLAY_COUNTS','PlayCounts']].map(([key,className])=>[key,{className,useSQLite:true}]))});
+let mf;
+const get=()=>mf.dispatchFetch('https://test/plays');
+const event=i=>({id:`00000000-0000-4000-8000-${String(i).padStart(12,'0')}`,startedAt:Date.now()});
+const post=(game,e,origin='https://shoulang0729.github.io')=>mf.dispatchFetch('https://test/plays/'+game,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify(e)});
+(async()=>{try{
+ mf=new Miniflare(options);
+ let result=await(await get()).json();assert.deepEqual(result.leaders,[]);assert.equal(result.total,0);
+ const e=event(1);assert.equal((await post('snake',e)).status,200);assert.equal((await(await post('snake',e)).json()).counted,false);
+ await post('snake',event(2));await post('tap-circle',event(3));result=await(await get()).json();assert.equal(result.most,2);assert.deepEqual(result.leaders,['snake']);assert.equal(result.total,3);
+ await post('tap-circle',event(4));result=await(await get()).json();assert.deepEqual([...result.leaders].sort(),['snake','tap-circle']);
+ await post('tap-circle',e);assert.equal((await(await get()).json()).total,4,'event IDs deduplicate across games too');
+ await Promise.all(Array.from({length:6},()=>post('snake',event(5))));assert.equal((await(await get()).json()).total,5,'concurrent retries count once');
+ for(const game of ['online-demo','missing','__proto__']) assert.equal((await post(game,event(6))).status,400);
+ for(const e of [{id:'bad',startedAt:Date.now()},{id:[event(7).id],startedAt:Date.now()},{...event(7),startedAt:0},{...event(8),startedAt:Date.now()+120000},null]) assert.equal((await post('snake',e)).status,400);
+ assert.equal((await post('snake',event(9),'https://other.invalid')).status,403);
+ assert.equal((await mf.dispatchFetch('https://test/plays/snake',{method:'POST',body:'x'.repeat(1000)})).status,400);
+ const cors=await mf.dispatchFetch('https://test/plays/snake',{method:'OPTIONS',headers:{Origin:'https://shoulang0729.github.io'}});assert.equal(cors.status,204);assert.equal(cors.headers.get('Access-Control-Allow-Origin'),'https://shoulang0729.github.io');
+ assert.equal((await get()).headers.get('Cache-Control'),'no-store');
+ await mf.dispose();mf=new Miniflare(options);assert.equal((await(await get()).json()).total,5,'total survives runtime restart');
+ assert.equal((await(await post('snake',e)).json()).counted,false,'deduplication survives runtime restart');
+ console.log('PASS: real SQLite play counts, ties, concurrent duplicate retries, validation, CORS and restart persistence');
+}finally{if(mf)await mf.dispose();fs.rmSync(persist,{recursive:true,force:true});}})().catch(e=>{console.error(e);process.exitCode=1});

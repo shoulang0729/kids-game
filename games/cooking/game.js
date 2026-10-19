@@ -25,6 +25,7 @@ function showScreen(id) {
 function startGame() {
   clearTimeout(mixTimer);
   const mission = cookingGame.start();
+  if (mission) globalThis.GamePlays?.record("cooking");
   document.querySelector(".bowl").classList.remove("spin");
   updateBowl();
   document.getElementById("dish").innerHTML = "";
@@ -369,3 +370,4 @@ function updateAchievements() {
 }
 
 updateProgress();
+

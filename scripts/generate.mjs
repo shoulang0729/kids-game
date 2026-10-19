@@ -65,7 +65,7 @@ for (const g of games.filter(g => g.manual || RANKINGS[g.id])) {
   const links = `<nav class="game-page-links" aria-label="ゲームの案内">
   ${g.manual ? `<a class="game-manual" href="../../wiki/${escape(g.manual)}.html">📖 説明書</a>` : ''}
   ${RANKINGS[g.id] ? `<a class="game-ranking" href="../../ranking/index.html?game=${escape(g.id)}">🏆 ランキング</a>` : ''}
-</nav>`.replace(/[ \t]+\n/g, '\n');
+</nav>${RANKINGS[g.id] ? '\n<script type="module" src="../../shared/play-count-client.mjs"></script>' : ''}`.replace(/[ \t]+\n/g, '\n');
   const file = `games/${g.id}/index.html`;
   update(file, 'game-links', links);
   for (const name of ['battle-links', 'result-links', 'pause-links'])
@@ -81,3 +81,4 @@ ${group.entries.map(e => `<a class="game-card" href="index.html?game=${e.id}">
   </div>
 </section>`).join('\n'));
 console.log(check ? 'PASS: generated catalog is up to date' : 'Generated homepage, README, individual manual navigation and 3D lobby');
+

@@ -210,6 +210,7 @@ function hideScreens() {
     $(id).classList.add("hidden");
 }
 function newGame() {
+  globalThis.GamePlays?.record("chaos-ultra-x");
   p = {
     x: 0,
     y: 0,
@@ -1443,3 +1444,4 @@ canvas.addEventListener("pointerdown", (e) => {
     hud();
   }
 });
+

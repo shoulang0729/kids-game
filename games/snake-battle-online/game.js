@@ -378,6 +378,7 @@ function onStart(m) {
   };
   game.myIdx = m.snakes.findIndex((s) => s.id === myId);
   game.spectator = game.myIdx < 0;
+  if (!game.spectator) globalThis.GamePlays?.record("snake-battle-online");
   snaps = [{ tm: m.tm, at: performance.now(), sn: m.snakes.map((s) => s.state) }];
   trails = m.snakes.map((s) => {
     const pts = [];
@@ -1346,3 +1347,4 @@ $("againBtn").onclick = () => {
   show("lobby");
   renderLobby();
 };
+

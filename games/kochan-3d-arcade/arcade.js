@@ -98,6 +98,7 @@ window.createArcadeGames = function (scene, msg, tone) {
   }
   function start(g) {
     if (g.state === "playing") return;
+    globalThis.GamePlays?.record("kochan-3d-arcade");
     g.state = "playing";
     g.time = g.duration;
     g.score = 0;
@@ -573,3 +574,4 @@ window.createArcadeGames = function (scene, msg, tone) {
     totals: () => ({ gems: totalGems, treasure: totalTreasure }),
   };
 };
+

@@ -79,6 +79,7 @@ function enemySetup(hp, attack, emoji, title) {
 }
 
 function startStoryBattle(node) {
+  globalThis.GamePlays?.record("youchan-battle");
   cancelTransition();
   battle.mode = "story";
 
@@ -114,6 +115,7 @@ function startStoryBattle(node) {
 }
 
 function startInfinite() {
+  globalThis.GamePlays?.record("youchan-battle");
   cancelTransition();
   resetCooldowns();
   battle.mode = "infinite";
@@ -130,6 +132,7 @@ function startInfinite() {
 }
 
 function startDefense() {
+  globalThis.GamePlays?.record("youchan-battle");
   cancelTransition();
   resetCooldowns();
   battle.mode = "defense";
@@ -427,3 +430,4 @@ function updateBars() {
 function log(text) {
   document.getElementById("log").innerText = text;
 }
+

@@ -28,3 +28,12 @@ class_name = "Leaderboard"
 [[migrations]]
 tag = "v3"
 new_sqlite_classes = ["Leaderboard"]
+
+
+[[durable_objects.bindings]]
+name = "PLAY_COUNTS"
+class_name = "PlayCounts"
+
+[[migrations]]
+tag = "v4"
+new_sqlite_classes = ["PlayCounts"]

@@ -571,6 +571,20 @@ const scenarios = {
   }
 };
 
+async function mockPlays(context) {
+  context.playCounts = new Map(); context.playEvents = new Set();
+  await context.route('https://tomiyoko-online.shoulang.workers.dev/plays**', async route => {
+    const request = route.request(), url = new URL(request.url());
+    if (context.playReadFails && request.method()==='GET') return route.fulfill({status:503,json:{error:'offline test'}});
+    if (request.method()==='POST') {
+      const game = url.pathname.split('/').pop(), event = request.postDataJSON();
+      if (!context.playEvents.has(event.id)) {context.playEvents.add(event.id);context.playCounts.set(game,(context.playCounts.get(game)||0)+1);}
+      return route.fulfill({json:{counted:true}});
+    }
+    return route.fulfill({json:{counts:Object.fromEntries(context.playCounts)}});
+  });
+}
+
 async function mockRankings(context, store = new Map(), api = 'https://tomiyoko-online.shoulang.workers.dev') {
   context.rankingStore = store;
   await context.route(api + '/rankings/**', async route => {
@@ -613,6 +627,7 @@ async function mockRankings(context, store = new Map(), api = 'https://tomiyoko-
         page.on('response', r => { if (r.url().startsWith(base) && r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
         page.on('requestfailed', r => { if (r.url().startsWith(base)) errors.push(`${r.failure()?.errorText} ${r.url()}`); });
         await context.route('**/*', route => route.request().url().startsWith(base) ? route.continue() : route.abort());
+        await mockPlays(context);
         if (game.id === 'ranking') await mockRankings(context);
         try {
           await page.goto(base + game.url, { waitUntil: 'load' });
@@ -623,6 +638,26 @@ async function mockRankings(context, store = new Map(), api = 'https://tomiyoko-
             assert.deepEqual(await page.locator('#grid .game-manual').evaluateAll(links => links.map(a => a.getAttribute('href'))), games.map(g => `wiki/${g.manual}.html`));
             assert.deepEqual(await page.locator('#grid .game-ranking').evaluateAll(links => links.map(a => a.getAttribute('href'))), games.filter(g => g.id !== 'online-demo').map(g => `ranking/index.html?game=${g.id}`));
             assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+            await page.waitForFunction(() => document.querySelector('#popular-count').textContent.includes('まだ集計'));
+            assert.equal(context.playEvents.size,0,'viewing the homepage is not a play');
+            await page.locator('#grid [href="games/tap-circle/index.html"]').click();
+            await page.waitForFunction(() => !!globalThis.GamePlays);
+            assert.equal(context.playEvents.size,0,'opening a game alone is not a play');
+            const sent = page.waitForResponse(r => r.url().endsWith('/plays/tap-circle') && r.request().method()==='POST');
+            await page.click('#start'); await sent;
+            assert.equal(context.playCounts.get('tap-circle'),1);
+            await page.goto(base);
+            await page.waitForFunction(() => document.querySelector('#popular-count').textContent==='1位 · 1回');
+            assert.match(await page.locator('#popular-winner').innerText(),/丸をタップ/);
+            context.playCounts.set('snake',5);context.playCounts.set('tap-circle',5);
+            await page.click('#popular-refresh');
+            await page.waitForFunction(() => document.querySelector('#popular-count').textContent==='同率1位 · 5回');
+            assert.equal(await page.locator('#popular-winner a').count(),2);
+            assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+            context.playReadFails=true;await page.click('#popular-refresh');
+            await page.waitForFunction(() => document.querySelector('#popular-status').textContent.includes('読み込めません'));
+            assert.ok(await page.locator('#popular-refresh').isEnabled());
+            context.playReadFails=false;
             // Navigation must work with scripts disabled as well.
             const noJS = await browser.newContext({ javaScriptEnabled: false });
             const fallback = await noJS.newPage(); await fallback.goto(base);

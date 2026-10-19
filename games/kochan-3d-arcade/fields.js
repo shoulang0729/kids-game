@@ -112,6 +112,7 @@ window.createPhysicalFields = function (scene, msg, tone) {
   }
   function start(g) {
     if (g.state === "playing") return;
+    globalThis.GamePlays?.record("kochan-3d-arcade");
     g.state = "playing";
     g.score = 0;
     g.round = 0;
@@ -700,3 +701,4 @@ window.createPhysicalFields = function (scene, msg, tone) {
     handlesKeys,
   };
 };
+
