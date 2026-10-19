@@ -6,6 +6,7 @@
 <title>とみよこゲームランド 🎮</title>
 <link rel="icon" type="image/png" href="assets/icon.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="shared/popular-games.css">
 <style>
 *{box-sizing:border-box}
 body{
@@ -78,6 +79,14 @@ footer{padding:20px;font-size:13px;opacity:.6}
 </header>
 
 <p>追加が新しい順 → 古い順</p>
+<section class="popular" aria-labelledby="popular-title">
+  <div class="popular-top"><h2 id="popular-title">🏆 いちばん遊ばれたゲーム</h2><button id="popular-refresh" type="button">回数を更新</button></div>
+  <div id="popular-winner" class="popular-winner"></div>
+  <p id="popular-count" class="popular-count"></p>
+  <p id="popular-status" role="status" aria-live="polite">みんなのプレイ回数を調べています…</p>
+  <small>集計を始めてからゲームをスタートした回数です。同じ人の再プレイも含みます。ページを開くだけでは増えません。過去の回数は含みません。</small>
+  <noscript>遊ばれた回数を見るにはJavaScriptを有効にしてください。</noscript>
+</section>
 <div id="grid">
 <!-- BEGIN GENERATED: cards -->
 <article class="card" data-game="tap-circle">
@@ -196,6 +205,8 @@ footer{padding:20px;font-size:13px;opacity:.6}
 <footer>つくった人：ようちゃんこうちゃんとしくん 🛠️</footer>
 
 
+<script type="module" src="shared/popular-games.mjs"></script>
 </body>
 </html>
+
 

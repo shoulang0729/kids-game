@@ -7,6 +7,7 @@ const planet = planetGame.state;
 const { stages } = PlanetData;
 const { attacks } = planet;
 
+let playCounted = false;
 let rot = 0;
 let shake = 0;
 let boom = 0;
@@ -125,6 +126,7 @@ function useAttack(tx, ty) {
     msg.textContent = "完全クリア済み！もう一回で最初から！";
     return;
   }
+  if (!playCounted) { playCounted = true; globalThis.GamePlays?.record("planet-smash"); }
   const a = result.attack;
   effects.push({ x: tx, y: ty, color: a.color, type: a.type, life: 28 });
   hitVisual(tx, ty);
@@ -173,6 +175,7 @@ function damagePlanet(dmg, tx, ty) {
 }
 
 function resetGame() {
+  playCounted = false;
   clearAllPoison();
   planetGame.reset();
   rot = shake = boom = 0;
@@ -369,3 +372,4 @@ function loop() {
 makeButtons();
 updateText();
 loop();
+

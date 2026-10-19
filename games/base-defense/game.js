@@ -261,6 +261,7 @@ function buyBomberRobot() {
 
 function start() {
   if (running) return;
+  globalThis.GamePlays?.record("base-defense");
   running = true;
   globalThis.GameRecords?.record("base-defense", { wave });
   show("Wave " + wave + " 開始！");
@@ -869,3 +870,4 @@ fitGame();
 
 updateHud();
 loop();
+

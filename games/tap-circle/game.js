@@ -39,6 +39,7 @@ function updateTime() {
 }
 start.addEventListener("click", function () {
   if (!round.start(performance.now())) return;
+  globalThis.GamePlays?.record("tap-circle");
   scoreLabel.textContent = "0";
   timeLabel.textContent = "20";
   message.textContent = "";
@@ -62,3 +63,4 @@ target.addEventListener("pointerdown", function (event) {
 window.addEventListener("resize", function () {
   if (round.state.playing) moveTarget();
 });
+

@@ -149,6 +149,7 @@ window.createVideoCabinets = function (scene, onMessage, onTone) {
   }
   function start(g) {
     if (g.engine.state === "playing") return;
+    globalThis.GamePlays?.record("kochan-3d-arcade");
     g.engine.start();
     g.state = "playing";
     g.lastScore = 0;
@@ -293,3 +294,4 @@ window.createVideoCabinets = function (scene, onMessage, onTone) {
     screenPoint,
   };
 };
+

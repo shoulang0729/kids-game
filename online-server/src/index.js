@@ -7,6 +7,8 @@
 
 import { DurableObject } from "cloudflare:workers";
 import { rankingsRequest } from './leaderboard.js';
+import { playsRequest } from './play-counts.js';
+export { PlayCounts } from './play-counts.js';
 export { Leaderboard } from './leaderboard.js';
 
 export { SnakeRoom } from "./snake-room.js";
@@ -21,6 +23,7 @@ const ROOM_CODE = /^[0-9A-Za-z_\-぀-ゟ゠-ヿ一-鿿]{1,20}$/;
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === '/plays' || url.pathname.startsWith('/plays/')) return playsRequest(request, env);
     if (url.pathname.startsWith('/rankings/')) return rankingsRequest(request, env);
     const match = url.pathname.match(/^\/(room|snake)\/([^/]+)$/);
 
@@ -156,3 +159,4 @@ function cleanName(raw) {
     .slice(0, 12);
   return name || "ななし";
 }
+

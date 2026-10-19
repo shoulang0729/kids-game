@@ -3860,6 +3860,7 @@ document.getElementById("startButton").addEventListener("click", () => {
     started = true;
 
     playing = true;
+    globalThis.GamePlays?.record("snake-battle");
 
     lastTime = performance.now();
 
@@ -3928,3 +3929,4 @@ for (let i = 1; i <= 4; i++) {
 }
 
 redrawStageEditor();
+

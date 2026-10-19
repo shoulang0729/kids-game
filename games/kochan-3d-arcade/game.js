@@ -203,6 +203,7 @@ function createMachine(index, extra = {}) {
   };
   m.begin = () => {
     if (m.state !== "idle") return;
+    globalThis.GamePlays?.record("kochan-3d-arcade");
     m.held.clear();
     tries++;
     updateUI();
@@ -996,3 +997,4 @@ if (globalThis.location?.search) {
   if (requested && !visitGame(requested)) msg("そのゲームは見つからなかったよ。「ゲームを選び直す」からえらんでね。");
 }
 requestAnimationFrame(frame);
+
