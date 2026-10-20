@@ -5,104 +5,95 @@ import { webcrypto, createHash } from 'node:crypto';
 import vm from 'node:vm';
 import { RANKINGS } from '../shared/leaderboard-policy.mjs';
 import * as view from '../ranking/view.mjs';
-const rule = RANKINGS.snake.score;
-test('ranking view: registration and pending states explain the next action', () => {
-  assert.match(view.syncSummary({name:'',pending:2}).text, /2ゲーム分/);
-  assert.equal(view.syncSummary({name:'',pending:0}).state, 'new');
-  assert.equal(view.syncSummary({name:'こうちゃん',pending:2}).state, 'pending');
-  assert.equal(view.syncSummary({name:'こうちゃん',pending:0}).state, 'ready');
+const rule=RANKINGS.snake.score,code='b'.repeat(64),named={name:'こう',code,pending:0};
+test('ranking view: show records without gap or top-twenty messages; match self by identity',()=>{
+ const rows=[{player:'other',name:'同じ',score:100},{player:'me',name:'同じ',score:100}];
+ assert.equal(view.ownPosition(rows,{name:'同じ',score:100},'me'),1);
+ assert.equal(view.ownPosition(rows,{score:100},'missing'),-1);
+ assert.equal(view.recordSummary({rows,own:{score:100}},rule),'100点');
+ assert.equal(view.recordSummary({rows,own:null},rule),'まだ記録がありません');
+ assert.equal(view.formatScore(12345,rule),'12,345点');
+ assert.equal(view.formatScore(12.345,RANKINGS['snake-battle'].meters),'12.35m');
+ assert.match(view.syncSummary({name:'',pending:0}).text,/名前を登録/);
+ assert.match(view.syncSummary({...named,pending:2}).text,/2ゲーム分/);
 });
-test('ranking view: own identity is never guessed from matching names or scores', () => {
-  const rows=[{player:'other',name:'同じ',score:100},{player:'me',name:'同じ',score:100}];
-  assert.equal(view.ownPosition(rows,{name:'同じ',score:100},'me'),1);
-  assert.equal(view.ownPosition(rows,{name:'同じ',score:100},'missing'),-1);
-  assert.equal(view.ownPosition(rows,null,'me'),-1);
-  assert.equal(view.ownPosition(rows,{score:100},null),-1);
-  assert.match(view.recordSummary({rows,own:{score:100}},{name:'同じ'},'me',rule).rank,/2位/);
-});
-test('ranking view: empty records, outside top twenty, next target and readable units', () => {
-  assert.match(view.recordSummary({rows:[],own:null},{name:''},null,rule).goal,/名前を登録/);
-  assert.match(view.recordSummary({rows:[],own:null},{name:'名前'},'me',rule).goal,/最初の記録/);
-  const rows=Array.from({length:20},(_,i)=>({player:'p'+i,score:100-i}));
-  const summary=view.recordSummary({rows,own:{score:50}},{name:'名前'},'me',rule);
-  assert.equal(summary.rank,'上位20人の外');
-  assert.match(summary.goal,/あと32点/);
-  assert.equal(view.formatScore(12345,rule),'12,345点');
-  assert.equal(view.formatScore(12.345,RANKINGS['snake-battle'].meters),'12.35m');
-});
+const html=readFileSync(new URL('../ranking/index.html',import.meta.url),'utf8');
 const source=readFileSync(new URL('../ranking/page.mjs',import.meta.url),'utf8').replace(/^import .*;\n/gm,'');
 class Element {
-  constructor(id=''){this.id=id;this.hidden=false;this.disabled=false;this.children=[];this.dataset={};this.value='';this.textContent='';this.className='';this.attrs={};this.parentElement={dataset:{}};this.classList={add:(v)=>{this.className+=' '+v}};}
-  append(...children){this.children.push(...children);for(const c of children)c.parentElement=this;}
-  replaceChildren(...children){this.children=[...children];this.value='';}
-  add(option){this.append(option);if(this.children.length===1)this.value=option.value;}
-  setAttribute(k,v){this.attrs[k]=v;}
+ constructor(id=''){this.id=id;this.hidden=false;this.disabled=false;this.open=false;this.children=[];this.dataset={};this.value='';this.textContent='';this.className='';this.attrs={};this.listeners={};this.parentElement={dataset:{}};}
+ append(...nodes){this.children.push(...nodes);for(const n of nodes)n.parentElement=this;}
+ replaceChildren(...nodes){this.children=[...nodes];this.value='';}
+ add(option){this.append(option);if(this.children.length===1)this.value=option.value;}
+ setAttribute(k,v){this.attrs[k]=v;}
+ addEventListener(k,f){this.listeners[k]=f;}
+ showModal(){this.open=true;}
+ close(){this.open=false;}
+ focus(){this.focused=true;}
 }
-async function page({search='?game=snake',initial={name:'',code:'',pending:0},board={rows:[],own:null},flushError=false,loadError=false,copyError=false}={}){
-  const nodes=new Map([...readFileSync(new URL('../ranking/index.html',import.meta.url),'utf8').matchAll(/id="([^"]+)"/g)].map(m=>[m[1],new Element(m[1])]));
-  const code='b'.repeat(64),calls={save:0,flush:0,copies:[],loads:[]};let p={...initial};
-  const context=vm.createContext({
-    ...view,RANKINGS,URLSearchParams,TextEncoder,crypto:webcrypto,console,
-    location:{search,href:''},document:{title:'',getElementById:id=>nodes.get(id),createElement:()=>new Element()},
-    Option:function(text,value){this.textContent=text;this.value=value;},addEventListener(){},
-    fetch:async()=>({ok:true,json:async()=>[{id:'snake',title:'へび',emoji:'🐍'},{id:'chaos-ultra-x',title:'カオス',emoji:'🌌'},{id:'online-demo',title:'demo',emoji:'🧪'}]}),
-    profile:()=>({...p}),setProfile:(name,imported)=>{calls.save++;if(!name.trim())throw Error('名前を入れてください');p.name=name;p.code=imported||code;return {persisted:true}},
-    flush:async()=>{calls.flush++;if(flushError)throw Error('記録を送れませんでした');p.pending=0},
-    load:async(game,metric)=>{calls.loads.push({game,metric});if(loadError)throw Error('通信失敗');return board;},
-    navigator:{clipboard:{writeText:async code=>{if(copyError)throw Error('blocked');calls.copies.push(code)}}}
-  });
-  await vm.runInContext('(async()=>{'+source+'})()',context);
-  // WebCrypto runs on the worker pool: wait for rendering, not one event-loop tick.
-  for (let i=0;i<200 && nodes.get('board-panel').attrs['aria-busy']==='true';i++) await new Promise(r=>setTimeout(r,5));
-  assert.notEqual(nodes.get('board-panel').attrs['aria-busy'],'true','board rendering timed out');
-  return {get:id=>nodes.get(id),calls,context,p};
+async function page({search='?game=snake',hash='',initial={name:'',code:'',pending:0},board={rows:[],own:null},flushError=false,loadError=false,copyError=false,delayCatalog=false}={}){
+ const nodes=new Map([...html.matchAll(/<[^>]+id="([^"]+)"[^>]*>/g)].map(m=>{const el=new Element(m[1]);el.hidden=/\bhidden\b/.test(m[0]);el.disabled=/\bdisabled\b/.test(m[0]);return [m[1],el]}));
+ const calls={save:0,flush:0,copies:[],loads:[]},p={...initial};let release;
+ const games=[{id:'snake',title:'へび',emoji:'🐍'},{id:'chaos-ultra-x',title:'カオス',emoji:'🌌'},{id:'online-demo',title:'demo',emoji:'🧪'}];
+ const catalogPromise=delayCatalog?new Promise(resolve=>{release=resolve}):Promise.resolve(games);
+ const context=vm.createContext({
+  ...view,RANKINGS,URLSearchParams,TextEncoder,crypto:webcrypto,console,
+  location:{search,hash,href:''},document:{title:'',getElementById:id=>nodes.get(id),createElement:()=>new Element()},
+  Option:function(text,value){this.textContent=text;this.value=value;},addEventListener(){},
+  fetch:async()=>({ok:true,json:()=>catalogPromise}),
+  profile:()=>({...p}),setProfile:(name,imported)=>{calls.save++;name=name.replace(/[\u0000-\u001f<>&"'`]/g,'').trim().slice(0,12);if(!name)throw Error('名前を入れてください');p.name=name;p.code=imported||p.code||code;return {persisted:true}},
+  flush:async()=>{calls.flush++;if(flushError)throw Error('記録を送れませんでした');p.pending=0},
+  load:async(game,metric)=>{calls.loads.push({game,metric});if(loadError)throw Error('通信失敗');return board;},
+  navigator:{clipboard:{writeText:async c=>{if(copyError)throw Error('blocked');calls.copies.push(c)}}}
+ });
+ const ready=vm.runInContext('(async()=>{'+source+';await catalogReady;})()',context);
+ const settle=async()=>{await ready;for(let i=0;i<200&&nodes.get('board-panel').attrs['aria-busy']==='true';i++)await new Promise(r=>setTimeout(r,5));assert.notEqual(nodes.get('board-panel').attrs['aria-busy'],'true');};
+ if(!delayCatalog)await settle();
+ return {get:id=>nodes.get(id),calls,context,p,settle,release:()=>release(games)};
 }
-test('ranking page: first-time player can find every ranking and register without revealing a code',async()=>{
-  const p=await page({search:''});
-  assert.equal(p.get('game-list').children.length,2);
-  assert.equal(p.get('settings').disabled,false);
-  assert.match(p.get('sync-status').textContent,/登録はいりません/);
-  p.get('name').value='こうちゃん';
-  await p.get('save').onclick();await new Promise(r=>setImmediate(r));
-  assert.equal(p.calls.save,1);assert.equal(p.calls.flush,1);
-  assert.match(p.get('status').textContent,/送信が完了/);
-  assert.equal(p.get('code-panel').hidden,true);
-  assert.equal(p.get('retry').hidden,true);
-  p.get('show-code').onclick();assert.equal(p.get('code').textContent,'b'.repeat(64));
-  await p.get('copy-code').onclick();assert.equal(p.calls.copies.length,1);
-  p.get('hide-code').onclick();assert.equal(p.get('code-panel').hidden,true);assert.equal(p.get('code').textContent,'');
+test('ranking gate: immediately prompt before catalog load, block empty names, Escape and navigation',async()=>{
+ const p=await page({delayCatalog:true});
+ assert.equal(p.get('name-dialog').open,true);assert.equal(p.get('ranking-content').hidden,true);
+ assert.equal(p.get('name').focused,true);assert.equal(p.get('settings').disabled,false);
+ assert.equal(p.get('save').disabled,true);assert.equal(p.get('close-profile').hidden,true);
+ let cancelled=false;p.get('name-dialog').listeners.cancel({preventDefault(){cancelled=true}});assert.equal(cancelled,true);
+ p.get('name').value='   ';p.get('name').oninput();assert.equal(p.get('save').disabled,true);
+ await p.get('save').onclick();assert.equal(p.get('name-dialog').open,true);assert.equal(p.calls.save,0);
+ p.get('name').value='<>';p.get('name').oninput();await p.get('save').onclick();assert.equal(p.get('ranking-content').hidden,true);
+ p.get('game-choice').value='chaos-ultra-x';p.get('game-choice').onchange();assert.equal(p.context.location.href,'');
+ p.release();await p.settle();assert.equal(p.calls.loads.length,0,'no ranking request before registering');
 });
-test('ranking page: direct game links show the authenticated own row, and preserve local test routing',async()=>{
-  const code='b'.repeat(64),player=createHash('sha256').update(code).digest('hex');
-  const p=await page({search:'?game=snake&server=localhost:8787',initial:{name:'こう',code,pending:0},board:{rows:[{player:'other',name:'こう',score:100},{player,name:'こう',score:100}],own:{name:'こう',score:100}}});
-  assert.equal(p.get('profile-panel').hidden,true);assert.equal(p.get('board-panel').hidden,false);
-  assert.equal(p.get('rows').children[0].className,'');assert.equal(p.get('rows').children[1].className,'is-you');
-  assert.equal(p.get('own').textContent,'100点');assert.match(p.get('own-rank').textContent,/2位/);
-  assert.match(p.get('profile-link').href,/server=localhost/);
-  p.get('game-choice').value='chaos-ultra-x';p.get('game-choice').onchange();
-  assert.match(p.context.location.href,/game=chaos-ultra-x&server=localhost/);
+test('ranking gate: valid name opens requested ranking, next visit skips prompt, rename preserves code',async()=>{
+ const player=createHash('sha256').update(code).digest('hex');
+ const p=await page({board:{rows:[{player:'other',name:'こう',score:100},{player,name:'こう',score:100}],own:{score:100}}});
+ assert.equal(p.calls.loads.length,0);p.get('name').value='こう';p.get('name').oninput();assert.equal(p.get('save').disabled,false);
+ await p.get('save').onclick();await p.settle();assert.equal(p.get('name-dialog').open,false);assert.equal(p.get('ranking-content').hidden,false);
+ assert.equal(p.get('rows').children[1].className,'is-you');assert.equal(p.get('own').textContent,'100点');
+ p.get('change-name').onclick();assert.equal(p.get('name-dialog').open,true);assert.equal(p.get('close-profile').hidden,false);
+ p.get('name').value='新しい名前';await p.get('save').onclick();await p.settle();assert.equal(p.p.code,code);assert.equal(p.p.name,'新しい名前');
+ const next=await page({initial:p.p});assert.equal(next.get('name-dialog').open,false);assert.equal(next.get('ranking-content').hidden,false);
+ assert(!html.includes('id="own-rank"'));assert(!html.includes('id="next-goal"'));assert(!html.includes('上位20'));
 });
-test('ranking page: failure keeps pending records visible; malformed imports do not change identity',async()=>{
-  const p=await page({search:'?return=snake',initial:{name:'こう',code:'b'.repeat(64),pending:2},flushError:true,copyError:true});
-  await new Promise(r=>setImmediate(r));
-  assert.equal(p.get('retry').hidden,false);
-  p.get('retry').onclick();await new Promise(r=>setImmediate(r));
-  assert.match(p.get('status').textContent,/送れませんでした/);assert.equal(p.p.pending,2);
-  p.get('import-code').value='broken';p.get('import').onclick();await new Promise(r=>setImmediate(r));
-  assert.match(p.get('status').textContent,/64文字/);assert.equal(p.calls.save,0);
-  assert.equal(p.get('save').disabled,false);
-  p.get('show-code').onclick();await p.get('copy-code').onclick();assert.match(p.get('copy-status').textContent,/長押し/);
+test('ranking gate: transport failure after valid registration does not lock player out',async()=>{
+ const p=await page({flushError:true});p.get('name').value='こう';await p.get('save').onclick();await p.settle();
+ assert.equal(p.get('name-dialog').open,false);assert.equal(p.get('ranking-content').hidden,false);assert.match(p.get('profile-feedback').textContent,/送れませんでした/);
 });
-test('ranking page: network failures show retry guidance without inventing a score',async()=>{
-  const p=await page({loadError:true});
-  assert.match(p.get('own').textContent,/読み込めません/);
-  assert.match(p.get('board-help').textContent,/もう一度/);
-  assert.equal(p.get('board-panel').attrs['aria-busy'],'false');
+test('ranking settings: malformed import keeps dialog open; transfer, copy and hiding remain usable',async()=>{
+ const p=await page({initial:named,copyError:true});p.get('change-name').onclick();
+ p.get('import-code').value='broken';await p.get('import').onclick();assert.match(p.get('status').textContent,/64文字/);assert.equal(p.get('name-dialog').open,true);assert.equal(p.calls.save,0);
+ p.get('show-code').onclick();assert.equal(p.get('code').textContent,code);await p.get('copy-code').onclick();assert.match(p.get('copy-status').textContent,/長押し/);
+ p.get('hide-code').onclick();assert.equal(p.get('code-panel').hidden,true);assert.equal(p.get('code').textContent,'');
+ p.get('import-code').value='a'.repeat(64);await p.get('import').onclick();assert.equal(p.p.code,'a'.repeat(64));assert.equal(p.get('name-dialog').open,false);
 });
-
-test('ranking page: registration anchor keeps the local API query before its fragment',async()=>{
-  const p=await page({search:'?server=localhost:8787'});
-  const target=new URL(p.get('setup-link').href,'http://127.0.0.1/kids-game/ranking/index.html');
-  assert.equal(target.searchParams.get('server'),'localhost:8787');
-  assert.equal(target.hash,'#profile-panel');
+test('ranking navigation: game switch and large play link retain safe local override; entry uses lobby',async()=>{
+ const p=await page({initial:named,search:'?game=snake&server=localhost:8787'});
+ assert.equal(p.get('play-link').href,'../games/snake/index.html?server=localhost%3A8787');
+ p.get('game-choice').value='chaos-ultra-x';p.get('game-choice').onchange();assert.match(p.context.location.href,/game=chaos-ultra-x&server=localhost/);
+ const old=await page({initial:named,search:'?return=snake&server=example.com'});assert.equal(old.get('play-link').href,'../games/snake/index.html');
+ assert.match(html,/<a id="play-link" class="play-cta" hidden>これを遊ぶ<\/a>/);
+ const bookmark=await page({initial:named,search:'',hash:'#profile-panel'});assert.equal(bookmark.get('name-dialog').open,true);
+});
+test('ranking records: empty and failed loads show clear states; metric change refreshes selected record',async()=>{
+ const p=await page({initial:named,search:'?game=chaos-ultra-x'});assert.equal(p.get('own').textContent,'まだ記録がありません');
+ p.get('metric').value='wave';p.get('metric').onchange();await p.settle();assert.equal(p.calls.loads.at(-1).metric,'wave');assert.equal(p.get('score-heading').textContent,'最高到達WAVE');
+ const failed=await page({initial:named,loadError:true});assert.match(failed.get('own').textContent,/読み込めません/);assert.match(failed.get('board-help').textContent,/もう一度/);
 });

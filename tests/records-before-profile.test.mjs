@@ -70,3 +70,17 @@ test("records: unavailable browser storage remains usable within the page", () =
   assert.equal(run("profile().pending"), 1);
   assert.equal(run('setProfile("テスト").persisted'), false);
 });
+
+test("records: renaming during an in-flight upload preserves the renamed pending record", async () => {
+  const p = pages(), run = p.boot();
+  run('record("snake", {score: 100}); setProfile("元の名前"); let oldFetch=fetch, release; fetch=async(...args)=>{await new Promise(resolve=>{release=resolve}); return oldFetch(...args)}');
+  const code=run('profile().code'), sending=run('flush()');
+  run('setProfile("新しい名前"); release()');
+  await sending;
+  assert.equal(run('profile().pending'),1,'old upload must not erase the new name');
+  assert.equal(JSON.parse(p.requests[0].body).name,'元の名前');
+  run('fetch=oldFetch');await run('flush()');
+  assert.equal(JSON.parse(p.requests[1].body).name,'新しい名前');
+  assert.equal(p.requests[1].headers.Authorization,'Bearer '+code);
+  assert.equal(run('profile().pending'),0);
+});
