@@ -3,63 +3,53 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ランキング・名前の設定 - とみよこゲームランド</title>
+  <title>ランキング - とみよこゲームランド</title>
   <link rel="icon" href="../assets/icon.png">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main>
-  <a class="back-link" href="../index.html">← ゲームランドへ</a>
-  <header>
-    <p class="eyebrow">TOMIYOKO GAME LAND</p>
-    <h1 id="page-title">🏆 ランキング・名前の設定</h1>
-    <p id="intro">名前を決めて、遊んで、みんなの記録に挑戦しよう！</p>
-  </header>
-  <nav class="page-links" aria-label="ランキングの案内"><a id="profile-link" hidden>👤 名前・記録の設定</a><a id="return-link" hidden>ゲームのランキングへ戻る</a><a id="play-link" class="primary-link" hidden>ゲームへ</a></nav>
-  <aside class="sync-card" aria-label="自分の登録と送信状況">
-    <strong id="player-name">名前を読み込み中…</strong>
-    <p id="sync-status" role="status" aria-live="polite"></p>
-    <a id="setup-link" hidden>名前を登録する →</a>
-  </aside>
-  <section id="profile-panel" aria-labelledby="profile-title">
-    <h2 id="profile-title">👤 ランキングに使う名前</h2>
-    <ol class="steps"><li><b>名前を登録</b><span>ニックネームでOK</span></li><li><b>ゲームで遊ぶ</b><span>最高記録を自動で送信</span></li><li><b>順位を見る</b><span>ゲームごとに比べよう</span></li></ol>
+  <div class="top-bar"><a class="back-link" href="../index.html">← ゲームランドへ</a><button id="change-name" class="small-button" hidden>名前を変更する</button></div>
+  <header><p class="eyebrow">TOMIYOKO GAME LAND</p><h1 id="page-title">🏆 ランキング</h1><p id="intro">ゲームを選んで、みんなの記録を見よう！</p></header>
+  <div id="ranking-content" hidden>
+    <aside class="sync-card" aria-label="自分の名前と送信状況"><strong id="player-name"></strong><p id="sync-status" role="status" aria-live="polite"></p><button id="retry" class="secondary" hidden>未送信の記録を再送</button></aside>
+    <p id="profile-feedback" role="status" aria-live="polite"></p>
+    <section id="game-picker" aria-labelledby="picker-title"><h2 id="picker-title">🏆 見たいゲームを選ぼう</h2><div id="game-list" class="game-list"></div></section>
+    <section id="board-panel" hidden aria-labelledby="board-title">
+      <h2 id="board-title">みんなのランキング</h2>
+      <label for="game-choice" class="game-control">別のランキングに移動<select id="game-choice"></select></label>
+      <label for="metric" class="metric-control"><span>比べる記録</span><select id="metric"></select></label>
+      <div class="own-card"><span>あなたの最高記録</span><strong id="own">読み込み中…</strong></div>
+      <div class="board-heading"><h3>みんなの記録</h3><button id="refresh" class="secondary">最新の記録を見る</button></div>
+      <p id="board-status" role="status" aria-live="polite"></p>
+      <div class="table-wrap"><table><caption class="visually-hidden">選んだゲームのランキング</caption><thead><tr><th scope="col">順位</th><th scope="col">名前</th><th id="score-heading" scope="col">記録</th></tr></thead><tbody id="rows"></tbody></table></div>
+      <p id="board-help" class="hint"></p>
+    </section>
+    <p id="record-note" class="footnote" hidden>ソロはゲーム画面で保存した記録、オンライン対戦はサーバーで集計した記録です。ゲームやモードごとに分けて比べます。</p>
+    <a id="play-link" class="play-cta" hidden>これを遊ぶ</a>
+  </div>
+  <noscript>ランキングを見るにはJavaScriptを有効にして、名前を入力してください。</noscript>
+</main>
+<dialog id="name-dialog" aria-labelledby="profile-title" aria-describedby="name-help">
+  <section id="profile-panel">
+    <div class="dialog-heading"><h2 id="profile-title">名前を入力してね</h2><button id="close-profile" class="small-button" hidden>閉じる</button></div>
+    <p id="name-help" class="hint">ランキングに表示するニックネームを決めよう。入力すると次に進めるよ。</p>
     <fieldset id="settings" disabled>
       <label for="name">みんなに表示する名前 <span class="optional">12文字まで</span></label>
-      <div class="name-entry"><input id="name" maxlength="12" autocomplete="nickname" placeholder="例：こうちゃん" aria-describedby="name-help"><button id="save">この名前で始める</button></div>
-      <p id="name-help" class="hint">名前を登録すると、このブラウザにある最高記録を送ります。その後は遊ぶだけで自動送信。同じ名前の人がいても、記録は別々です。</p>
-      <button id="retry" class="secondary" hidden>未送信の記録を再送</button>
+      <input id="name" maxlength="12" autocomplete="nickname" placeholder="例：こうちゃん" aria-describedby="name-help" autofocus>
+      <button id="save" class="name-submit" disabled>次へ</button>
       <p id="status" role="status" aria-live="polite"></p>
-      <details id="transfer-panel"><summary>📱 ほかの端末で自分の記録を使う</summary>
-        <p>① 今の端末でコードをコピー → ② 自分の別の端末でこのページを開く → ③ 同じ名前とコードを入れる。</p>
-        <p class="hint">コードは自分だけで保管してね。引き継ぐのはランキングの記録です。ゲーム途中の状態や所持品は移りません。</p>
+      <details id="transfer-panel"><summary>📱 ほかの端末の記録を使う・引継ぎ</summary>
+        <p>自分の別の端末でコピーしたコードと名前を入力すると、同じランキング記録を使えます。</p>
+        <p class="hint">コードは自分だけで保管してね。途中のゲームや所持品は移りません。別の人のコードを使うと登録先が切り替わります。</p>
         <button id="show-code" class="secondary">自分のコードを表示</button>
         <div id="code-panel" hidden><output id="code" aria-label="自分の引継ぎコード"></output><div class="button-row"><button id="copy-code">コードをコピー</button><button id="hide-code" class="secondary">コードを隠す</button></div></div>
         <p id="copy-status" role="status" aria-live="polite"></p>
-        <label for="import-code">別の端末でコピーしたコード</label>
-        <input id="import-code" autocomplete="off" spellcheck="false" maxlength="64" placeholder="ここにコードを貼り付ける" autocapitalize="none">
+        <label for="import-code">別の端末でコピーしたコード</label><input id="import-code" autocomplete="off" spellcheck="false" maxlength="64" placeholder="ここにコードを貼り付ける" autocapitalize="none">
         <button id="import">このコードの記録を使う</button>
-        <p class="hint">今とは別の人のコードを使うと、この端末のランキング登録先も切り替わります。</p>
       </details>
     </fieldset>
-    <noscript>名前と記録の設定にはJavaScriptを有効にしてください。</noscript>
   </section>
-  <section id="game-picker" aria-labelledby="picker-title">
-    <h2 id="picker-title">🏆 見たいゲームを選ぼう</h2>
-    <p class="hint">ゲームごとにランキングがあるよ。見るだけなら名前の登録はいりません。</p>
-    <div id="game-list" class="game-list"></div>
-  </section>
-  <section id="board-panel" hidden aria-labelledby="board-title">
-    <h2 id="board-title">みんなの記録</h2>
-    <div class="board-tools"><label for="game-choice">ゲームを切り替える<select id="game-choice"></select></label><label for="metric">比べる記録<select id="metric"></select></label></div>
-    <p id="metric-hint" class="hint"></p>
-    <div class="own-card" aria-labelledby="own-title"><span id="own-title">あなたの最高記録</span><strong id="own">読み込み中…</strong><span id="own-rank"></span><p id="next-goal"></p></div>
-    <div class="board-heading"><h3>🏅 上位20人</h3><button id="refresh" class="secondary">最新の記録を見る</button></div>
-    <p id="board-status" role="status" aria-live="polite"></p>
-    <div class="table-wrap"><table><caption class="visually-hidden">選んだゲーム・記録の上位20人</caption><thead><tr><th scope="col">順位</th><th scope="col">名前</th><th scope="col">記録</th></tr></thead><tbody id="rows"></tbody></table></div>
-    <p id="board-help" class="hint"></p>
-  </section>
-  <p id="record-note" class="footnote" hidden>ソロはゲーム画面で保存した自己記録、オンライン対戦はサーバーで集計した記録です。ゲームやモードごとに分けて比べます。接続テスト用デモにはランキングはありません。</p>
-</main>
+</dialog>
 <script type="module" src="page.mjs"></script>
 </body></html>
