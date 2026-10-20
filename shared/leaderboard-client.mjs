@@ -84,7 +84,7 @@ export function record(game, scores) {
 export async function flush() {
   if (flushing) return flushing;
   if (!data.name || !data.code) return;
-  const code = data.code;
+  const code = data.code, name = data.name;
   flushing = (async () => {
     for (const [game, scores] of Object.entries({ ...data.pending })) {
       const response = await fetch(`${API}/rankings/${game}`, {
@@ -93,13 +93,14 @@ export async function flush() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${code}`,
         },
-        body: JSON.stringify({ name: data.name, scores }),
+        body: JSON.stringify({ name, scores }),
         signal: AbortSignal.timeout(10000),
       });
       if (!response.ok)
         throw Error("記録を送れませんでした。後で「再送」を押してください。");
       if (
         data.code === code &&
+        data.name === name &&
         JSON.stringify(data.pending[game]) === JSON.stringify(scores)
       )
         delete data.pending[game];

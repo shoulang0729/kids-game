@@ -159,6 +159,8 @@ async function submit(action) {
     } else if (!profile().name) throw Error("名前を入力してね。");
     message("記録を送っています…");
     await flush();
+    // A rename during an older in-flight upload leaves the new name queued.
+    if (profile().pending) await flush();
     message(`記録の送信が完了しました。${persisted ? "次からは遊ぶだけで自動送信します。" : "このブラウザには保存できません。名前を変更するボタンから引継ぎコードを控えてください。"}`);
     if (game) void refresh();
   } catch (e) {
