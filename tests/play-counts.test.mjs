@@ -11,7 +11,7 @@ function client(store=new Map(),{fail=false,storageFails=false,search=''}={}){
  const ctx=vm.createContext(sb);vm.runInContext(source,ctx);return {store,requests,run:code=>vm.runInContext(code,ctx)};
 }
 test('play counts: policy excludes test demo and gives zero, sole leader or tied leaders',()=>{
- assert(!PLAY_GAMES.includes('online-demo'));assert.equal(PLAY_GAMES.length,10);
+ assert(!PLAY_GAMES.includes('online-demo'));assert.equal(PLAY_GAMES.length,11);
  assert.deepEqual(playSummary([]).leaders,[]);
  assert.deepEqual(playSummary([{game:'snake',plays:5},{game:'tap-circle',plays:5}]).leaders,['snake','tap-circle']);
  assert.equal(playSummary([{game:'snake',plays:5},{game:'tap-circle',plays:4}]).total,9);

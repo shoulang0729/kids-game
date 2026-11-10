@@ -30,6 +30,7 @@ GitHub Pages で公開しています：
 <!-- BEGIN GENERATED: rankings -->
 | ゲーム | 記録 |
 |---|---|
+| [星剣無双3D](https://shoulang0729.github.io/kids-game/ranking/index.html?game=starblade-3d) | ストーリークリア数・クリアしたチャレンジ |
 | [丸をタップ！](https://shoulang0729.github.io/kids-game/ranking/index.html?game=tap-circle) | 20秒の最高得点 |
 | [こうちゃんの3Dゲームセンター](https://shoulang0729.github.io/kids-game/ranking/index.html?game=kochan-3d-arcade) | 景品獲得数・景品の種類 |
 | [カオス世界大崩壊 ULTRA X INFINITE](https://shoulang0729.github.io/kids-game/ranking/index.html?game=chaos-ultra-x) | 最高撃破数・最高到達WAVE |
@@ -49,10 +50,11 @@ GitHub Pages で公開しています：
 ## 🕹️ ゲーム一覧
 
 <!-- BEGIN GENERATED: catalog -->
-公開トップページと同じ11件を、追加が新しい順から古い順に掲載しています（接続テスト用デモを含む）。
+公開トップページと同じ12件を、追加が新しい順から古い順に掲載しています（接続テスト用デモを含む）。
 
 | ゲーム | せつめい | 作った人 | フォルダ | 説明書 |
 |--------|----------|----------|----------|--------|
+| ⚔️ [星剣無双3D](https://shoulang0729.github.io/kids-game/games/starblade-3d/index.html) | 3Dの戦場で大軍を突破！３章18話・12種類のチャレンジ。剣・魔法・必殺技で王国を取りもどそう | ようちゃん | `games/starblade-3d/` | [説明書](https://shoulang0729.github.io/kids-game/wiki/starblade-3d.html) |
 | 🎯 [丸をタップ！](https://shoulang0729.github.io/kids-game/games/tap-circle/index.html) | 出てくる丸をタップ！20秒で何点とれるかな？最高記録に挑戦しよう | ようちゃん | `games/tap-circle/` | [説明書](https://shoulang0729.github.io/kids-game/wiki/tap-circle.html) |
 | 🕹️ [こうちゃんの3Dゲームセンター](https://shoulang0729.github.io/kids-game/games/kochan-3d-arcade/lobby.html) | 専用入口で全37種類から選ぼう！クレーン・立体スポーツ・レースなど。店内を歩いて探すこともできる | こうちゃん | `games/kochan-3d-arcade/` | [説明書](https://shoulang0729.github.io/kids-game/wiki/kochan-arcade.html) |
 | 🌌 [カオス世界大崩壊 ULTRA X INFINITE](https://shoulang0729.github.io/kids-game/games/chaos-ultra-x/index.html) | 20形態に進化！ブラックホール・トリプルボス・無限ドローン・巨大戦艦で生き残れ！ | ようちゃん | `games/chaos-ultra-x/` | [説明書](https://shoulang0729.github.io/kids-game/wiki/chaos-ultra-x.html) |
@@ -77,6 +79,7 @@ GitHub Pages で公開しています：
 kids-game/
 ├── index.html ← 入り口ページ（生成）
 ├── games/
+│   ├── starblade-3d/index.html ← 星剣無双3D
 │   ├── tap-circle/index.html ← 丸をタップ！
 │   ├── kochan-3d-arcade/lobby.html ← こうちゃんの3Dゲームセンター（店内はindex.html）
 │   ├── chaos-ultra-x/index.html ← カオス世界大崩壊 ULTRA X INFINITE
