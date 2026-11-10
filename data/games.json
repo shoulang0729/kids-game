@@ -1,5 +1,13 @@
 [
   {
+    "id": "starblade-3d",
+    "title": "星剣無双3D",
+    "emoji": "⚔️",
+    "description": "3Dの戦場で大軍を突破！３章18話・12種類のチャレンジ。剣・魔法・必殺技で王国を取りもどそう",
+    "author": "ようちゃん",
+    "manual": "starblade-3d"
+  },
+  {
     "id": "tap-circle",
     "title": "丸をタップ！",
     "emoji": "🎯",

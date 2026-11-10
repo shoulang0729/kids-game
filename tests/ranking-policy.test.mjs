@@ -14,5 +14,5 @@ test("rankings distinguish game-specific units, bounds and integer scores", () =
   assert.equal(validScores("snake", { constructor: 1 }), false);
   assert.equal(validScores("online-demo", { score: 1 }), false);
   assert.equal(validScores("snake", {}), false);
-  assert.equal(Object.keys(RANKINGS).length, 10);
+  assert.equal(Object.keys(RANKINGS).length, 11);
 });

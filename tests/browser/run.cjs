@@ -24,6 +24,43 @@ const server = http.createServer((req, res) => {
 // Test user-observable transitions first; state assertions check that actions really
 // change the game, instead of merely hiding a start screen.
 const scenarios = {
+  async 'starblade-3d'(p) {
+    await p.waitForFunction(() => !!globalThis.GamePlays && !!globalThis.GameRecords);
+    assert.equal(await p.locator('[data-challenge]').count(),12);
+    assert.equal(await p.locator('[data-chapter]').count(),3);
+    assert.equal(p.context().playEvents.size,0,'opening the map is not a play');
+    await p.click('#start');
+    assert.match(await p.locator('#dialog').innerText(),/案内役リナ/);
+    assert.equal(p.context().playEvents.size,0,'story dialog is not a play');
+    const counted=p.waitForResponse(r => r.url().endsWith('/plays/starblade-3d') && r.request().method()==='POST');
+    await p.click('#storyGo'); await counted;
+    await p.waitForFunction(() => typeof game!=='undefined' && game && running);
+    assert.ok(await p.locator('#arena').isVisible());
+    assert.equal(p.context().playCounts.get('starblade-3d'),1);
+    const yaw=await p.evaluate(() => renderer.yaw);
+    await p.click('#cameraRight');
+    assert.notEqual(await p.evaluate(() => renderer.yaw),yaw);
+    await p.click('#cameraReset');
+    assert.equal(await p.evaluate(() => renderer.yaw),0);
+    // A visible touch attack uses the same cooldown and damage rules as keyboard play.
+    await p.locator('#bombSkill').dispatchEvent('pointerdown');
+    assert.ok(await p.evaluate(() => game.bombCd>0));
+    await p.screenshot({path:path.join(results,'starblade-3d-'+p.viewportSize().width+'.png')});
+    await p.click('#pause'); await p.click('#retreat');
+    assert.ok(await p.locator('#mapScreen').isVisible());
+    await p.evaluate(() => { selectedChallenge=-1;selected=0;launchBattle();finish(true); });
+    await p.click('#returnMap');
+    assert.equal(await p.evaluate(() => progress),1);
+    assert.ok(await p.evaluate(() => GameRecords.profile().pending>0));
+    await p.reload();
+    assert.equal(await p.evaluate(() => progress),1);
+    await p.locator('[data-challenge="0"]').click();
+    assert.ok(await p.locator('#start').isEnabled());
+    await p.locator('[data-challenge="11"]').click();
+    assert.ok(await p.locator('#start').isDisabled());
+    assert.ok(await p.evaluate(() => document.documentElement.scrollWidth<=innerWidth));
+  },
+
   async ranking(p) {
     const base = new URL('../', p.url()).href;
     await p.waitForFunction(() => document.querySelector('#name-dialog').open);

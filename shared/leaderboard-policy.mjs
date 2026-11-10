@@ -6,6 +6,10 @@ const metric = (label, unit, max, integer = true) => ({
   integer,
 });
 export const RANKINGS = {
+  "starblade-3d": {
+    story: metric("ストーリークリア数", "話", 18),
+    challenges: metric("クリアしたチャレンジ", "種類", 12),
+  },
   snake: { score: metric("最高得点", "点", 10000000) },
   "tap-circle": { score: metric("20秒の最高得点", "点", 100000) },
   "chaos-ultra-x": {
